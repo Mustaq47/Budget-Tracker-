@@ -1,0 +1,624 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2d6a10;--g1:#3b8a18;--g2:#4aab1f;--gs:#e8f5e0;--gst:#2d6a10;
+  --red:#c0392b;--reds:#fdecea;--redt:#7b241c;
+  --amb:#b7770d;--ambs:#fef9ec;--ambt:#7d5a09;
+  --blu:#1a5fa8;--blus:#eaf2fc;--blut:#0e3d6b;
+  --pur:#5b4ab5;--purs:#eeedfd;--purt:#3b2e80;
+}
+body{font-family:var(--font-sans,sans-serif);background:var(--color-background-tertiary);color:var(--color-text-primary)}
+
+.app-shell{max-width:390px;margin:0 auto;background:var(--color-background-primary);border-radius:20px;border:0.5px solid var(--color-border-secondary);overflow:hidden;min-height:720px;display:flex;flex-direction:column}
+
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+
+.status-bar{background:#1a2a12;padding:10px 16px 6px;display:flex;justify-content:space-between;align-items:center}
+.status-time{color:#a8d58a;font-size:13px;font-weight:500}
+.status-icons{color:#a8d58a;font-size:11px}
+
+.top-pill{background:#1e3a10;margin:12px 14px 0;border-radius:40px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.pill-label{color:#7db85a;font-size:13px}
+.pill-amount{font-size:22px;font-weight:500;color:#a8d878}
+.pill-amount.danger{color:#e74c3c}
+.pill-icon{color:#7db85a;font-size:18px;cursor:pointer}
+
+.budget-tabs{display:flex;gap:8px;padding:10px 14px 0;overflow-x:auto}
+.budget-tab{flex-shrink:0;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary)}
+.budget-tab.active{background:#1e3a10;color:#a8d878;border-color:#2d6a10}
+
+.entries-area{flex:1;padding:10px 14px;overflow-y:auto;min-height:280px}
+.day-header{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px}
+.entry-row{display:flex;align-items:center;background:var(--color-background-secondary);border-radius:12px;padding:11px 14px;margin-bottom:6px;cursor:pointer;border:0.5px solid transparent;transition:border-color .15s}
+.entry-row:hover{border-color:var(--color-border-secondary)}
+.entry-row.swiped{background:var(--reds)}
+.entry-dot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
+.entry-info{flex:1}
+.entry-label{font-size:14px;font-weight:500}
+.entry-meta{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.entry-amount{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.entry-actions{display:flex;gap:6px;margin-left:8px}
+.ea-btn{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary)}
+.ea-btn.del{background:var(--reds);border-color:var(--red);color:var(--red)}
+.ea-btn.edit{background:var(--blus);border-color:var(--blu);color:var(--blu)}
+
+.day-total-row{display:flex;justify-content:flex-end;padding:4px 0 10px;font-size:12px;color:var(--color-text-secondary)}
+.day-total-row strong{color:var(--color-text-primary);margin-left:4px}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--color-text-secondary);text-align:center;gap:8px}
+.empty-icon{width:48px;height:48px;border-radius:50%;background:var(--gs);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--gst)}
+.empty-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.empty-sub{font-size:13px;line-height:1.5}
+
+.running-sum{background:#1e3a10;border-radius:12px;padding:10px 14px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center}
+.rs-label{font-size:12px;color:#7db85a}
+.rs-amount{font-size:18px;font-weight:500;color:#a8d878}
+.rs-items{font-size:11px;color:#6aab44}
+
+.ai-card{margin:0 14px 8px;border-radius:12px;padding:10px 14px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary)}
+.ai-header{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.ai-chip{font-size:10px;background:var(--purs);color:var(--purt);border-radius:20px;padding:2px 8px;font-weight:500}
+.ai-text{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.ai-highlight{color:var(--color-text-primary);font-weight:500}
+
+.keypad-area{background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary);padding:12px 14px 16px}
+.keypad-display{font-size:28px;font-weight:500;text-align:right;padding:8px 0 10px;min-height:48px;color:var(--color-text-primary);letter-spacing:-0.5px}
+.keypad-display.has-val{color:var(--g1)}
+.kp-tag-row{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
+.kp-tag{flex-shrink:0;font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .1s}
+.kp-tag.sel{background:#1e3a10;color:#a8d878;border-color:#2d6a10}
+.kp-note{width:100%;border:none;background:transparent;font-size:13px;color:var(--color-text-secondary);padding:0;outline:none;margin-bottom:8px;font-family:inherit}
+.kp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kp-btn{height:52px;border-radius:12px;border:none;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);font-size:20px;font-weight:500;cursor:pointer;color:var(--color-text-primary);transition:background .1s}
+.kp-btn:active{background:var(--color-background-secondary)}
+.kp-del{background:var(--color-background-secondary)}
+.kp-confirm{background:#1e3a10;color:#a8d878;border-color:#2d6a10;grid-row:span 2}
+.kp-confirm:active{background:#163208}
+
+.bottom-nav{display:flex;background:var(--color-background-primary);border-top:0.5px solid var(--color-border-tertiary);padding:8px 0 10px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
+.nav-icon{font-size:18px;color:var(--color-text-secondary)}
+.nav-label{font-size:10px;color:var(--color-text-secondary)}
+.nav-item.active .nav-icon{color:#3b8a18}
+.nav-item.active .nav-label{color:#3b8a18;font-weight:500}
+
+.screen-header{display:flex;align-items:center;padding:14px 16px 10px;gap:10px}
+.sh-back{width:32px;height:32px;border-radius:50%;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--color-text-secondary)}
+.sh-title{font-size:17px;font-weight:500;flex:1}
+.sh-action{font-size:13px;color:#3b8a18;cursor:pointer;font-weight:500}
+
+.budget-card{margin:0 14px 12px;border-radius:16px;padding:16px;background:#1e3a10}
+.bc-spent{font-size:36px;font-weight:500;color:#a8d878;text-align:center;margin-bottom:2px}
+.bc-label{font-size:12px;color:#6aab44;text-align:center;margin-bottom:12px}
+.bc-bar-bg{background:#142408;border-radius:10px;height:6px;margin-bottom:10px}
+.bc-bar-fill{height:6px;border-radius:10px;background:#7db85a;transition:width .3s}
+.bc-bar-fill.warn{background:#e8a020}
+.bc-bar-fill.over{background:#e74c3c}
+.bc-meta{display:flex;justify-content:space-between;align-items:center}
+.bc-meta-item{text-align:center}
+.bc-meta-val{font-size:15px;font-weight:500;color:#c8e8a0}
+.bc-meta-lbl{font-size:10px;color:#6aab44}
+
+.budget-actions{display:flex;gap:8px;margin:0 14px 12px}
+.ba-btn{flex:1;padding:10px;border-radius:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;border:0.5px solid var(--color-border-secondary)}
+.ba-btn.primary{background:#1e3a10;color:#a8d878;border-color:#2d6a10}
+.ba-btn.secondary{background:var(--color-background-secondary);color:var(--color-text-primary)}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 14px 12px}
+.stat-cell{background:var(--color-background-secondary);border-radius:12px;padding:10px;text-align:center;border:0.5px solid var(--color-border-tertiary)}
+.stat-val{font-size:18px;font-weight:500}
+.stat-lbl{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+
+.insight-list{margin:0 14px;display:flex;flex-direction:column;gap:8px}
+.insight-item{border-radius:12px;padding:12px 14px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary)}
+.insight-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.insight-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.insight-title{font-size:13px;font-weight:500}
+.insight-body{font-size:12px;color:var(--color-text-secondary);line-height:1.5;padding-left:36px}
+
+.settings-section{margin:0 14px 16px}
+.settings-label{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding:0 2px}
+.settings-row{display:flex;align-items:center;padding:12px 14px;background:var(--color-background-secondary);border-radius:12px;margin-bottom:1px;cursor:pointer;gap:10px}
+.settings-row:first-of-type{border-radius:12px 12px 4px 4px}
+.settings-row:last-of-type{border-radius:4px 4px 12px 12px}
+.sr-icon{font-size:16px;width:22px;text-align:center;color:var(--color-text-secondary)}
+.sr-label{flex:1;font-size:14px}
+.sr-value{font-size:13px;color:var(--color-text-secondary)}
+.sr-toggle{width:36px;height:20px;border-radius:10px;background:var(--color-border-secondary);position:relative;cursor:pointer;transition:background .2s}
+.sr-toggle.on{background:#2d6a10}
+.sr-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.sr-toggle.on::after{left:18px}
+
+.modal-overlay{min-height:200px;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;border-radius:0 0 20px 20px}
+.modal-sheet{background:var(--color-background-primary);border-radius:16px 16px 0 0;padding:16px;width:100%}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--color-border-secondary);margin:0 auto 14px}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:14px}
+.modal-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.modal-input-label{font-size:13px;color:var(--color-text-secondary);width:70px;flex-shrink:0}
+.modal-input{flex:1;padding:8px 12px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);font-size:14px;color:var(--color-text-primary);font-family:inherit;outline:none}
+.modal-actions{display:flex;gap:8px;margin-top:14px}
+.modal-btn{flex:1;padding:11px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.modal-btn.confirm{background:#1e3a10;color:#a8d878;border-color:#2d6a10}
+
+.recurring-card{margin:0 14px 8px;border-radius:12px;padding:12px 14px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:10px}
+.rc-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.rc-info{flex:1}
+.rc-name{font-size:14px;font-weight:500}
+.rc-date{font-size:11px;color:var(--color-text-secondary)}
+.rc-amount{font-size:15px;font-weight:500;color:var(--red)}
+
+.add-btn{margin:0 14px 8px;padding:12px;border-radius:12px;background:#1e3a10;color:#a8d878;text-align:center;font-size:14px;font-weight:500;cursor:pointer;border:none;width:calc(100%-28px)}
+</style>
+
+<div style="padding:16px 0">
+<div class="app-shell" id="appShell">
+
+  <div class="screen active" id="screen-home">
+    <div class="status-bar">
+      <span class="status-time">11:46</span>
+      <span class="status-icons">4G  47%</span>
+    </div>
+    <div class="top-pill" onclick="goTo('screen-budget')">
+      <span class="pill-label">For today</span>
+      <span class="pill-amount" id="pillAmount">14.29</span>
+      <span class="pill-icon" onclick="event.stopPropagation();goTo('screen-settings')">&#9881;</span>
+    </div>
+    <div class="budget-tabs">
+      <div class="budget-tab active" onclick="switchBudget(this,'Personal')">Personal</div>
+      <div class="budget-tab" onclick="switchBudget(this,'Trip')">Trip</div>
+      <div class="budget-tab" onclick="switchBudget(this,'Work')">Work</div>
+      <div class="budget-tab" onclick="showAddBudgetModal()">+ New</div>
+    </div>
+    <div id="runningSum" class="running-sum" style="margin-top:10px">
+      <div><div class="rs-label">Today so far</div><div class="rs-items" id="rsSub">0 entries</div></div>
+      <div class="rs-amount" id="rsAmount">0.00</div>
+    </div>
+    <div class="ai-card" id="aiCard">
+      <div class="ai-header"><span style="font-size:14px;color:var(--pur)">&#10024;</span><span class="ai-chip">AI insight</span></div>
+      <div class="ai-text" id="aiText">Add your first expense to get personalised insights.</div>
+    </div>
+    <div class="entries-area" id="entriesArea"></div>
+    <div class="keypad-area">
+      <div class="keypad-display" id="kpDisplay">0</div>
+      <div class="kp-tag-row" id="tagRow">
+        <div class="kp-tag sel" onclick="selTag(this,'Food')">Food</div>
+        <div class="kp-tag" onclick="selTag(this,'Transport')">Transport</div>
+        <div class="kp-tag" onclick="selTag(this,'Coffee')">Coffee</div>
+        <div class="kp-tag" onclick="selTag(this,'Shopping')">Shopping</div>
+        <div class="kp-tag" onclick="selTag(this,'Other')">Other</div>
+      </div>
+      <input class="kp-note" id="kpNote" placeholder="Add a note (optional)" />
+      <div class="kp-grid">
+        <button class="kp-btn" onclick="kpPress('7')">7</button>
+        <button class="kp-btn" onclick="kpPress('8')">8</button>
+        <button class="kp-btn" onclick="kpPress('9')">9</button>
+        <button class="kp-btn kp-del" onclick="kpDel()">&#9003;</button>
+        <button class="kp-btn" onclick="kpPress('4')">4</button>
+        <button class="kp-btn" onclick="kpPress('5')">5</button>
+        <button class="kp-btn" onclick="kpPress('6')">6</button>
+        <button class="kp-btn kp-confirm" onclick="kpConfirm()">&#10003;</button>
+        <button class="kp-btn" onclick="kpPress('1')">1</button>
+        <button class="kp-btn" onclick="kpPress('2')">2</button>
+        <button class="kp-btn" onclick="kpPress('3')">3</button>
+        <button class="kp-btn" onclick="kpPress('0')">0</button>
+        <button class="kp-btn" onclick="kpPress('.')">.</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="goTo('screen-home')"><div class="nav-icon">&#127968;</div><div class="nav-label">Home</div></div>
+      <div class="nav-item" onclick="goTo('screen-budget')"><div class="nav-icon">&#128200;</div><div class="nav-label">Budget</div></div>
+      <div class="nav-item" onclick="goTo('screen-insights')"><div class="nav-icon">&#10024;</div><div class="nav-label">Insights</div></div>
+      <div class="nav-item" onclick="goTo('screen-recurring')"><div class="nav-icon">&#128260;</div><div class="nav-label">Recurring</div></div>
+      <div class="nav-item" onclick="goTo('screen-settings')"><div class="nav-icon">&#9881;</div><div class="nav-label">Settings</div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-budget">
+    <div class="status-bar"><span class="status-time">11:46</span><span class="status-icons">4G  47%</span></div>
+    <div class="screen-header">
+      <div class="sh-back" onclick="goTo('screen-home')">&#8592;</div>
+      <div class="sh-title">Budget</div>
+      <div class="sh-action" onclick="showEditBudgetModal()">Edit</div>
+    </div>
+    <div class="budget-card">
+      <div class="bc-spent" id="bcSpent">0.00</div>
+      <div class="bc-label">spent of 100</div>
+      <div class="bc-bar-bg"><div class="bc-bar-fill" id="bcBar" style="width:0%"></div></div>
+      <div class="bc-meta">
+        <div class="bc-meta-item"><div class="bc-meta-val" id="bcLeft">100.00</div><div class="bc-meta-lbl">remaining</div></div>
+        <div class="bc-meta-item"><div class="bc-meta-val">7</div><div class="bc-meta-lbl">days left</div></div>
+        <div class="bc-meta-item"><div class="bc-meta-val" id="bcPerDay">14.29</div><div class="bc-meta-lbl">per day</div></div>
+      </div>
+    </div>
+    <div class="budget-actions">
+      <div class="ba-btn primary" onclick="showAddFundsModal()">+ Add funds</div>
+      <div class="ba-btn secondary" onclick="showEditBudgetModal()">Change budget</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-val" id="stTotal">0</div><div class="stat-lbl">entries</div></div>
+      <div class="stat-cell"><div class="stat-val" id="stAvg">0.00</div><div class="stat-lbl">avg/entry</div></div>
+      <div class="stat-cell"><div class="stat-val" id="stDays">0</div><div class="stat-lbl">days used</div></div>
+    </div>
+    <div class="entries-area" id="budgetEntriesArea" style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px"></div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('screen-home')"><div class="nav-icon">&#127968;</div><div class="nav-label">Home</div></div>
+      <div class="nav-item active"><div class="nav-icon">&#128200;</div><div class="nav-label">Budget</div></div>
+      <div class="nav-item" onclick="goTo('screen-insights')"><div class="nav-icon">&#10024;</div><div class="nav-label">Insights</div></div>
+      <div class="nav-item" onclick="goTo('screen-recurring')"><div class="nav-icon">&#128260;</div><div class="nav-label">Recurring</div></div>
+      <div class="nav-item" onclick="goTo('screen-settings')"><div class="nav-icon">&#9881;</div><div class="nav-label">Settings</div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-insights">
+    <div class="status-bar"><span class="status-time">11:46</span><span class="status-icons">4G  47%</span></div>
+    <div class="screen-header">
+      <div class="sh-back" onclick="goTo('screen-home')">&#8592;</div>
+      <div class="sh-title">AI insights</div>
+    </div>
+    <div style="margin:0 14px 12px;height:160px;border-radius:14px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);padding:14px;display:flex;flex-direction:column;justify-content:space-between">
+      <div style="font-size:12px;color:var(--color-text-secondary)">Spending this week</div>
+      <canvas id="sparkChart" height="100"></canvas>
+    </div>
+    <div class="insight-list" id="insightList"></div>
+    <div style="margin:12px 14px">
+      <button style="width:100%;padding:12px;border-radius:12px;background:#1e3a10;color:#a8d878;border:none;font-size:14px;font-weight:500;cursor:pointer" onclick="sendPrompt('Give me more detailed AI spending analysis and tips for Budtrack')">Ask AI for full analysis &#8599;</button>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('screen-home')"><div class="nav-icon">&#127968;</div><div class="nav-label">Home</div></div>
+      <div class="nav-item" onclick="goTo('screen-budget')"><div class="nav-icon">&#128200;</div><div class="nav-label">Budget</div></div>
+      <div class="nav-item active"><div class="nav-icon">&#10024;</div><div class="nav-label">Insights</div></div>
+      <div class="nav-item" onclick="goTo('screen-recurring')"><div class="nav-icon">&#128260;</div><div class="nav-label">Recurring</div></div>
+      <div class="nav-item" onclick="goTo('screen-settings')"><div class="nav-icon">&#9881;</div><div class="nav-label">Settings</div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-recurring">
+    <div class="status-bar"><span class="status-time">11:46</span><span class="status-icons">4G  47%</span></div>
+    <div class="screen-header">
+      <div class="sh-back" onclick="goTo('screen-home')">&#8592;</div>
+      <div class="sh-title">Recurring expenses</div>
+    </div>
+    <div style="padding:0 14px 8px;font-size:12px;color:var(--color-text-secondary)">Auto-deducted each period. Tap to toggle.</div>
+    <div id="recurringList"></div>
+    <button class="add-btn" style="margin-top:4px;display:block;width:calc(100% - 28px)" onclick="showAddRecurringModal()">+ Add recurring expense</button>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('screen-home')"><div class="nav-icon">&#127968;</div><div class="nav-label">Home</div></div>
+      <div class="nav-item" onclick="goTo('screen-budget')"><div class="nav-icon">&#128200;</div><div class="nav-label">Budget</div></div>
+      <div class="nav-item" onclick="goTo('screen-insights')"><div class="nav-icon">&#10024;</div><div class="nav-label">Insights</div></div>
+      <div class="nav-item active"><div class="nav-icon">&#128260;</div><div class="nav-label">Recurring</div></div>
+      <div class="nav-item" onclick="goTo('screen-settings')"><div class="nav-icon">&#9881;</div><div class="nav-label">Settings</div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-settings">
+    <div class="status-bar"><span class="status-time">11:46</span><span class="status-icons">4G  47%</span></div>
+    <div class="screen-header">
+      <div class="sh-back" onclick="goTo('screen-home')">&#8592;</div>
+      <div class="sh-title">Settings</div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Preferences</div>
+      <div class="settings-row"><span class="sr-icon">&#127765;</span><span class="sr-label">Theme</span><span class="sr-value">Dark</span></div>
+      <div class="settings-row"><span class="sr-icon">&#127760;</span><span class="sr-label">Language</span><span class="sr-value">English</span></div>
+      <div class="settings-row"><span class="sr-icon">&#128178;</span><span class="sr-label">Currency</span><span class="sr-value">INR &#8377;</span></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Notifications</div>
+      <div class="settings-row"><span class="sr-icon">&#128276;</span><span class="sr-label">Daily reminder (9 pm)</span><div class="sr-toggle on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="settings-row"><span class="sr-icon">&#9888;</span><span class="sr-label">Budget 75% alert</span><div class="sr-toggle on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="settings-row"><span class="sr-icon">&#128203;</span><span class="sr-label">Period summary</span><div class="sr-toggle" onclick="this.classList.toggle('on')"></div></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Data</div>
+      <div class="settings-row"><span class="sr-icon">&#9729;</span><span class="sr-label">Cloud backup</span><div class="sr-toggle on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="settings-row" onclick="exportCSV()"><span class="sr-icon">&#8615;</span><span class="sr-label">Export to CSV</span><span class="sr-value">&#8250;</span></div>
+      <div class="settings-row" onclick="clearData()"><span class="sr-icon" style="color:var(--red)">&#128465;</span><span class="sr-label" style="color:var(--red)">Clear all data</span></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">About</div>
+      <div class="settings-row"><span class="sr-icon">&#8505;</span><span class="sr-label">Version</span><span class="sr-value">5.0.0</span></div>
+      <div class="settings-row"><span class="sr-icon">&#11088;</span><span class="sr-label">Rate the app</span><span class="sr-value">&#8250;</span></div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('screen-home')"><div class="nav-icon">&#127968;</div><div class="nav-label">Home</div></div>
+      <div class="nav-item" onclick="goTo('screen-budget')"><div class="nav-icon">&#128200;</div><div class="nav-label">Budget</div></div>
+      <div class="nav-item" onclick="goTo('screen-insights')"><div class="nav-icon">&#10024;</div><div class="nav-label">Insights</div></div>
+      <div class="nav-item" onclick="goTo('screen-recurring')"><div class="nav-icon">&#128260;</div><div class="nav-label">Recurring</div></div>
+      <div class="nav-item active"><div class="nav-icon">&#9881;</div><div class="nav-label">Settings</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="modalContainer"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+var state={
+  entries:[],
+  budget:100,
+  kpVal:'',
+  selTag:'Food',
+  recurring:[
+    {id:1,name:'Rent',amount:8000,day:1,icon:'&#127968;',color:'#e74c3c',active:true},
+    {id:2,name:'Netflix',amount:199,day:10,icon:'&#127909;',color:'#e74c3c',active:true},
+    {id:3,name:'Gym',amount:500,day:5,icon:'&#127947;',color:'#1a5fa8',active:false}
+  ],
+  budgets:['Personal','Trip','Work'],
+  activeBudget:'Personal',
+  sparkChart:null
+};
+
+var TAG_COLORS={Food:'#2d6a10',Transport:'#1a5fa8',Coffee:'#7d4a00',Shopping:'#5b4ab5',Other:'#5f5e5a'};
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-budget')renderBudgetScreen();
+  if(id==='screen-insights')renderInsights();
+  if(id==='screen-recurring')renderRecurring();
+  closeModal();
+}
+
+function goHome(){goTo('screen-home');}
+
+function kpPress(v){
+  if(v==='.'&&state.kpVal.includes('.'))return;
+  if(state.kpVal==='0'&&v!=='.')state.kpVal='';
+  if(state.kpVal.length>=9)return;
+  state.kpVal+=v;
+  updateDisplay();
+}
+function kpDel(){state.kpVal=state.kpVal.slice(0,-1);updateDisplay();}
+function updateDisplay(){
+  var d=document.getElementById('kpDisplay');
+  d.textContent=state.kpVal||'0';
+  d.className='keypad-display'+(state.kpVal?' has-val':'');
+}
+function kpConfirm(){
+  var val=parseFloat(state.kpVal);
+  if(!val||val<=0)return;
+  var note=document.getElementById('kpNote').value.trim();
+  var now=new Date();
+  state.entries.push({id:Date.now(),amount:val,tag:state.selTag,note:note||state.selTag,time:now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),date:'Today'});
+  state.kpVal='';
+  document.getElementById('kpNote').value='';
+  updateDisplay();
+  renderEntries();
+  updatePill();
+  updateRunningSum();
+  updateAI();
+}
+
+function selTag(el,tag){
+  document.querySelectorAll('.kp-tag').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  state.selTag=tag;
+}
+
+function switchBudget(el,name){
+  document.querySelectorAll('.budget-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  state.activeBudget=name;
+}
+
+function updatePill(){
+  var spent=state.entries.reduce((s,e)=>s+e.amount,0);
+  var left=Math.max(0,state.budget-spent);
+  var d=document.getElementById('pillAmount');
+  d.textContent=left.toFixed(2);
+  d.className='pill-amount'+(left<=0?' danger':'');
+  document.getElementById('bcLeft').textContent=left.toFixed(2);
+  document.getElementById('bcSpent').textContent=spent.toFixed(2);
+  var pct=Math.min(100,(spent/state.budget)*100);
+  var bar=document.getElementById('bcBar');
+  bar.style.width=pct.toFixed(0)+'%';
+  bar.className='bc-bar-fill'+(pct>=100?' over':pct>=75?' warn':'');
+  document.getElementById('bcPerDay').textContent=(left/7).toFixed(2);
+}
+
+function updateRunningSum(){
+  var today=state.entries.filter(e=>e.date==='Today');
+  var total=today.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('rsAmount').textContent=total.toFixed(2);
+  document.getElementById('rsSub').textContent=today.length+' entr'+(today.length===1?'y':'ies');
+}
+
+function updateAI(){
+  var entries=state.entries;
+  if(!entries.length){document.getElementById('aiText').innerHTML='Add your first expense to get personalised insights.';return;}
+  var total=entries.reduce((s,e)=>s+e.amount,0);
+  var cats={};
+  entries.forEach(e=>{cats[e.tag]=(cats[e.tag]||0)+e.amount;});
+  var top=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  var left=Math.max(0,state.budget-total);
+  var msgs=[];
+  if(top)msgs.push('<span class="ai-highlight">'+top[0]+'</span> is your biggest spend today (&#8377;'+top[1].toFixed(0)+').');
+  if(left<state.budget*0.25)msgs.push('You have used <span class="ai-highlight">'+((total/state.budget)*100).toFixed(0)+'%</span> of your budget. Consider slowing down.');
+  else msgs.push('On track — <span class="ai-highlight">&#8377;'+left.toFixed(0)+'</span> left for '+7+' days.');
+  if(entries.length>=3)msgs.push('Avg spend per entry: <span class="ai-highlight">&#8377;'+(total/entries.length).toFixed(0)+'</span>.');
+  document.getElementById('aiText').innerHTML=msgs.join(' ');
+}
+
+function renderEntries(){
+  var el=document.getElementById('entriesArea');
+  if(!state.entries.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#127881;</div><div class="empty-title">Nothing spent today</div><div class="empty-sub">Tap the keypad to log your first expense</div></div>';
+    return;
+  }
+  var html='<div class="day-header">Today</div>';
+  state.entries.forEach(function(e){
+    var col=TAG_COLORS[e.tag]||'#888';
+    html+='<div class="entry-row" id="erow-'+e.id+'">';
+    html+='<div class="entry-dot" style="background:'+col+'"></div>';
+    html+='<div class="entry-info"><div class="entry-label">'+e.note+'</div><div class="entry-meta">'+e.tag+' &middot; '+e.time+'</div></div>';
+    html+='<div class="entry-amount">&#8377;'+e.amount.toFixed(2)+'</div>';
+    html+='<div class="entry-actions">';
+    html+='<div class="ea-btn edit" onclick="editEntry('+e.id+')">&#9998;</div>';
+    html+='<div class="ea-btn del" onclick="deleteEntry('+e.id+')">&#10005;</div>';
+    html+='</div></div>';
+  });
+  var total=state.entries.reduce((s,e)=>s+e.amount,0);
+  html+='<div class="day-total-row">Day total: <strong>&#8377;'+total.toFixed(2)+'</strong></div>';
+  el.innerHTML=html;
+}
+
+function deleteEntry(id){
+  var row=document.getElementById('erow-'+id);
+  if(row){row.style.opacity='0';row.style.transition='opacity .2s';setTimeout(function(){
+    state.entries=state.entries.filter(e=>e.id!==id);
+    renderEntries();updatePill();updateRunningSum();updateAI();
+  },200);}
+}
+
+function editEntry(id){
+  var e=state.entries.find(x=>x.id===id);
+  if(!e)return;
+  showModal('<div class="modal-handle"></div><div class="modal-title">Edit entry</div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Amount</span><input class="modal-input" id="editAmt" type="number" value="'+e.amount+'"/></div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Note</span><input class="modal-input" id="editNote" value="'+e.note+'"/></div>'+
+    '<div class="modal-actions"><button class="modal-btn" onclick="closeModal()">Cancel</button><button class="modal-btn confirm" onclick="saveEdit('+id+')">Save</button></div>');
+}
+
+function saveEdit(id){
+  var amt=parseFloat(document.getElementById('editAmt').value);
+  var note=document.getElementById('editNote').value.trim();
+  if(!amt||amt<=0){closeModal();return;}
+  state.entries=state.entries.map(e=>e.id===id?{...e,amount:amt,note:note||e.note}:e);
+  closeModal();renderEntries();updatePill();updateRunningSum();updateAI();
+}
+
+function renderBudgetScreen(){
+  updatePill();
+  var ents=state.entries;
+  document.getElementById('stTotal').textContent=ents.length;
+  document.getElementById('stAvg').textContent=ents.length?(ents.reduce((s,e)=>s+e.amount,0)/ents.length).toFixed(2):'0.00';
+  document.getElementById('stDays').textContent=ents.length?'1':'0';
+  var el=document.getElementById('budgetEntriesArea');
+  if(!ents.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128200;</div><div class="empty-title">No entries yet</div><div class="empty-sub">Start logging to track your progress</div></div>';return;}
+  var html='<div class="day-header" style="padding:0 0 6px">All entries</div>';
+  ents.forEach(function(e){
+    var col=TAG_COLORS[e.tag]||'#888';
+    html+='<div class="entry-row"><div class="entry-dot" style="background:'+col+'"></div><div class="entry-info"><div class="entry-label">'+e.note+'</div><div class="entry-meta">'+e.tag+' &middot; '+e.time+'</div></div><div class="entry-amount">&#8377;'+e.amount.toFixed(2)+'</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+function renderInsights(){
+  var ctx=document.getElementById('sparkChart');
+  if(!ctx)return;
+  var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var vals=[45,62,28,90,55,33,state.entries.reduce((s,e)=>s+e.amount,0)||14];
+  if(state.sparkChart)state.sparkChart.destroy();
+  state.sparkChart=new Chart(ctx,{type:'bar',data:{labels:days,datasets:[{data:vals,backgroundColor:vals.map((v,i)=>i===6?'#4aab1f':'#2d5a1a'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '&#8377;'+c.raw;}}}},scales:{x:{grid:{display:false},ticks:{color:'#7db85a',font:{size:10}}},y:{display:false}}}});
+  var cats={};state.entries.forEach(e=>{cats[e.tag]=(cats[e.tag]||0)+e.amount;});
+  var total=state.entries.reduce((s,e)=>s+e.amount,0);
+  var insights=[
+    {icon:'&#127828;',color:'#e8f5e0',title:'Biggest category today',body:Object.keys(cats).length?Object.entries(cats).sort((a,b)=>b[1]-a[1])[0][0]+' — &#8377;'+Object.entries(cats).sort((a,b)=>b[1]-a[1])[0][1].toFixed(0):'No entries yet — start logging!'},
+    {icon:'&#128198;',color:'#eeedfd',title:'Daily budget health',body:'You have spent &#8377;'+total.toFixed(0)+' of &#8377;'+state.budget+'. At this rate, budget lasts '+(total?Math.floor(state.budget/((total||1)/1)).toFixed(0):'7')+ ' more days.'},
+    {icon:'&#128200;',color:'#e6f1fb',title:'Smart suggestion',body:total>state.budget*0.5?'Over 50% budget used. Try skipping one &#8377;50 coffee today — saves &#8377;350/week.':'Great pacing! You are within healthy spending limits for today.'},
+    {icon:'&#128276;',color:'#faeeda',title:'Auto-tag accuracy',body:'Budtrack detected categories from your notes. Tap any entry to correct its tag.'}
+  ];
+  var el=document.getElementById('insightList');
+  el.innerHTML=insights.map(function(i){
+    return '<div class="insight-item"><div class="insight-header"><div class="insight-icon" style="background:'+i.color+'">'+i.icon+'</div><div class="insight-title">'+i.title+'</div></div><div class="insight-body">'+i.body+'</div></div>';
+  }).join('');
+}
+
+function renderRecurring(){
+  var el=document.getElementById('recurringList');
+  el.innerHTML=state.recurring.map(function(r){
+    return '<div class="recurring-card"><div class="rc-icon" style="background:'+(r.active?'#e8f5e0':'#f1efe8')+'">'+r.icon+'</div><div class="rc-info"><div class="rc-name">'+r.name+'</div><div class="rc-date">Every month, day '+r.day+'</div></div><div class="rc-amount">&#8377;'+r.amount+'</div><div class="sr-toggle'+(r.active?' on':'')+'" onclick="toggleRecurring('+r.id+')"></div></div>';
+  }).join('');
+}
+
+function toggleRecurring(id){
+  state.recurring=state.recurring.map(r=>r.id===id?{...r,active:!r.active}:r);
+  renderRecurring();
+}
+
+function showAddFundsModal(){
+  showModal('<div class="modal-handle"></div><div class="modal-title">Add funds to budget</div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Amount</span><input class="modal-input" id="fundAmt" type="number" placeholder="0"/></div>'+
+    '<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Current budget: &#8377;'+state.budget+'</div>'+
+    '<div class="modal-actions"><button class="modal-btn" onclick="closeModal()">Cancel</button><button class="modal-btn confirm" onclick="addFunds()">Add</button></div>');
+}
+
+function addFunds(){
+  var amt=parseFloat(document.getElementById('fundAmt').value);
+  if(!amt||amt<=0){closeModal();return;}
+  state.budget+=amt;closeModal();updatePill();renderBudgetScreen();
+}
+
+function showEditBudgetModal(){
+  showModal('<div class="modal-handle"></div><div class="modal-title">Change budget</div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Amount</span><input class="modal-input" id="newBudget" type="number" value="'+state.budget+'"/></div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Until</span><input class="modal-input" type="date" value="2026-04-20"/></div>'+
+    '<div class="modal-actions"><button class="modal-btn" onclick="closeModal()">Cancel</button><button class="modal-btn confirm" onclick="applyBudget()">Apply</button></div>');
+}
+
+function applyBudget(){
+  var v=parseFloat(document.getElementById('newBudget').value);
+  if(v>0){state.budget=v;}closeModal();updatePill();renderBudgetScreen();
+}
+
+function showAddBudgetModal(){
+  showModal('<div class="modal-handle"></div><div class="modal-title">New budget</div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Name</span><input class="modal-input" id="newBName" placeholder="e.g. Business"/></div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Amount</span><input class="modal-input" id="newBAmt" type="number" placeholder="0"/></div>'+
+    '<div class="modal-actions"><button class="modal-btn" onclick="closeModal()">Cancel</button><button class="modal-btn confirm" onclick="addBudget()">Create</button></div>');
+}
+
+function addBudget(){
+  var name=document.getElementById('newBName').value.trim();
+  if(!name){closeModal();return;}
+  state.budgets.push(name);
+  var tabs=document.querySelector('.budget-tabs');
+  var d=document.createElement('div');
+  d.className='budget-tab';d.textContent=name;
+  d.onclick=function(){switchBudget(d,name);};
+  tabs.insertBefore(d,tabs.lastElementChild);
+  closeModal();
+}
+
+function showAddRecurringModal(){
+  showModal('<div class="modal-handle"></div><div class="modal-title">Add recurring expense</div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Name</span><input class="modal-input" id="rName" placeholder="e.g. Rent"/></div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Amount</span><input class="modal-input" id="rAmt" type="number" placeholder="0"/></div>'+
+    '<div class="modal-input-row"><span class="modal-input-label">Day</span><input class="modal-input" id="rDay" type="number" min="1" max="31" value="1"/></div>'+
+    '<div class="modal-actions"><button class="modal-btn" onclick="closeModal()">Cancel</button><button class="modal-btn confirm" onclick="addRecurring()">Add</button></div>');
+}
+
+function addRecurring(){
+  var name=document.getElementById('rName').value.trim();
+  var amt=parseFloat(document.getElementById('rAmt').value);
+  var day=parseInt(document.getElementById('rDay').value)||1;
+  if(!name||!amt){closeModal();return;}
+  state.recurring.push({id:Date.now(),name:name,amount:amt,day:day,icon:'&#128178;',color:'#e74c3c',active:true});
+  closeModal();renderRecurring();
+}
+
+function exportCSV(){
+  var rows=[['Date','Time','Tag','Note','Amount']];
+  state.entries.forEach(e=>rows.push([e.date,e.time,e.tag,e.note,e.amount.toFixed(2)]));
+  alert('CSV export ready!\n\n'+rows.map(r=>r.join(',')).join('\n'));
+}
+
+function clearData(){
+  if(confirm('Clear all entries? This cannot be undone.')){state.entries=[];renderEntries();updatePill();updateRunningSum();updateAI();}
+}
+
+function showModal(html){
+  var mc=document.getElementById('modalContainer');
+  mc.innerHTML='<div class="modal-overlay" onclick="closeModal()"><div class="modal-sheet" onclick="event.stopPropagation()">'+html+'</div></div>';
+}
+
+function closeModal(){
+  document.getElementById('modalContainer').innerHTML='';
+}
+
+renderEntries();updatePill();updateRunningSum();updateAI();renderRecurring();
+</script>
