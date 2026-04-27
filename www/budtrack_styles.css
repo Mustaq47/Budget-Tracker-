@@ -948,6 +948,19 @@ textarea {
   transform: scale(0.94);
 }
 
+.kp-confirm.pay-mode {
+  background: rgba(140, 82, 255, 0.15);
+  color: #b388ff;
+  border-color: rgba(140, 82, 255, 0.3);
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(140, 82, 255, 0.3);
+}
+
+.kp-confirm.pay-mode:hover {
+  box-shadow: 0 0 24px rgba(140, 82, 255, 0.5);
+}
+
 .kp-zero {
   grid-column: span 1;
 }
@@ -4075,4 +4088,92 @@ textarea {
   color: var(--text-dim);
   padding: 4px 14px 10px;
   line-height: 1.5;
+}
+
+/* ============================================================
+   31. QR SCANNER
+   ============================================================ */
+
+.scan-btn {
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--r-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+}
+
+.scan-btn:active {
+  background: var(--bg-elevated);
+  transform: scale(0.95);
+}
+
+.scanner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.scanner-overlay.hidden {
+  display: none !important;
+}
+
+.scanner-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-weight: 600;
+  backdrop-filter: blur(5px);
+}
+
+.scanner-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.scanner-target {
+  flex: 1;
+  position: relative;
+  margin: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--r-md);
+  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7);
+}
+
+.scanner-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: var(--green);
+  border-style: solid;
+}
+
+.scanner-corner.tl { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-top-left-radius: var(--r-md); }
+.scanner-corner.tr { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-top-right-radius: var(--r-md); }
+.scanner-corner.bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: var(--r-md); }
+.scanner-corner.br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: var(--r-md); }
+
+/* When scanning, the body must be transparent for ML Kit to show camera underneath */
+body.scanner-active {
+  background: transparent !important;
+}
+
+body.scanner-active .app-wrapper {
+  opacity: 0;
+  pointer-events: none;
 }

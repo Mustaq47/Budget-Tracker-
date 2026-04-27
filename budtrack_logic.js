@@ -171,6 +171,9 @@ function checkFirstLaunch() {
     document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
     var ob = document.getElementById('screen-onboard');
     if (ob) ob.classList.add('active');
+    // Hide nav on onboarding
+    var gn = document.getElementById('globalNav');
+    if (gn) gn.classList.add('nav-hidden');
   } else {
     goTo('screen-home');
     checkMonthEndAlert();
@@ -312,11 +315,19 @@ function goTo(id) {
   var target = document.getElementById(id);
   if (target) target.classList.add('active');
 
-  // Update all nav-items
-  document.querySelectorAll('.nav-item').forEach(function(item) {
-    item.classList.remove('active');
-    if (item.dataset.screen === id) item.classList.add('active');
-  });
+  // Show/hide global nav (hidden only on onboarding)
+  var globalNav = document.getElementById('globalNav');
+  if (globalNav) {
+    if (id === 'screen-onboard') {
+      globalNav.classList.add('nav-hidden');
+    } else {
+      globalNav.classList.remove('nav-hidden');
+      // Highlight active nav item
+      globalNav.querySelectorAll('.nav-item[data-screen]').forEach(function(item) {
+        item.classList.toggle('active', item.dataset.screen === id);
+      });
+    }
+  }
 
   // Screen-specific renders
   if (id === 'screen-budget')    renderBudgetScreen();
@@ -383,6 +394,26 @@ function kpConfirm() {
     dispDate:  dispDate,
     budgetKey: state.activeBudgetKey
   });
+
+  var pendingUPI = state._pendingUPI;
+  if (pendingUPI) {
+    state._pendingUPI = null;
+    var btn = document.getElementById('kpConfirmBtn');
+    if (btn) {
+      btn.classList.remove('pay-mode');
+      btn.textContent = '✓';
+    }
+    try {
+      var urlObj = new URL(pendingUPI.replace('upi://', 'http://'));
+      // AGGRESSIVE OVERRIDE: Delete 'sign' to force amount pre-fill
+      urlObj.searchParams.delete('sign');
+      urlObj.searchParams.set('am', val);
+      if (!urlObj.searchParams.has('cu')) urlObj.searchParams.set('cu', 'INR');
+      window.location.href = urlObj.toString().replace('http://', 'upi://');
+    } catch(e) {
+      window.location.href = pendingUPI + '&am=' + val;
+    }
+  }
 
   state.kpVal = '';
   document.getElementById('kpNote').value = '';
@@ -1292,6 +1323,8 @@ function updateSettingsUI() {
   // Theme badge
   var badge = document.getElementById('themeCurrentBadge');
   if (badge) badge.textContent = getThemeName(state.settings.theme || 'dark');
+
+  if (typeof updateCameraPermissionLabel === 'function') updateCameraPermissionLabel();
 }
 
 function getCurrencyName(cur) {
@@ -1983,3 +2016,132 @@ function getReportMonthEntries() {
     return ed.getFullYear() === yr && ed.getMonth() === mo;
   });
 }
+
+/* ============================================================
+   30. QR SCANNER
+   ============================================================ */
+function startScanner() {
+  if (typeof BudScanner === 'undefined') {
+    showToast('Scanner not available.');
+    return;
+  }
+  BudScanner.startScan().then(function(result) {
+    if (result) handleScanResult(result);
+  }).catch(function(e) {
+    showToast('Scan failed: ' + e.message);
+  });
+}
+
+function stopScanner() {
+  if (typeof BudScanner !== 'undefined') {
+    BudScanner.stopScan();
+  }
+}
+
+function handleScanResult(res) {
+  // Parse UPI URI e.g. upi://pay?pa=some@upi&pn=Name&am=100
+  if (res.toLowerCase().indexOf('upi://pay') === 0) {
+    var url;
+    try {
+      url = new URL(res.replace('upi://', 'http://')); // hack to parse query params
+    } catch(e) {
+      showToast('Invalid QR code');
+      return;
+    }
+    
+    var pa = url.searchParams.get('pa') || '';
+    var pn = url.searchParams.get('pn') || pa || 'Unknown Payee';
+    var am = url.searchParams.get('am');
+
+    if (am) {
+      showConfirmModal('Confirm Payment', 'Pay ' + state.currency + am + ' to ' + pn + '?', 'Pay Now', 'modal-btn confirm', function() {
+        processUPIPayment(pn, parseFloat(am), res);
+      });
+    } else {
+      // Amount missing, open keypad and pre-fill
+      toggleKeypad(true);
+      document.getElementById('kpNote').value = 'UPI: ' + pn;
+      // We store the pending UPI url so kpConfirm can use it
+      state._pendingUPI = res;
+      var btn = document.getElementById('kpConfirmBtn');
+      if (btn) {
+        btn.classList.add('pay-mode');
+        btn.textContent = 'PAY';
+      }
+      showToast('Enter amount to pay ' + pn);
+    }
+  } else {
+    showToast('Not a valid UPI QR code');
+  }
+}
+
+function processUPIPayment(name, amount, upiUrl) {
+  // Save transaction
+  state.entries.push({
+    id: Date.now(),
+    amount: amount,
+    tag: 'Transfer',
+    note: 'UPI: ' + name,
+    time: new Date().toTimeString().substring(0, 5),
+    date: toISODateStr(new Date()),
+    dispDate: toISODateStr(new Date()),
+    budgetKey: state.activeBudgetKey
+  });
+  saveState();
+  renderEntries();
+  updatePill();
+  updateRunningSum();
+  updateAI();
+
+  // Launch intent
+  window.location.href = upiUrl;
+}
+
+function manageCameraPermission() {
+  var lbl = document.getElementById('settingsCameraPerm');
+  if (typeof BudScanner === 'undefined') {
+    if (lbl) lbl.textContent = 'Not Supported';
+    showToast('Scanner not supported on this device.');
+    return;
+  }
+  
+  BudScanner.checkPermissions().then(function(granted) {
+    if (granted) {
+      if (lbl) { lbl.textContent = 'Granted'; lbl.style.color = 'var(--green)'; }
+      showToast('Camera permission already granted.');
+    } else {
+      BudScanner.requestPermissions().then(function(newGranted) {
+        if (newGranted) {
+          if (lbl) { lbl.textContent = 'Granted'; lbl.style.color = 'var(--green)'; }
+          showToast('Camera permission granted.');
+        } else {
+          if (lbl) { lbl.textContent = 'Denied'; lbl.style.color = 'var(--red)'; }
+          showToast('Camera permission denied.');
+        }
+      });
+    }
+  }).catch(function() {
+    if (lbl) { lbl.textContent = 'Error'; lbl.style.color = 'var(--red)'; }
+  });
+}
+
+function updateCameraPermissionLabel() {
+  var lbl = document.getElementById('settingsCameraPerm');
+  if (!lbl) return;
+  if (typeof BudScanner === 'undefined') {
+    lbl.textContent = 'Not Supported';
+    return;
+  }
+  BudScanner.checkPermissions().then(function(granted) {
+    if (granted) {
+      lbl.textContent = 'Granted';
+      lbl.style.color = 'var(--green)';
+    } else {
+      lbl.textContent = 'Not Granted';
+      lbl.style.color = 'var(--text-muted)';
+    }
+  }).catch(function() {
+    lbl.textContent = 'Unknown';
+  });
+}
+

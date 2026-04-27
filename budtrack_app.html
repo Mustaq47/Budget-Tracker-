@@ -227,28 +227,6 @@
           </div>
         </div>
 
-        <div class="bottom-nav">
-          <div class="nav-item active" data-screen="screen-home" onclick="goTo('screen-home')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-          </div>
-          <div class="nav-item" data-screen="screen-budget" onclick="goTo('screen-budget')">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Budget</div>
-          </div>
-          <div class="nav-item" data-screen="screen-insights" onclick="goTo('screen-insights')">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Insights</div>
-          </div>
-          <div class="nav-item" data-screen="screen-recurring" onclick="goTo('screen-recurring')">
-            <div class="nav-icon">🔁</div>
-            <div class="nav-label">Recurring</div>
-          </div>
-          <div class="nav-item" data-screen="screen-report" onclick="goTo('screen-report')">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Report</div>
-          </div>
-        </div>
       </div><!-- /screen-home -->
 
 
@@ -327,28 +305,6 @@
         <div class="entries-area" id="budgetEntriesArea" style="border-top:1px solid var(--border);padding-top:8px">
         </div>
 
-        <div class="bottom-nav">
-          <div class="nav-item" data-screen="screen-home" onclick="goTo('screen-home')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-          </div>
-          <div class="nav-item active" data-screen="screen-budget">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Budget</div>
-          </div>
-          <div class="nav-item" data-screen="screen-insights" onclick="goTo('screen-insights')">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Insights</div>
-          </div>
-          <div class="nav-item" data-screen="screen-recurring" onclick="goTo('screen-recurring')">
-            <div class="nav-icon">🔁</div>
-            <div class="nav-label">Recurring</div>
-          </div>
-          <div class="nav-item" data-screen="screen-report" onclick="goTo('screen-report')">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Report</div>
-          </div>
-        </div>
       </div><!-- /screen-budget -->
 
 
@@ -375,28 +331,6 @@
           </button>
         </div>
 
-        <div class="bottom-nav">
-          <div class="nav-item" data-screen="screen-home" onclick="goTo('screen-home')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-          </div>
-          <div class="nav-item" data-screen="screen-budget" onclick="goTo('screen-budget')">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Budget</div>
-          </div>
-          <div class="nav-item active" data-screen="screen-insights">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Insights</div>
-          </div>
-          <div class="nav-item" data-screen="screen-recurring" onclick="goTo('screen-recurring')">
-            <div class="nav-icon">🔁</div>
-            <div class="nav-label">Recurring</div>
-          </div>
-          <div class="nav-item" data-screen="screen-report" onclick="goTo('screen-report')">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Report</div>
-          </div>
-        </div>
       </div><!-- /screen-insights -->
 
 
@@ -416,28 +350,6 @@
 
         <button class="add-btn" onclick="showAddRecurringModal()">+ Add recurring expense</button>
 
-        <div class="bottom-nav">
-          <div class="nav-item" data-screen="screen-home" onclick="goTo('screen-home')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-          </div>
-          <div class="nav-item" data-screen="screen-budget" onclick="goTo('screen-budget')">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Budget</div>
-          </div>
-          <div class="nav-item" data-screen="screen-insights" onclick="goTo('screen-insights')">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Insights</div>
-          </div>
-          <div class="nav-item active" data-screen="screen-recurring">
-            <div class="nav-icon">🔁</div>
-            <div class="nav-label">Recurring</div>
-          </div>
-          <div class="nav-item" data-screen="screen-report" onclick="goTo('screen-report')">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Report</div>
-          </div>
-        </div>
       </div><!-- /screen-recurring -->
 
 
@@ -511,6 +423,17 @@
           </div>
         </div>
 
+        
+        <!-- Permissions -->
+        <div class="settings-section">
+          <div class="settings-label">Permissions</div>
+          <div class="settings-row" onclick="manageCameraPermission()">
+            <span class="sr-icon">📷</span>
+            <span class="sr-label">Camera Access</span>
+            <span class="sr-value" id="settingsCameraPerm" style="color:var(--text-muted)">Verify</span>
+            <span class="sr-arrow">›</span>
+          </div>
+        </div>
         <!-- Report -->
         <div class="settings-section">
           <div class="settings-label">Monthly Report</div>
@@ -547,7 +470,7 @@
           <div class="settings-row">
             <span class="sr-icon">ℹ️</span>
             <span class="sr-label">Version</span>
-            <span class="sr-value">6.0.0</span>
+            <span class="sr-value">6.1.0</span>
           </div>
           <div class="settings-row">
             <span class="sr-icon">⭐</span>
@@ -558,28 +481,6 @@
 
         <div style="height:80px"></div>
 
-        <div class="bottom-nav">
-          <div class="nav-item" data-screen="screen-home" onclick="goTo('screen-home')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-          </div>
-          <div class="nav-item" data-screen="screen-budget" onclick="goTo('screen-budget')">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Budget</div>
-          </div>
-          <div class="nav-item" data-screen="screen-insights" onclick="goTo('screen-insights')">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Insights</div>
-          </div>
-          <div class="nav-item" data-screen="screen-recurring" onclick="goTo('screen-recurring')">
-            <div class="nav-icon">🔁</div>
-            <div class="nav-label">Recurring</div>
-          </div>
-          <div class="nav-item" data-screen="screen-report" onclick="goTo('screen-report')">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Report</div>
-          </div>
-        </div>
       </div><!-- /screen-settings -->
 
 
@@ -672,39 +573,60 @@
 
         <div style="height:80px"></div>
 
-        <div class="bottom-nav">
-          <div class="nav-item" data-screen="screen-home" onclick="goTo('screen-home')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-          </div>
-          <div class="nav-item" data-screen="screen-budget" onclick="goTo('screen-budget')">
-            <div class="nav-icon">📊</div>
-            <div class="nav-label">Budget</div>
-          </div>
-          <div class="nav-item" data-screen="screen-insights" onclick="goTo('screen-insights')">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Insights</div>
-          </div>
-          <div class="nav-item" data-screen="screen-recurring" onclick="goTo('screen-recurring')">
-            <div class="nav-icon">🔁</div>
-            <div class="nav-label">Recurring</div>
-          </div>
-          <div class="nav-item active" data-screen="screen-report">
-            <div class="nav-icon">📈</div>
-            <div class="nav-label">Report</div>
-          </div>
-        </div>
       </div><!-- /screen-report -->
 
 
+    
+
+    <!-- ──────────────────────────────────────────────
+     GLOBAL BOTTOM NAV (single instance, shared by all screens)
+     ────────────────────────────────────────────── -->
+    <div class="global-spacer"></div>
+    <div class="bottom-nav" id="globalNav">
+      <div class="nav-item active" data-screen="screen-home" onclick="goTo('screen-home')">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-label">Home</div>
+      </div>
+      <div class="nav-item" data-screen="screen-budget" onclick="goTo('screen-budget')">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Budget</div>
+      </div>
+      <div class="nav-item" id="navCamera" onclick="startScanner()">
+        <div class="nav-icon" style="filter:none; transform: scale(1.2)">📷</div>
+        <div class="nav-label">Camera</div>
+      </div>
+      <div class="nav-item" data-screen="screen-recurring" onclick="goTo('screen-recurring')">
+        <div class="nav-icon">🔁</div>
+        <div class="nav-label">Recurring</div>
+      </div>
+      <div class="nav-item" data-screen="screen-report" onclick="goTo('screen-report')">
+        <div class="nav-icon">📈</div>
+        <div class="nav-label">Report</div>
+      </div>
+    </div>
     </div><!-- /app-shell -->
   </div><!-- /app-wrapper -->
 
   <!-- Modal container -->
   <div id="modalContainer"></div>
 
+  
+  <!-- Scanner Overlay -->
+  <div id="scannerOverlay" class="scanner-overlay hidden">
+    <div class="scanner-top-bar">
+      <span>Scan UPI QR Code</span>
+      <button class="scanner-close" onclick="stopScanner()">✕</button>
+    </div>
+    <div class="scanner-target">
+      <div class="scanner-corner tl"></div>
+      <div class="scanner-corner tr"></div>
+      <div class="scanner-corner bl"></div>
+      <div class="scanner-corner br"></div>
+    </div>
+  </div>
   <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="chart.umd.min.js"></script>
+  <script src="capacitor.js"></script>
   <script src="budtrack_native.js"></script>
   <script src="budtrack_logic.js"></script>
   <script src="budtrack_animations.js"></script>

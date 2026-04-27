@@ -332,3 +332,72 @@ function handleNotificationToggle(key, isOn) {
     }
   });
 }
+
+/* ============================================================
+   6. QR SCANNER  (Capacitor ML Kit Barcode Scanning)
+   ============================================================ */
+var BudScanner = (function () {
+  var _Scanner = IS_NATIVE ? window.Capacitor.Plugins.BarcodeScanner : null;
+
+  return {
+    isSupported: function() {
+      if (!_Scanner) return Promise.resolve(false);
+      return _Scanner.isSupported().then(function(res) { return res.supported; }).catch(function() { return false; });
+    },
+    
+    checkPermissions: function() {
+      if (!_Scanner) return Promise.resolve(false);
+      return _Scanner.checkPermissions().then(function(res) {
+        return res.camera === 'granted';
+      });
+    },
+
+    requestPermissions: function() {
+      if (!_Scanner) return Promise.resolve(false);
+      return _Scanner.requestPermissions().then(function(res) {
+        return res.camera === 'granted';
+      });
+    },
+
+    startScan: function() {
+      if (!_Scanner) {
+        return Promise.reject(new Error('Scanner not available on web fallback. Use native app.'));
+      }
+      
+      return this.checkPermissions().then(function(granted) {
+        if (!granted) {
+          return BudScanner.requestPermissions().then(function(newGranted) {
+            if (!newGranted) throw new Error('Camera permission denied.');
+            return BudScanner._doScan();
+          });
+        }
+        return BudScanner._doScan();
+      });
+    },
+
+    _doScan: function() {
+      // Hide body background for camera to show through
+      document.body.classList.add('scanner-active');
+      document.getElementById('scannerOverlay').classList.remove('hidden');
+
+      return _Scanner.scan().then(function(res) {
+        BudScanner.stopScan();
+        if (res.barcodes && res.barcodes.length > 0) {
+          return res.barcodes[0].displayValue || res.barcodes[0].rawValue;
+        }
+        return null;
+      }).catch(function(e) {
+        BudScanner.stopScan();
+        throw e;
+      });
+    },
+
+    stopScan: function() {
+      document.body.classList.remove('scanner-active');
+      document.getElementById('scannerOverlay').classList.add('hidden');
+      if (_Scanner) {
+        _Scanner.stopScan().catch(function(){});
+      }
+    }
+  };
+})();

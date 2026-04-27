@@ -259,11 +259,6 @@ function animateDisplayPop() {
 
 // Patch kpPress for pop animation
 (function patchKpPress() {
-  if (typeof kpPress === 'function') {
-    var orig = kpPress;
-    window.kpPress = function(v) { orig(v); animateDisplayPop(); };
-    return;
-  }
   document.addEventListener('DOMContentLoaded', function() {
     if (typeof kpPress === 'function') {
       var orig = kpPress;
@@ -315,7 +310,7 @@ function animatePillFlash() {
 /* ============================================================
    9. PROGRESS BAR PULSE
    ============================================================ */
-function _maybePulseBar() {
+function maybePulseBar() {
   var bar = document.getElementById('bcBar');
   if (!bar) return;
   var w = parseFloat(bar.style.width) || 0;
@@ -515,7 +510,6 @@ function animateHealthBadge() {
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(doPulse, 1000);
   });
-  setTimeout(doPulse, 1200);
 })();
 
 
@@ -533,6 +527,12 @@ function toggleKeypad(show) {
   } else {
     keypad.classList.add('hidden');
     fab.classList.add('visible');
+    if (typeof state !== 'undefined') state._pendingUPI = null;
+    var btn = document.getElementById('kpConfirmBtn');
+    if (btn) {
+      btn.classList.remove('pay-mode');
+      btn.textContent = '✓';
+    }
   }
 }
 
@@ -554,4 +554,50 @@ function toggleKeypad(show) {
       }
     }, {passive: true});
   });
+})();
+
+
+/* ============================================================
+   18. SWIPE RIGHT → HOME GESTURE
+   Swipe right (≥60px horiz, <80px vert) on any non-home screen
+   to navigate back to Home.
+   ============================================================ */
+(function initSwipeToHome() {
+  var _swipeStartX = 0;
+  var _swipeStartY = 0;
+  var _swipeActive = false;
+
+  document.addEventListener('touchstart', function(e) {
+    // Only track touches starting near the left edge (first 30px) for edge-swipe feel
+    if (e.touches[0].clientX > 30) {
+      _swipeActive = false;
+      return;
+    }
+    _swipeStartX = e.touches[0].clientX;
+    _swipeStartY = e.touches[0].clientY;
+    _swipeActive = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (!_swipeActive) return;
+    _swipeActive = false;
+
+    var dx = e.changedTouches[0].clientX - _swipeStartX;
+    var dy = Math.abs(e.changedTouches[0].clientY - _swipeStartY);
+
+    // Must be rightward swipe ≥60px and mostly horizontal
+    if (dx < 60 || dy > 80) return;
+
+    // Don't redirect if already on home or onboarding
+    var activeScreen = document.querySelector('.screen.active');
+    if (!activeScreen) return;
+    var id = activeScreen.id;
+    if (id === 'screen-home' || id === 'screen-onboard') return;
+
+    // Don't redirect while keypad is open
+    var keypad = document.getElementById('keypadArea');
+    if (keypad && !keypad.classList.contains('hidden')) return;
+
+    goTo('screen-home');
+  }, { passive: true });
 })();

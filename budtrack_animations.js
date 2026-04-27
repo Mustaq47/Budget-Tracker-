@@ -533,6 +533,12 @@ function toggleKeypad(show) {
   } else {
     keypad.classList.add('hidden');
     fab.classList.add('visible');
+    if (typeof state !== 'undefined') state._pendingUPI = null;
+    var btn = document.getElementById('kpConfirmBtn');
+    if (btn) {
+      btn.classList.remove('pay-mode');
+      btn.textContent = '✓';
+    }
   }
 }
 
@@ -554,4 +560,43 @@ function toggleKeypad(show) {
       }
     }, {passive: true});
   });
+})();
+
+
+/* ============================================================
+   18. SWIPE-BACK TO HOME GESTURE
+   Swipe right from the left edge (≤30px) on any sub-screen
+   to navigate back to Home. Requires 60px horizontal travel.
+   ============================================================ */
+(function initSwipeBackToHome() {
+  var EDGE_ZONE   = 35;  // px from left edge to start swipe
+  var THRESHOLD   = 60;  // px horizontal travel to trigger
+  var startX      = 0;
+  var startY      = 0;
+  var tracking    = false;
+  var NON_SWIPE   = ['screen-onboard', 'screen-home'];
+
+  function currentScreen() {
+    var active = document.querySelector('.screen.active');
+    return active ? active.id : null;
+  }
+
+  document.addEventListener('touchstart', function(e) {
+    startX   = e.touches[0].clientX;
+    startY   = e.touches[0].clientY;
+    tracking = startX <= EDGE_ZONE;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    var dx  = e.changedTouches[0].clientX - startX;
+    var dy  = Math.abs(e.changedTouches[0].clientY - startY);
+    var scr = currentScreen();
+
+    // Only fire when: enough horizontal travel, not mostly vertical, not on home/onboard
+    if (dx >= THRESHOLD && dy < dx * 0.8 && scr && NON_SWIPE.indexOf(scr) === -1) {
+      if (typeof goTo === 'function') goTo('screen-home');
+    }
+  }, { passive: true });
 })();
