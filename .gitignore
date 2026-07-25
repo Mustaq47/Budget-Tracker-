@@ -7,3 +7,7 @@ android/.gradle/
 android/app/build/
 *.log
 .DS_Store
+*.apk
+*.zip
+.codegraph/
+test.txt
