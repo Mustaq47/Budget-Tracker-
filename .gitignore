@@ -10,4 +10,3 @@ android/app/build/
 *.apk
 *.zip
 .codegraph/
-test.txt
