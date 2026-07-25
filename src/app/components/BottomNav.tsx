@@ -10,6 +10,10 @@ export function BottomNav() {
   const location = useLocation();
   const [showAddModal, setShowAddModal] = useState(false);
 
+  if (location.pathname === "/login") {
+    return null;
+  }
+
   const tabs = [
     { icon: Home, path: "/", label: "Home" },
     { icon: TrendingUp, path: "/flow", label: "Flow" },

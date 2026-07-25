@@ -3,12 +3,19 @@ import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
 import { TrendingUp, TrendingDown, Zap, DollarSign, Wallet, CreditCard } from "lucide-react";
 import logo from "../../../imports/zeee.png";
+import { useBudgetStore } from "../../../store/useBudgetStore";
 
 export function Home() {
-  const userName = "Alex Johnson";
-  const spentToday = 1200;
-  const budget = 2000;
-  const percentage = (spentToday / budget) * 100;
+  const { user, dailyBudget, transactions } = useBudgetStore();
+
+  const userName = user?.displayName || user?.email?.split("@")[0] || "User";
+  const todayISO = new Date().toISOString().split("T")[0];
+
+  const spentToday = transactions
+    .filter((t) => t.type === "expense" && t.date === todayISO)
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const percentage = Math.min(100, Math.round((spentToday / dailyBudget) * 100));
   const isOverBudget = percentage > 80;
 
   const circumference = 2 * Math.PI * 140;
@@ -21,11 +28,7 @@ export function Home() {
     { icon: Zap, label: "Goals", glow: "gold" as const },
   ];
 
-  const recentTransactions = [
-    { title: "Starbucks Coffee", amount: 120, category: "Food", time: "2h ago", trend: "down" },
-    { title: "Uber Ride", amount: 250, category: "Transport", time: "5h ago", trend: "down" },
-    { title: "Salary Deposit", amount: 45000, category: "Income", time: "1d ago", trend: "up" },
-  ];
+  const recentTransactions = transactions.slice(0, 5);
 
   return (
     <div className="min-h-screen px-6 pt-12">
@@ -36,7 +39,7 @@ export function Home() {
       >
         <img src={logo} alt="ZENTRO" className="h-12 mb-8" />
         <div className="text-white/60 mb-2 tracking-tight">Welcome back,</div>
-        <h1 className="text-white text-3xl tracking-tighter">{userName}</h1>
+        <h1 className="text-white text-3xl tracking-tighter capitalize">{userName}</h1>
       </motion.div>
 
       <div className="flex justify-center mb-12">
@@ -49,10 +52,10 @@ export function Home() {
                 <stop offset="100%" stopColor="#FF4D8D" />
               </linearGradient>
               <filter id="glow">
-                <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="8" result="coloredBlur" />
                 <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
             </defs>
@@ -77,7 +80,7 @@ export function Home() {
               strokeDasharray={circumference}
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset }}
-              transition={{ duration: 2, ease: "easeOut" }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
               filter="url(#glow)"
             />
           </svg>
@@ -86,18 +89,17 @@ export function Home() {
             className="absolute inset-0 flex flex-col items-center justify-center"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.3 }}
           >
             <div className="text-white/60 mb-2 tracking-tight">Spent Today</div>
             <motion.div
-              className="text-white text-6xl tracking-tighter mb-2"
+              className="text-white text-5xl tracking-tighter mb-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
             >
               ₹{spentToday.toLocaleString()}
             </motion.div>
-            <div className="text-white/40 tracking-tight">of ₹{budget.toLocaleString()}</div>
+            <div className="text-white/40 tracking-tight">of ₹{dailyBudget.toLocaleString()}</div>
             <motion.div
               className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
                 isOverBudget
@@ -112,7 +114,7 @@ export function Home() {
           </motion.div>
 
           <motion.div
-            className="absolute inset-0 rounded-full"
+            className="absolute inset-0 rounded-full pointer-events-none"
             animate={{
               boxShadow: [
                 "0 0 60px rgba(123, 97, 255, 0.3)",
@@ -140,38 +142,48 @@ export function Home() {
 
       <GlassCard glow glowColor="purple">
         <div className="text-white/60 mb-4 tracking-tight">Recent Activity</div>
-        <div className="space-y-3">
-          {recentTransactions.map((transaction, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex items-center justify-between p-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/5"
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/10 ${
-                  transaction.trend === "up" ? "bg-[#00E5FF]/10" : "bg-white/5"
-                }`}>
-                  {transaction.trend === "up" ? (
-                    <TrendingUp size={18} className="text-[#00E5FF]" />
-                  ) : (
-                    <TrendingDown size={18} className="text-white/60" />
-                  )}
+        {recentTransactions.length === 0 ? (
+          <div className="py-8 text-center text-white/40 text-sm tracking-tight">
+            No recent activity yet. Tap <span className="text-[#7B61FF] font-bold">+</span> to add your first transaction.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentTransactions.map((transaction, index) => (
+              <motion.div
+                key={transaction.id || index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center justify-between p-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/5"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/10 ${
+                      transaction.type === "income" ? "bg-[#00E5FF]/10" : "bg-white/5"
+                    }`}
+                  >
+                    {transaction.type === "income" ? (
+                      <TrendingUp size={18} className="text-[#00E5FF]" />
+                    ) : (
+                      <TrendingDown size={18} className="text-white/60" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-white tracking-tight">{transaction.title}</div>
+                    <div className="text-white/40 text-xs tracking-tight">{transaction.time || "Today"}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-white tracking-tight">{transaction.title}</div>
-                  <div className="text-white/40 text-xs tracking-tight">{transaction.time}</div>
+                <div
+                  className={`tracking-tight ${
+                    transaction.type === "income" ? "text-[#00E5FF]" : "text-white"
+                  }`}
+                >
+                  {transaction.type === "income" ? "+" : "-"}₹{transaction.amount.toLocaleString()}
                 </div>
-              </div>
-              <div className={`tracking-tight ${
-                transaction.trend === "up" ? "text-[#00E5FF]" : "text-white"
-              }`}>
-                {transaction.trend === "up" ? "+" : "-"}₹{transaction.amount.toLocaleString()}
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </GlassCard>
     </div>
   );
