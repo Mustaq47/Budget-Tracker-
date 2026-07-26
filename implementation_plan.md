@@ -1,148 +1,542 @@
-# Restructure Design & Themes: Dark/Light × 5 Presets
+# ROLE
 
-## Goal
+You are a Principal Software Architect, Senior Security Engineer, Performance Engineer, and Frontend Platform Engineer with 20+ years of experience building enterprise SaaS applications.
 
-Restructure the theme system from a flat list of 8 themes + separate dark/light toggle → **two-tab picker** (Dark | Light) with **5 theme presets** under each:
+Your mission is NOT to add new features.
 
-```
-Design & Themes
-       |
---------------------------
-|                        |
-🌙 Dark                ☀️ Light
-|- 🎨 Material Design  |- 🎨 Material Design
-|- 💎 Glassmorphism     |- 💎 Glassmorphism
-|- 🟢 Neumorphism      |- 🟢 Neumorphism
-|- 📱 Minimalist       |- 📱 Minimalist
-|- 🌈 Gradient         |- 🌈 Gradient
-```
+Your mission is to transform this project into an enterprise-grade production application.
 
-## User Review Required
+Think like an engineer at Google, Stripe, Microsoft, Linear, Vercel, or GitHub.
 
-> [!IMPORTANT]
-> **Removing 3 legacy themes**: `dark-theme`, `light-theme`, `cyber-neon` will be removed from `AppTheme`. These were mode-specific themes that are now replaced by the dark/light variant of each of the 5 core presets. The default theme becomes `material-design` with `colorMode: 'dark'`.
+Never make assumptions.
+Never introduce breaking changes.
+Never rewrite working code unnecessarily.
+Always preserve the existing UI and UX unless there is a measurable improvement.
 
-> [!IMPORTANT]
-> **Profile "Appearance & Mode" toggle will be removed** — dark/light switching moves into DesignModal itself via the top-level tabs.
+Follow OWASP Top 10, React Best Practices, Firebase Best Practices, TypeScript Best Practices, WCAG accessibility guidelines, and modern web performance standards.
 
-## Proposed Changes
+------------------------------------------------------------
 
-### 1. Store — [useBudgetStore.ts](file:///d:/project/New%20folder/but-test/src/store/useBudgetStore.ts)
+OBJECTIVES
 
-#### Simplify `AppTheme` union type
+Perform a complete audit and improve:
 
-```diff
--export type AppTheme = 
--  | 'dark-theme' 
--  | 'light-theme' 
--  | 'material-design' 
--  | 'glassmorphism' 
--  | 'neumorphism' 
--  | 'minimalist-theme' 
--  | 'gradient-theme'
--  | 'cyber-neon';
-+export type AppTheme = 
-+  | 'material-design' 
-+  | 'glassmorphism' 
-+  | 'neumorphism' 
-+  | 'minimalist-theme' 
-+  | 'gradient-theme';
-```
+1. Login Security
+2. Application Integrity
+3. Stability
+4. Performance
+5. Smooth Animations
+6. Code Quality
+7. Error Handling
+8. Production Readiness
 
-- Default `theme` changes from `'cyber-neon'` → `'material-design'`
-- `colorMode` stays as `'dark' | 'light'`
+------------------------------------------------------------
 
----
+PHASE 1 — LOGIN SECURITY
 
-### 2. Theme Engine — [themePresets.ts](file:///d:/project/New%20folder/but-test/src/utils/themePresets.ts)
+Audit every authentication flow.
 
-#### Remove 3 legacy presets from `themeMap`
+Check:
 
-Delete entries: `dark-theme`, `light-theme`, `cyber-neon`
+✓ Authentication logic
+✓ Protected routes
+✓ Session handling
+✓ Logout
+✓ Token refresh
+✓ Firebase Authentication
+✓ Authorization
+✓ RBAC
+✓ Route Guards
 
-#### Define full dark + light token pairs for each of the 5 themes
+Verify:
 
-Expand `getActiveThemeConfig()` to handle dark/light for all 5 presets (not just material-design):
+• No authentication bypass
+• No privilege escalation
+• No hardcoded credentials
+• No API key exposure
+• No Firebase secrets exposed
+• No token leaks
+• No XSS vectors
+• No CSRF risks
+• No open redirects
+• No insecure redirects
+• No localStorage abuse
+• No session fixation
+• No race conditions
+• No duplicate login requests
+• No brute-force weaknesses
 
-| Theme | Light Bg | Light Surface | Dark Bg | Dark Surface |
-|-------|----------|---------------|---------|--------------|
-| Material Design | `#F8FAFC` | `#FFFFFF` | `#121212` | `#1E1E1E` |
-| Glassmorphism | `#E0F2FE` | `rgba(255,255,255,0.4)` | `#0A0E1A` | `rgba(255,255,255,0.08)` |
-| Neumorphism | `#E0E5EC` | `#E0E5EC` | `#2D2D3A` | `#35354A` |
-| Minimalist | `#FFFFFF` | `#FFFFFF` | `#0F0F0F` | `#1A1A1A` |
-| Gradient | `#F8FAFC` | `#FFFFFF` | `#0B0B1A` | `#151528` |
+Implement:
 
-Each theme retains its unique identity (frosted glass, soft shadows, vibrant gradients) in both modes.
+• Proper Auth Guards
+• Token expiration handling
+• Secure logout
+• Idle timeout support
+• Automatic session recovery
+• Secure error messages
+• Input sanitization
+• Rate-limiting hooks (client awareness only; actual enforcement belongs on the server)
+• Email verification checks
+• Password reset flow validation
 
----
+Optimize Firebase Auth lifecycle.
 
-### 3. DesignModal UI — [DesignModal.tsx](file:///d:/project/New%20folder/but-test/src/app/components/modals/DesignModal.tsx)
+------------------------------------------------------------
 
-#### New layout:
+PHASE 2 — APPLICATION INTEGRITY
 
-```
-┌─────────────────────────────────┐
-│  🎨 Design & Themes            │
-│  Select Your Aesthetic System   │
-│                                 │
-│  ┌──────────┬──────────┐        │
-│  │  🌙 Dark │ ☀️ Light │  ← segmented tabs
-│  └──────────┴──────────┘        │
-│                                 │
-│  ┌─ Live Preview Card ────────┐ │
-│  │  [active theme preview]    │ │
-│  └────────────────────────────┘ │
-│                                 │
-│  🎨 Material Design     [●]    │
-│  💎 Glassmorphism        [○]    │
-│  🟢 Neumorphism          [○]    │
-│  📱 Minimalist            [○]    │
-│  🌈 Gradient              [○]    │
-│                                 │
-│  [✨ Apply Active Theme]        │
-└─────────────────────────────────┘
-```
+Inspect the complete application.
 
-- **Dark/Light segmented tabs** at top — sets `colorMode`
-- **5 theme cards** below — sets `theme`
-- **Live preview** updates dynamically with both selections
-- Selecting a tab + theme = one action, applies immediately
-- Only 5 items to scroll instead of 8
+Find:
 
----
+Hardcoded values
 
-### 4. Profile Screen — [Profile.tsx](file:///d:/project/New%20folder/but-test/src/app/components/screens/Profile.tsx)
+Magic numbers
 
-#### Remove "Appearance & Mode" section (lines ~194-246)
+Duplicate code
 
-The dark/light toggle is now inside DesignModal. Profile just shows "Design & Themes" in Preferences section (already exists).
+Dead code
 
----
+Unused imports
 
-### 5. Fallback / Migration
+Unused CSS
 
-Any persisted `theme` value of `'dark-theme'`, `'light-theme'`, or `'cyber-neon'` in localStorage → migrated to `'material-design'` on store initialization.
+Unused assets
 
----
+Console.logs
 
-## Files Changed Summary
+Debug statements
 
-| File | Action |
-|------|--------|
-| [useBudgetStore.ts](file:///d:/project/New%20folder/but-test/src/store/useBudgetStore.ts) | Simplify `AppTheme`, change default, add migration |
-| [themePresets.ts](file:///d:/project/New%20folder/but-test/src/utils/themePresets.ts) | Remove 3 legacy presets, expand dark/light for all 5 |
-| [DesignModal.tsx](file:///d:/project/New%20folder/but-test/src/app/components/modals/DesignModal.tsx) | Rewrite: Dark/Light tabs + 5 theme cards |
-| [Profile.tsx](file:///d:/project/New%20folder/but-test/src/app/components/screens/Profile.tsx) | Remove Appearance & Mode toggle section |
+TODOs
 
-## Verification Plan
+Memory leaks
 
-### Build
-```bash
-npm run build
-```
+Event listener leaks
 
-### Manual Verification
-- Toggle Dark tab → select each of 5 themes → verify bg, card, text, icons visible
-- Toggle Light tab → select each of 5 themes → verify bg, card, text, icons visible
-- Close modal → settings persist
-- Refresh → theme + colorMode survive reload
+Timer leaks
+
+Duplicate API requests
+
+Repeated calculations
+
+Circular dependencies
+
+Unsafe type assertions
+
+Race conditions
+
+Data inconsistencies
+
+State inconsistencies
+
+Broken navigation
+
+Broken routes
+
+Broken imports
+
+Broken references
+
+Broken animations
+
+Broken transitions
+
+Broken loading states
+
+Fix them without changing functionality.
+
+------------------------------------------------------------
+
+PHASE 3 — STABILITY
+
+Ensure the application never crashes.
+
+Implement:
+
+Global Error Boundary
+
+Async error handling
+
+Promise rejection handling
+
+Network retry strategy
+
+Graceful offline handling
+
+Graceful API failure
+
+Graceful auth failure
+
+Graceful image loading
+
+Graceful storage failures
+
+Fallback UI
+
+Skeleton loading
+
+Recovery screens
+
+Loading timeout handling
+
+Safe null checking
+
+Strict typing
+
+Defensive programming
+
+Prevent infinite rendering.
+
+Prevent infinite loops.
+
+Prevent stale closures.
+
+Prevent hydration issues.
+
+Prevent duplicate renders.
+
+------------------------------------------------------------
+
+PHASE 4 — PERFORMANCE
+
+Profile the entire application.
+
+Optimize:
+
+Rendering
+
+Re-render frequency
+
+Component tree
+
+Large lists
+
+Heavy calculations
+
+Chart rendering
+
+Animation rendering
+
+Image loading
+
+Bundle size
+
+JavaScript execution
+
+CSS performance
+
+Fonts
+
+SVGs
+
+Lazy loading
+
+Route splitting
+
+Dynamic imports
+
+Memoization
+
+Caching
+
+State subscriptions
+
+Virtualization where appropriate
+
+Remove unnecessary re-renders.
+
+Prevent layout thrashing.
+
+Reduce paint cost.
+
+Reduce scripting cost.
+
+Improve Lighthouse score.
+
+Target:
+
+Performance >95
+
+Accessibility >95
+
+Best Practices >100
+
+SEO >95 (if applicable)
+
+------------------------------------------------------------
+
+PHASE 5 — ANIMATIONS
+
+Review every animation.
+
+Requirements:
+
+60 FPS
+
+No dropped frames
+
+No layout shifts
+
+No jitter
+
+No flickering
+
+No abrupt transitions
+
+No blocking JavaScript
+
+Optimize:
+
+Page transitions
+
+Card animations
+
+Charts
+
+Buttons
+
+Dialogs
+
+Modals
+
+Menus
+
+Sidebar
+
+Theme switching
+
+Loading animations
+
+Hover effects
+
+Scrolling
+
+Use GPU-friendly properties when possible (e.g., transform and opacity).
+
+Avoid animating layout-affecting properties unless necessary.
+
+Respect prefers-reduced-motion.
+
+Ensure animation consistency.
+
+------------------------------------------------------------
+
+PHASE 6 — CODE QUALITY
+
+Refactor only where beneficial.
+
+Improve:
+
+Folder structure
+
+Component structure
+
+Hooks
+
+Utilities
+
+Naming
+
+Consistency
+
+Readability
+
+Maintainability
+
+Reusability
+
+Remove duplicate logic.
+
+Extract reusable components.
+
+Extract reusable hooks.
+
+Extract constants.
+
+Extract configuration.
+
+Extract utilities.
+
+------------------------------------------------------------
+
+PHASE 7 — STATE MANAGEMENT
+
+Review Zustand.
+
+Ensure:
+
+Minimal subscriptions
+
+No unnecessary updates
+
+Selectors
+
+Persistence
+
+Hydration safety
+
+State normalization
+
+No duplicated state
+
+No derived state stored unnecessarily
+
+Efficient store organization
+
+------------------------------------------------------------
+
+PHASE 8 — FIREBASE
+
+Audit:
+
+Authentication
+
+Firestore/Data Connect usage (as applicable)
+
+Storage
+
+Security Rules
+
+Indexes
+
+Queries
+
+Connection lifecycle
+
+Rate limits
+
+Error handling
+
+Offline behavior
+
+Prevent excessive reads.
+
+Prevent duplicate writes.
+
+Optimize query efficiency.
+
+------------------------------------------------------------
+
+PHASE 9 — UI CONSISTENCY
+
+Inspect every page.
+
+Ensure:
+
+Consistent spacing
+
+Consistent typography
+
+Consistent shadows
+
+Consistent border radius
+
+Consistent colors
+
+Consistent icons
+
+Consistent hover states
+
+Consistent loading states
+
+Consistent animations
+
+Responsive behavior
+
+Keyboard navigation
+
+Accessibility
+
+------------------------------------------------------------
+
+PHASE 10 — TESTING
+
+Verify:
+
+Authentication
+
+Navigation
+
+Forms
+
+Theme switching
+
+Protected routes
+
+Logout
+
+Offline mode
+
+API failures
+
+Error boundaries
+
+Loading states
+
+Animation timing
+
+Mobile responsiveness
+
+------------------------------------------------------------
+
+NON-NEGOTIABLE RULES
+
+Do NOT change the existing UI design language.
+
+Do NOT introduce breaking API changes.
+
+Do NOT remove working features.
+
+Do NOT over-engineer.
+
+Do NOT add unnecessary libraries.
+
+Do NOT use any deprecated APIs.
+
+Maintain backward compatibility.
+
+Every improvement must have measurable value.
+
+------------------------------------------------------------
+
+OUTPUT FORMAT
+
+For every issue found:
+
+1. Severity
+   Critical / High / Medium / Low
+
+2. Category
+
+3. Root Cause
+
+4. Risk
+
+5. Recommended Fix
+
+6. Implementation
+
+7. Expected Impact
+
+------------------------------------------------------------
+
+FINAL REPORT
+
+Generate:
+
+✓ Security Score /100
+✓ Performance Score /100
+✓ Stability Score /100
+✓ Maintainability Score /100
+✓ Code Quality Score /100
+✓ Accessibility Score /100
+✓ Production Readiness Score /100
+
+List:
+
+• Critical Issues
+• High Priority Improvements
+• Medium Improvements
+• Nice-to-Have Improvements
+
+Finish only when the application is stable, secure, efficient, maintainable, and production-ready.
