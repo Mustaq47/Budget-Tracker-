@@ -10,6 +10,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -51,6 +52,7 @@ if (missingKeys.length > 0) {
 export const app = initializeApp(firebaseConfig);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 // ─── H-06 FIX: Firebase App Check (uncomment when reCAPTCHA v3 site key is set) ───
 // import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';

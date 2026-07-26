@@ -50,12 +50,17 @@ interface BudgetState {
   cards: PaymentCard[];
   goals: SavingsGoal[];
   activeModal: QuickActionModal;
+  isCloudBackupEnabled: boolean;
+  lastBackupTime: string | null;
   
   // Actions
   setUser: (user: UserProfile | null) => void;
   setAuthLoading: (loading: boolean) => void;
   logoutUser: () => void;
   setActiveModal: (modal: QuickActionModal) => void;
+  setCloudBackupEnabled: (enabled: boolean) => void;
+  setLastBackupTime: (time: string | null) => void;
+  restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; cards: PaymentCard[]; goals: SavingsGoal[] }) => void;
   addTransaction: (tx: Omit<Transaction, 'id' | 'date'>) => void;
   deleteTransaction: (id: string) => void;
   setDailyBudget: (budget: number) => void;
@@ -78,8 +83,23 @@ export const useBudgetStore = create<BudgetState>()(
       cards: [],
       goals: [],
       activeModal: null,
+      isCloudBackupEnabled: false,
+      lastBackupTime: null,
 
       setActiveModal: (modal) => set({ activeModal: modal }),
+
+      setCloudBackupEnabled: (isCloudBackupEnabled) => set({ isCloudBackupEnabled }),
+
+      setLastBackupTime: (lastBackupTime) => set({ lastBackupTime }),
+
+      restoreCloudState: (payload) =>
+        set({
+          dailyBudget: payload.dailyBudget ?? 2000,
+          transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
+          cards: Array.isArray(payload.cards) ? payload.cards : [],
+          cardsCount: Array.isArray(payload.cards) ? payload.cards.length : 0,
+          goals: Array.isArray(payload.goals) ? payload.goals : [],
+        }),
 
       setUser: (user) =>
         set({
@@ -195,6 +215,8 @@ export const useBudgetStore = create<BudgetState>()(
         cardsCount: state.cardsCount,
         cards: state.cards,
         goals: state.goals,
+        isCloudBackupEnabled: state.isCloudBackupEnabled,
+        lastBackupTime: state.lastBackupTime,
       }),
     }
   )
