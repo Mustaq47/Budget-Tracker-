@@ -12,7 +12,7 @@ import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import { uploadBackupToFirestore, downloadBackupFromFirestore } from "../../../services/firestoreService";
 import { DesignModal } from "../modals/DesignModal";
-import { themeMap } from "../../../utils/themePresets";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -24,10 +24,9 @@ export function Profile() {
     colorMode, setColorMode, toggleColorMode, theme
   } = useBudgetStore();
 
-  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
-  const isLight = colorMode === 'light' || !activeTheme.isDark;
-  const textColor = isLight ? "text-slate-900" : activeTheme.textColor;
-  const subtextColor = isLight ? "text-slate-600" : activeTheme.subtextColor;
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const textColor = activeTheme.textColor;
+  const subtextColor = activeTheme.subtextColor;
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);

@@ -3,13 +3,17 @@ import { GlassCard } from "../GlassCard";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
 import { useState } from "react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
-import { themeMap } from "../../../utils/themePresets";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 const categoryColors: Record<string, string> = {
-  Food: "#16A34A",
-  Shopping: "#3B82F6",
-  Transport: "#F59E0B",
-  Bills: "#8B5CF6",
+  Income: "#22C55E",
+  Expense: "#EF4444",
+  Savings: "#F59E0B",
+  Investments: "#6366F1",
+  Bills: "#F97316",
+  Shopping: "#EC4899",
+  Transport: "#06B6D4",
+  Food: "#8B5CF6",
   Utilities: "#06B6D4",
   Health: "#EC4899",
   Other: "#64748B",
@@ -19,11 +23,9 @@ export function Insights() {
   const [period, setPeriod] = useState<"week" | "month" | "year">("week");
   const { transactions, theme, colorMode } = useBudgetStore();
 
-  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
-  const isLight = colorMode === 'light' || !activeTheme.isDark;
-
-  const textColor = isLight ? "text-slate-900" : activeTheme.textColor;
-  const subtextColor = isLight ? "text-slate-600" : activeTheme.subtextColor;
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const textColor = activeTheme.textColor;
+  const subtextColor = activeTheme.subtextColor;
 
   const expenseTransactions = transactions.filter((t) => t.type === "expense");
 

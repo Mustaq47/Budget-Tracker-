@@ -5,7 +5,7 @@ import { GlassIcon } from "../GlassIcon";
 import { TrendingUp, TrendingDown, Zap, DollarSign, Wallet, CreditCard } from "lucide-react";
 import logo from "../../../imports/zeee.png";
 import { useBudgetStore } from "../../../store/useBudgetStore";
-import { themeMap } from "../../../utils/themePresets";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { WalletModal } from "../modals/WalletModal";
 import { CardsModal } from "../modals/CardsModal";
 import { BudgetModal } from "../modals/BudgetModal";
@@ -13,11 +13,10 @@ import { GoalsModal } from "../modals/GoalsModal";
 
 export function Home() {
   const { user, dailyBudget, transactions, activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
-  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
-  const isLight = colorMode === 'light' || !activeTheme.isDark;
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
 
-  const textColor = isLight ? "text-slate-900" : activeTheme.textColor;
-  const subtextColor = isLight ? "text-slate-600" : activeTheme.subtextColor;
+  const textColor = activeTheme.textColor;
+  const subtextColor = activeTheme.subtextColor;
 
   const userName = user?.displayName || user?.email?.split("@")[0] || "User";
   const todayISO = new Date().toISOString().split("T")[0];

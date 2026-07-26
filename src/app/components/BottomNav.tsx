@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { AddExpenseModal } from "./AddExpenseModal";
 import { useBudgetStore } from "../../store/useBudgetStore";
-import { themeMap } from "../../utils/themePresets";
+import { getActiveThemeConfig } from "../../utils/themePresets";
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -17,8 +17,8 @@ export function BottomNav() {
     return null;
   }
 
-  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
-  const isLight = colorMode === 'light' || !activeTheme.isDark;
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const isLight = !activeTheme.isDark;
 
   const isModalOpen = activeModal !== null || showAddModal;
 

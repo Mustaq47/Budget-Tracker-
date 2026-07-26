@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { GlassIcon } from "../GlassIcon";
 import { ShoppingBag, Coffee, Car, Home, Heart, Zap, DollarSign, LucideIcon } from "lucide-react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
-import { themeMap } from "../../../utils/themePresets";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 const iconMap: Record<string, { icon: LucideIcon; glow: "purple" | "blue" | "pink" | "gold" }> = {
   Shopping: { icon: ShoppingBag, glow: "pink" },
@@ -16,11 +16,10 @@ const iconMap: Record<string, { icon: LucideIcon; glow: "purple" | "blue" | "pin
 
 export function Flow() {
   const { transactions, theme, colorMode } = useBudgetStore();
-  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
-  const isLight = colorMode === 'light' || !activeTheme.isDark;
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
 
-  const textColor = isLight ? "text-slate-900" : activeTheme.textColor;
-  const subtextColor = isLight ? "text-slate-600" : activeTheme.subtextColor;
+  const textColor = activeTheme.textColor;
+  const subtextColor = activeTheme.subtextColor;
 
   const todayISO = new Date().toISOString().split("T")[0];
   const todayTransactions = transactions.filter((t) => t.date === todayISO);
