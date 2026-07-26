@@ -38,7 +38,16 @@ export interface SavingsGoal {
   glow: 'purple' | 'blue' | 'pink' | 'gold';
 }
 
-export type QuickActionModal = 'wallet' | 'cards' | 'budget' | 'goals' | 'expense' | null;
+export type QuickActionModal = 
+  | 'wallet' 
+  | 'cards' 
+  | 'budget' 
+  | 'goals' 
+  | 'expense' 
+  | 'profile-settings' 
+  | 'notifications' 
+  | 'privacy-security' 
+  | null;
 export type AppTheme = 
   | 'material-design' 
   | 'glassmorphism' 
@@ -60,6 +69,11 @@ interface BudgetState {
   lastBackupTime: string | null;
   theme: AppTheme;
   colorMode: 'dark' | 'light';
+  notificationSettings: {
+    dailyReminder: boolean;
+    budgetAlerts: boolean;
+    weeklySummary: boolean;
+  };
   
   // Actions
   setUser: (user: UserProfile | null) => void;
@@ -80,6 +94,9 @@ interface BudgetState {
   addGoal: (goal: Omit<SavingsGoal, 'id' | 'currentAmount'>) => void;
   deleteGoal: (id: string) => void;
   contributeToGoal: (goalId: string, amount: number) => void;
+  updateNotificationSettings: (settings: Partial<BudgetState['notificationSettings']>) => void;
+  updateUserProfile: (profile: { displayName?: string | null; photoURL?: string | null }) => void;
+  wipeAllData: () => void;
 }
 
 export const useBudgetStore = create<BudgetState>()(
@@ -98,6 +115,11 @@ export const useBudgetStore = create<BudgetState>()(
       lastBackupTime: null,
       theme: 'material-design',
       colorMode: 'dark',
+      notificationSettings: {
+        dailyReminder: false,
+        budgetAlerts: true,
+        weeklySummary: false,
+      },
 
       setActiveModal: (modal) => set({ activeModal: modal }),
 
@@ -224,6 +246,38 @@ export const useBudgetStore = create<BudgetState>()(
           };
         });
       },
+
+      updateNotificationSettings: (settings) =>
+        set((state) => ({
+          notificationSettings: { ...state.notificationSettings, ...settings },
+        })),
+
+      updateUserProfile: (profile) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...profile } : null,
+        })),
+
+      wipeAllData: () => {
+        set({
+          user: null,
+          isAuthenticated: false,
+          dailyBudget: 2000,
+          transactions: [],
+          cardsCount: 0,
+          cards: [],
+          goals: [],
+          activeModal: null,
+          isCloudBackupEnabled: false,
+          lastBackupTime: null,
+          theme: 'material-design',
+          colorMode: 'dark',
+          notificationSettings: {
+            dailyReminder: false,
+            budgetAlerts: true,
+            weeklySummary: false,
+          },
+        });
+      },
     }),
     {
       name: 'budtrack-storage-v2',
@@ -239,6 +293,7 @@ export const useBudgetStore = create<BudgetState>()(
         lastBackupTime: state.lastBackupTime,
         theme: state.theme,
         colorMode: state.colorMode,
+        notificationSettings: state.notificationSettings,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {

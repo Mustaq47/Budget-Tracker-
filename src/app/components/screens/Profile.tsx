@@ -12,6 +12,9 @@ import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import { uploadBackupToFirestore, downloadBackupFromFirestore } from "../../../services/firestoreService";
 import { DesignModal } from "../modals/DesignModal";
+import { ProfileSettingsModal } from "../modals/ProfileSettingsModal";
+import { NotificationsModal } from "../modals/NotificationsModal";
+import { PrivacyModal } from "../modals/PrivacyModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 export function Profile() {
@@ -21,7 +24,8 @@ export function Profile() {
     dailyBudget, cards, goals,
     isCloudBackupEnabled, setCloudBackupEnabled,
     lastBackupTime, setLastBackupTime, restoreCloudState,
-    colorMode, setColorMode, toggleColorMode, theme
+    colorMode, setColorMode, toggleColorMode, theme,
+    activeModal, setActiveModal
   } = useBudgetStore();
 
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -102,9 +106,9 @@ export function Profile() {
     {
       title: "Account",
       items: [
-        { icon: User, label: "Profile Settings", glow: "purple" as const },
-        { icon: Bell, label: "Notifications", glow: "blue" as const },
-        { icon: Lock, label: "Privacy & Security", glow: "pink" as const },
+        { icon: User, label: "Profile Settings", glow: "purple" as const, action: () => setActiveModal("profile-settings") },
+        { icon: Bell, label: "Notifications", glow: "blue" as const, action: () => setActiveModal("notifications") },
+        { icon: Lock, label: "Privacy & Security", glow: "pink" as const, action: () => setActiveModal("privacy-security") },
       ],
     },
     {
@@ -330,6 +334,21 @@ export function Profile() {
       <DesignModal
         isOpen={isDesignModalOpen}
         onClose={() => setIsDesignModalOpen(false)}
+      />
+
+      <ProfileSettingsModal
+        isOpen={activeModal === "profile-settings"}
+        onClose={() => setActiveModal(null)}
+      />
+
+      <NotificationsModal
+        isOpen={activeModal === "notifications"}
+        onClose={() => setActiveModal(null)}
+      />
+
+      <PrivacyModal
+        isOpen={activeModal === "privacy-security"}
+        onClose={() => setActiveModal(null)}
       />
     </div>
   );
