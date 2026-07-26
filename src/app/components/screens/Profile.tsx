@@ -192,60 +192,6 @@ export function Profile() {
         </div>
       </GlassCard>
 
-      {/* Light / Dark Mode Toggle Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
-      >
-        <div className={`${subtextColor} mb-3 ml-2 tracking-tight font-semibold`}>Appearance & Mode</div>
-        <GlassCard glow glowColor="pink">
-          <div className="flex items-center justify-between p-1">
-            <div className="flex items-center gap-3.5">
-              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center border transition-all ${
-                colorMode === 'dark' 
-                  ? "bg-gradient-to-br from-[#16A34A]/20 to-[#3B82F6]/20 border-white/10 text-emerald-400"
-                  : "bg-amber-400/20 border-amber-400/30 text-amber-600"
-              }`}>
-                {colorMode === 'dark' ? <Moon size={22} /> : <Sun size={22} />}
-              </div>
-              <div>
-                <div className={`${textColor} font-bold text-sm`}>Theme Mode</div>
-                <div className={`${subtextColor} text-xs`}>
-                  {colorMode === 'dark' ? 'Dark Obsidian & Neon Glass' : 'Crisp Light Frosted Mode'}
-                </div>
-              </div>
-            </div>
-
-            {/* Segmented Light/Dark Switcher */}
-            <div className={`flex items-center p-1 rounded-2xl border ${isLight ? "bg-slate-100 border-slate-200" : "bg-white/10 border-white/10"}`}>
-              <button
-                type="button"
-                onClick={() => setColorMode('dark')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                  colorMode === 'dark'
-                    ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white shadow-md"
-                    : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/50 hover:text-white"
-                }`}
-              >
-                <Moon size={13} /> Dark
-              </button>
-              <button
-                type="button"
-                onClick={() => setColorMode('light')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                  colorMode === 'light'
-                    ? "bg-gradient-to-r from-amber-400 to-orange-400 text-black font-extrabold shadow-md"
-                    : "text-white/50 hover:text-white"
-                }`}
-              >
-                <Sun size={13} /> Light
-              </button>
-            </div>
-          </div>
-        </GlassCard>
-      </motion.div>
-
       {/* Cloud Storage & Local Privacy Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, Palette, Check, Sparkles, Eye } from "lucide-react";
+import { X, Palette, Check, Sparkles, Eye, Moon, Sun } from "lucide-react";
 import { useBudgetStore, AppTheme } from "../../../store/useBudgetStore";
-import { themeMap, ThemeConfig } from "../../../utils/themePresets";
+import { themeMap, getActiveThemeConfig } from "../../../utils/themePresets";
 
 interface DesignModalProps {
   isOpen: boolean;
@@ -9,10 +9,11 @@ interface DesignModalProps {
 }
 
 export function DesignModal({ isOpen, onClose }: DesignModalProps) {
-  const { theme, setTheme } = useBudgetStore();
+  const { theme, setTheme, colorMode, setColorMode } = useBudgetStore();
 
   const themesList = Object.values(themeMap);
-  const activeTheme = themeMap[theme] || themeMap['cyber-neon'];
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const isLight = !activeTheme.isDark;
 
   const handleSelectTheme = (selectedId: AppTheme) => {
     setTheme(selectedId);
@@ -60,6 +61,32 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
                 </div>
               </div>
 
+              {/* Mode Selector Segmented Tabs */}
+              <div className="flex p-1 rounded-2xl bg-white/5 border border-white/10 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setColorMode('dark')}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    colorMode === 'dark'
+                      ? "bg-gradient-to-r from-[#7B61FF] to-[#00E5FF] text-white shadow-md font-black"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  <Moon size={14} /> Dark
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setColorMode('light')}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    colorMode === 'light'
+                      ? "bg-gradient-to-r from-amber-400 to-orange-400 text-black shadow-md font-black"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  <Sun size={14} /> Light
+                </button>
+              </div>
+
               {/* Live Preview Card */}
               <div className="p-4 rounded-3xl bg-white/5 border border-white/10 mb-6 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-3">
@@ -72,26 +99,26 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
                 </div>
 
                 {/* Sample Card */}
-                <div className={`p-4 rounded-2xl ${activeTheme.bgClass} border border-white/15 shadow-xl transition-all`}>
+                <div className={`p-5 rounded-3xl ${activeTheme.bgClass} border ${isLight ? 'border-slate-200/90' : 'border-white/15'} shadow-xl transition-all`}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-white/60 text-xs">Total Balance</span>
+                    <span className={`${isLight ? 'text-slate-600' : 'text-white/60'} text-xs font-semibold`}>Total Balance</span>
                     <div className="flex gap-1.5">
                       {activeTheme.swatchColors.map((color, i) => (
                         <div
                           key={i}
-                          className="w-3 h-3 rounded-full border border-white/20"
+                          className="w-3.5 h-3.5 rounded-full border border-black/15 shadow-sm"
                           style={{ backgroundColor: color }}
                         />
                       ))}
                     </div>
                   </div>
-                  <div className="text-white text-2xl font-black tracking-tighter mb-3">
+                  <div className={`${activeTheme.textColor} text-3xl font-black tracking-tighter mb-4`}>
                     ₹48,250.00
                   </div>
 
                   {/* Gradient Sample Bar */}
                   <div
-                    className={`h-2.5 rounded-full bg-gradient-to-r ${activeTheme.accentGradient} shadow-md mb-2`}
+                    className={`h-3 rounded-full bg-gradient-to-r ${activeTheme.accentGradient} shadow-sm mb-1`}
                   />
                 </div>
               </div>
@@ -99,11 +126,13 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
               {/* Themes Selector List */}
               <div className="space-y-3 mb-6">
                 <div className="text-white/60 text-xs font-semibold tracking-tight ml-1 mb-2">
-                  Curated Aesthetic Themes
+                  Select Theme Preset
                 </div>
 
                 {themesList.map((tConfig) => {
                   const isSelected = tConfig.id === theme;
+                  // Get dynamic config for the current item to display correct swatch colors
+                  const dynamicConfig = getActiveThemeConfig(tConfig.id, colorMode);
 
                   return (
                     <motion.div
@@ -119,9 +148,9 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3.5">
-                          {/* Color Swatch Circles */}
+                          {/* Color Swatch Circles using current color mode */}
                           <div className="flex -space-x-1.5 items-center">
-                            {tConfig.swatchColors.map((c, i) => (
+                            {dynamicConfig.swatchColors.map((c, i) => (
                               <div
                                 key={i}
                                 className="w-6 h-6 rounded-full border-2 border-black/40 shadow-sm"

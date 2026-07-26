@@ -40,14 +40,11 @@ export interface SavingsGoal {
 
 export type QuickActionModal = 'wallet' | 'cards' | 'budget' | 'goals' | 'expense' | null;
 export type AppTheme = 
-  | 'dark-theme' 
-  | 'light-theme' 
   | 'material-design' 
   | 'glassmorphism' 
   | 'neumorphism' 
   | 'minimalist-theme' 
-  | 'gradient-theme'
-  | 'cyber-neon';
+  | 'gradient-theme';
 
 interface BudgetState {
   user: UserProfile | null;
@@ -99,7 +96,7 @@ export const useBudgetStore = create<BudgetState>()(
       activeModal: null,
       isCloudBackupEnabled: false,
       lastBackupTime: null,
-      theme: 'cyber-neon',
+      theme: 'material-design',
       colorMode: 'dark',
 
       setActiveModal: (modal) => set({ activeModal: modal }),
@@ -243,6 +240,15 @@ export const useBudgetStore = create<BudgetState>()(
         theme: state.theme,
         colorMode: state.colorMode,
       }),
+      migrate: (persistedState: any) => {
+        if (persistedState && persistedState.theme) {
+          const legacyThemes = ['cyber-neon', 'dark-theme', 'light-theme'];
+          if (legacyThemes.includes(persistedState.theme)) {
+            persistedState.theme = 'material-design';
+          }
+        }
+        return persistedState;
+      },
     }
   )
 );
