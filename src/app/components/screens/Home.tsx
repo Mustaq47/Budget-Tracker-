@@ -91,12 +91,15 @@ export function Home() {
           </svg>
 
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center"
+            onClick={() => setActiveModal("budget")}
+            className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer group"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
-            <div className="text-white/60 mb-2 tracking-tight">Spent Today</div>
+            <div className="text-white/60 mb-2 tracking-tight group-hover:text-white transition-colors">Spent Today</div>
             <motion.div
               className="text-white text-5xl tracking-tighter mb-2"
               initial={{ opacity: 0 }}
@@ -104,7 +107,9 @@ export function Home() {
             >
               ₹{spentToday.toLocaleString()}
             </motion.div>
-            <div className="text-white/40 tracking-tight">of ₹{dailyBudget.toLocaleString()}</div>
+            <div className="text-white/40 tracking-tight group-hover:text-[#FF4D8D] font-bold transition-colors">
+              of ₹{dailyBudget.toLocaleString()} <span className="text-[10px] underline ml-1">Tap to edit</span>
+            </div>
             <motion.div
               className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
                 isOverBudget
