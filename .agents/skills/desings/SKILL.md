@@ -1,30 +1,32 @@
 ---
 name: desings
-description: Master UI/UX & Visual Design Skill synthesizing Apple Design principles, Anti-Slop Frontend Taste, High-End Agency Visual Standards, 花叔 (Huashu) High-Fidelity Prototyping, Motion Animation Discovery, Project Redesigns, Stitch Design Systems, Android/Mobile UI, and 7 Core Theme Paradigms (Dark, Light, Material, Glassmorphism, Neumorphism, Minimalist, Gradient).
+description: Master UI/UX & Visual Design Skill synthesizing Apple Design principles, Anti-Slop Frontend Taste, High-End Agency Visual Standards, 花叔 (Huashu) High-Fidelity Prototyping, Motion Animation Discovery, Project Redesigns, Stitch Design Systems, Android/Mobile UI, and 7 Core Theme Paradigms with calibrated color palettes.
 ---
 
 # 🎨 DESINGS — Master UI/UX & Visual Design System
 
-The definitive, anti-generic design skill for building state-of-the-art web and mobile interfaces. Combines 7 core visual themes, Apple's physical motion, agency-grade typography, non-templated color theory, micro-animations, and mobile-native responsiveness.
+The definitive, anti-generic design skill for building state-of-the-art web and mobile interfaces. Combines 7 core visual themes, exact color palettes, Apple's physical motion, agency-grade typography, micro-animations, and mobile-native responsiveness.
 
 ---
 
-## 🎨 7 Core Design & Theme Paradigms
+## 🎨 7 Core Design & Theme Paradigms with Exact Color Palettes
 
-1. 🌙 **Dark Theme** — Pure OLED/Obsidian black backgrounds (`#000000`) paired with high-contrast, bright vibrant accents (`#00E5FF`, `#FF4D8D`).
-2. ☀️ **Light Theme** — Clean white/off-white interface (`#FFFFFF`, `#F8F9FA`) with soft pastel borders, dark slate typography (`#0F172A`), and pleasant accent highlights.
-3. 🎨 **Material Design** — Google's modern M3 design language with elevated surface containers (`rounded-[28px]`), tonal color palettes, and crisp ripple feedback.
-4. 💎 **Glassmorphism** — High-end frosted glass effects with heavy backdrop blur (`backdrop-blur-3xl`), semi-transparent white fills (`bg-white/10`), and subtle light-reflecting borders (`border-white/15`).
-5. 🟢 **Neumorphism** — Soft tactile embossed UI elements using dual light/dark extruded shadows (`shadow-[6px_6px_14px_rgba(0,0,0,0.5),-6px_-6px_14px_rgba(255,255,255,0.05)]`).
-6. 📱 **Minimalist Theme** — Spacious, clutter-free layouts with broad typography scale, generous breathing whitespace, and warm editorial monochrome tones (`#0F0E13` charcoal, `#F4E8D1` champagne).
-7. 🌈 **Gradient Theme** — Vibrant multi-stop color spectrums (`from-[#FF4D8D] via-[#7B61FF] to-[#00E5FF]`) for buttons, progress rings, and animated background halos.
+| Theme | Description | Recommended Color Palette |
+| --- | --- | --- |
+| 🌙 **Dark Theme** ⭐ | Elegant, modern, and easy on the eyes. Great for users who prefer dark mode. | **Background:** `#121212`<br>**Surface:** `#1E1E1E`<br>**Primary:** `#22C55E` (Green)<br>**Accent:** `#06B6D4` (Cyan)<br>**Income:** `#22C55E`<br>**Expense:** `#EF4444`<br>**Text:** `#FFFFFF` |
+| ☀️ **Light Theme** ⭐ | Clean, bright, and ideal for finance apps. | **Background:** `#F8FAFC`<br>**Surface:** `#FFFFFF`<br>**Primary:** `#16A34A`<br>**Accent:** `#3B82F6`<br>**Income:** `#22C55E`<br>**Expense:** `#EF4444`<br>**Text:** `#111827` |
+| 🎨 **Material Design** ⭐ | Google's modern design system with clear navigation and components. | **Primary:** `#16A34A`<br>**Secondary:** `#4CAF50`<br>**Accent:** `#FFC107`<br>**Background:** `#F5F5F5`<br>**Surface:** `#FFFFFF`<br>**Text:** `#212121` |
+| 💎 **Glassmorphism** | Frosted glass cards with blurred backgrounds for a premium look. | **Background:** `#E0F2FE`<br>**Glass:** `rgba(255,255,255,0.25)`<br>**Primary:** `#3B82F6`<br>**Accent:** `#22C55E`<br>**Text:** `#111827` |
+| 🟢 **Neumorphism** | Soft shadows and rounded elements for a smooth, modern interface. | **Background:** `#E0E5EC`<br>**Primary:** `#16A34A`<br>**Accent:** `#3B82F6`<br>**Text:** `#374151` |
+| 📱 **Minimalist Theme** ⭐ | Simple, clutter-free design focused on usability. | **Background:** `#FFFFFF`<br>**Primary:** `#16A34A`<br>**Accent:** `#F59E0B`<br>**Text:** `#111827`<br>**Secondary Text:** `#6B7280` |
+| 🌈 **Gradient Theme** | Modern gradients with vibrant colors that add visual appeal. | **Gradient:** `#16A34A → #3B82F6`<br>**Accent:** `#06B6D4`<br>**Background:** `#F8FAFC`<br>**Text:** `#111827` |
 
 ---
 
 ## 1. Core Visual Principles & Aesthetic Guardrails
 
 ### 🚫 The "Anti-Slop" Bans (What NEVER to do)
-- **NO Generic Default Gradients**: Ban standard `from-purple-500 to-pink-500` or saturated primary RGB blue/red/green.
+- **NO Generic Default Gradients**: Ban uncalibrated RGB blue/red/green gradients. Use specified theme palette tokens.
 - **NO Harsh Heavy Shadows**: Avoid ugly `shadow-2xl` or uncalibrated black drop shadows.
 - **NO Thick Borders**: Ban solid `border-2` or high-contrast box outlines. Use `border-white/10` or subtle HSL calibrated strokes.
 - **NO Cards-Inside-Cards Nesting**: Maximize breathing room; avoid 4-level deep container boxes.
@@ -40,12 +42,12 @@ The definitive, anti-generic design skill for building state-of-the-art web and 
 - **Optical Typography**: High-contrast, broad editorial font hierarchy with tight tracking (`tracking-tighter` on headings, `tracking-tight` on body).
 
 ### ✨ High-End Visual Agency Standards
-- **Warm Minimalist Palette**: Deep cosmic charcoal/obsidian backgrounds (`#0B0914`, `#0E0E12`, `#000000`) paired with curated neon, champagne gold, or emerald quartz accents.
+- **Warm Minimalist Palette**: Deep cosmic charcoal/obsidian backgrounds (`#121212`, `#0E0E12`, `#000000`) paired with curated green, cyan, or champagne gold accents.
 - **Asymmetric Bento Grids**: Layouts should leverage functional bento grid blocks with generous internal padding (`p-6` to `p-8`) and large corner radii (`rounded-3xl` or `rounded-[48px]`).
 
 ### 🌸 花叔 (Huashu) High-Fidelity Prototyping & Review
 - **Interactive Prototyping**: Build production-grade HTML/React mockups with immediate interactive states.
-- **Design Direction Choice**: Offer distinct aesthetic options (Cyber Neon, Midnight OLED, Champagne Luxury, Emerald Quartz, Industrial Tactical).
+- **Design Direction Choice**: Offer distinct aesthetic options (Dark Theme, Light Theme, Material Design, Glassmorphism, Neumorphism, Minimalist, Gradient).
 
 ### 🎬 Animation & Motion Opportunities
 - **Perpetual Ambient Glows**: Pulse ambient radial glows (`animate-pulse` or infinite spring scale) behind primary CTA cards and circular progress rings.
