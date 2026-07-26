@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, DollarSign, Check, Plus, Sliders, TrendingUp, Sparkles } from "lucide-react";
-import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 
 interface BudgetModalProps {
   isOpen: boolean;
@@ -12,7 +12,7 @@ const presetBudgets = [1500, 2500, 5000, 10000];
 const quickAddPresets = [50, 100, 200, 500, 1000];
 
 export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
-  const { dailyBudget, setDailyBudget, transactions, addTransaction } = useBudgetStore();
+  const { dailyBudget, setDailyBudget, transactions, addTransaction, currency } = useBudgetStore();
 
   const [activeTab, setActiveTab] = useState<"add" | "target">("add");
   const [spentInput, setSpentInput] = useState("");
@@ -112,13 +112,13 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       <TrendingUp size={12} className="text-[#FF4D8D]" /> Spent Today
                     </div>
                     <div className="text-white text-3xl font-black tracking-tighter">
-                      ₹{spentToday.toLocaleString()}
+                      {currencySymbols[currency]}{spentToday.toLocaleString()}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-white/50 text-xs tracking-tight mb-1">Target Limit</div>
                     <div className="text-white/80 text-lg font-bold tracking-tight">
-                      ₹{dailyBudget.toLocaleString()}
+                      {currencySymbols[currency]}{dailyBudget.toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
                 <div className="flex justify-between text-[11px] text-white/50 font-medium">
                   <span>{spentPercent}% spent</span>
-                  <span>{remaining > 0 ? `₹${remaining.toLocaleString()} remaining` : "Budget Exceeded!"}</span>
+                  <span>{remaining > 0 ? `${currencySymbols[currency]}${remaining.toLocaleString()} remaining` : "Budget Exceeded!"}</span>
                 </div>
               </div>
 
@@ -177,7 +177,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       Amount to Add Directly into Spent
                     </label>
                     <div className="relative flex items-center">
-                      <span className="absolute left-4 text-[#FF4D8D] text-2xl font-black">₹</span>
+                      <span className="absolute left-4 text-[#FF4D8D] text-2xl font-black">{currencySymbols[currency]}</span>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -202,7 +202,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                           onClick={() => handleQuickAddChip(amt)}
                           className="py-2 rounded-xl text-xs font-bold bg-white/5 border border-white/10 text-white/80 hover:bg-[#FF4D8D]/20 hover:border-[#FF4D8D]/40 transition-all cursor-pointer"
                         >
-                          +₹{amt}
+                          +{currencySymbols[currency]}{amt}
                         </button>
                       ))}
                     </div>
@@ -241,7 +241,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                   <div>
                     <label className="block text-xs font-bold text-white/80 mb-2">New Target Budget Limit</label>
                     <div className="relative flex items-center">
-                      <span className="absolute left-4 text-[#00E5FF] text-2xl font-black">₹</span>
+                      <span className="absolute left-4 text-[#00E5FF] text-2xl font-black">{currencySymbols[currency]}</span>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -268,7 +268,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                               : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
                           }`}
                         >
-                          ₹{preset.toLocaleString()}
+                          {currencySymbols[currency]}{preset.toLocaleString()}
                         </button>
                       ))}
                     </div>

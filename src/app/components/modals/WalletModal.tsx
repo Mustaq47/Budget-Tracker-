@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Wallet, ArrowDownRight, ArrowUpRight, PlusCircle, Sparkles } from "lucide-react";
-import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -11,7 +11,7 @@ interface WalletModalProps {
 const depositPresets = [500, 1000, 5000, 10000];
 
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
-  const { transactions, addTransaction } = useBudgetStore();
+  const { transactions, addTransaction, currency } = useBudgetStore();
   const [depositAmount, setDepositAmount] = useState("");
   const [depositSource, setDepositSource] = useState("");
 
@@ -96,7 +96,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
                 <div className="text-white/60 text-xs font-medium uppercase tracking-wider mb-1">Total Available Balance</div>
                 <div className="text-white text-4xl font-black tracking-tighter mb-5">
-                  ₹{totalBalance.toLocaleString()}
+                  {currencySymbols[currency]}{totalBalance.toLocaleString()}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
@@ -106,7 +106,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     </div>
                     <div className="min-w-0">
                       <div className="text-white/50 text-[10px] uppercase font-bold tracking-tight truncate">Total Income</div>
-                      <div className="text-emerald-400 font-extrabold text-sm truncate">₹{income.toLocaleString()}</div>
+                      <div className="text-emerald-400 font-extrabold text-sm truncate">{currencySymbols[currency]}{income.toLocaleString()}</div>
                     </div>
                   </div>
 
@@ -116,7 +116,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     </div>
                     <div className="min-w-0">
                       <div className="text-white/50 text-[10px] uppercase font-bold tracking-tight truncate">Total Expenses</div>
-                      <div className="text-rose-400 font-extrabold text-sm truncate">₹{expense.toLocaleString()}</div>
+                      <div className="text-rose-400 font-extrabold text-sm truncate">{currencySymbols[currency]}{expense.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 
                 <div>
                   <div className="relative flex items-center">
-                    <span className="absolute left-4 text-[#00E5FF] text-xl font-bold">₹</span>
+                    <span className="absolute left-4 text-[#00E5FF] text-xl font-bold">{currencySymbols[currency]}</span>
                     <input
                       type="text"
                       inputMode="numeric"
@@ -155,7 +155,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                             : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
                         }`}
                       >
-                        +₹{preset.toLocaleString()}
+                        +{currencySymbols[currency]}{preset.toLocaleString()}
                       </button>
                     ))}
                   </div>

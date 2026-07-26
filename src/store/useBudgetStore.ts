@@ -49,6 +49,7 @@ export type QuickActionModal =
   | 'profile-settings' 
   | 'notifications' 
   | 'privacy-security' 
+  | 'language-region'
   | null;
 export type AppTheme = 
   | 'material-design' 
@@ -56,6 +57,17 @@ export type AppTheme =
   | 'neumorphism' 
   | 'minimalist-theme' 
   | 'gradient-theme';
+
+export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
+export type LanguageCode = 'en' | 'te' | 'hi';
+
+export const currencySymbols: Record<CurrencyCode, string> = {
+  INR: '₹',
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+};
 
 interface BudgetState {
   user: UserProfile | null;
@@ -76,9 +88,13 @@ interface BudgetState {
     budgetAlerts: boolean;
     weeklySummary: boolean;
   };
+  currency: CurrencyCode;
+  language: LanguageCode;
   
   // Actions
   setUser: (user: UserProfile | null) => void;
+  setCurrency: (currency: CurrencyCode) => void;
+  setLanguage: (language: LanguageCode) => void;
   setAuthLoading: (loading: boolean) => void;
   logoutUser: () => void;
   setActiveModal: (modal: QuickActionModal) => void;
@@ -122,8 +138,13 @@ export const useBudgetStore = create<BudgetState>()(
         budgetAlerts: true,
         weeklySummary: false,
       },
+      currency: 'INR',
+      language: 'en',
 
       setActiveModal: (modal) => set({ activeModal: modal }),
+
+      setCurrency: (currency) => set({ currency }),
+      setLanguage: (language) => set({ language }),
 
       setTheme: (theme) => set({ theme }),
 
@@ -278,6 +299,8 @@ export const useBudgetStore = create<BudgetState>()(
             budgetAlerts: true,
             weeklySummary: false,
           },
+          currency: 'INR',
+          language: 'en',
         });
       },
     }),
@@ -296,6 +319,8 @@ export const useBudgetStore = create<BudgetState>()(
         theme: state.theme,
         colorMode: state.colorMode,
         notificationSettings: state.notificationSettings,
+        currency: state.currency,
+        language: state.language,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {

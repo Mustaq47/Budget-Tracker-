@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, ShoppingBag, Coffee, Car, Home, Zap, Heart, MoreHorizontal } from "lucide-react";
 import { GlassIcon } from "./GlassIcon";
 import { useState } from "react";
-import { useBudgetStore } from "../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../store/useBudgetStore";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -22,7 +22,7 @@ const categories = [
 export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(0);
-  const { addTransaction } = useBudgetStore();
+  const { addTransaction, currency } = useBudgetStore();
 
   const handleSubmit = () => {
     const num = parseFloat(amount);
@@ -85,7 +85,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               <div className="mb-8">
                 <div className="text-white/60 mb-2 tracking-tight">Add Expense</div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-white/40 text-4xl">₹</span>
+                  <span className="text-white/40 text-4xl">{currencySymbols[currency]}</span>
                   <input
                     type="text"
                     inputMode="numeric"

@@ -7,7 +7,7 @@ import {
   HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check, Palette,
   Sun, Moon
 } from "lucide-react";
-import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import { uploadBackupToFirestore, downloadBackupFromFirestore } from "../../../services/firestoreService";
@@ -15,6 +15,7 @@ import { DesignModal } from "../modals/DesignModal";
 import { ProfileSettingsModal } from "../modals/ProfileSettingsModal";
 import { NotificationsModal } from "../modals/NotificationsModal";
 import { PrivacyModal } from "../modals/PrivacyModal";
+import { LanguageRegionModal } from "../modals/LanguageRegionModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 export function Profile() {
@@ -25,7 +26,7 @@ export function Profile() {
     isCloudBackupEnabled, setCloudBackupEnabled,
     lastBackupTime, setLastBackupTime, restoreCloudState,
     colorMode, setColorMode, toggleColorMode, theme,
-    activeModal, setActiveModal
+    activeModal, setActiveModal, currency
   } = useBudgetStore();
 
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -115,8 +116,8 @@ export function Profile() {
       title: "Preferences",
       items: [
         { icon: Palette, label: "Design & Themes", glow: "pink" as const, action: () => setIsDesignModalOpen(true) },
-        { icon: CreditCard, label: "Payment Methods", glow: "gold" as const },
-        { icon: Globe, label: "Language & Region", glow: "purple" as const },
+        { icon: CreditCard, label: "Payment Methods", glow: "gold" as const, action: () => setActiveModal("cards") },
+        { icon: Globe, label: "Language & Region", glow: "purple" as const, action: () => setActiveModal("language-region") },
       ],
     },
     {
@@ -186,7 +187,7 @@ export function Profile() {
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
-              ₹{balance >= 1000 ? `${(balance / 1000).toFixed(1)}K` : balance}
+              {currencySymbols[currency]}{balance >= 1000 ? `${(balance / 1000).toFixed(1)}K` : balance}
             </div>
             <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Balance</div>
           </div>
@@ -353,6 +354,11 @@ export function Profile() {
 
       <PrivacyModal
         isOpen={activeModal === "privacy-security"}
+        onClose={() => setActiveModal(null)}
+      />
+
+      <LanguageRegionModal
+        isOpen={activeModal === "language-region"}
         onClose={() => setActiveModal(null)}
       />
     </div>

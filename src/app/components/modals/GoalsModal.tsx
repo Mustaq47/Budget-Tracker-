@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Zap, Plus, Coins, Target, Trash2, Sparkles, Trophy } from "lucide-react";
-import { useBudgetStore, SavingsGoal } from "../../../store/useBudgetStore";
+import { useBudgetStore, SavingsGoal, currencySymbols } from "../../../store/useBudgetStore";
 
 interface GoalsModalProps {
   isOpen: boolean;
@@ -12,7 +12,7 @@ const goalCategories = ["Savings", "Travel", "Gadgets", "Emergency", "Investment
 const glowThemes: Array<"gold" | "blue" | "purple" | "pink"> = ["gold", "blue", "purple", "pink"];
 
 export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
-  const { goals, addGoal, contributeToGoal, deleteGoal } = useBudgetStore();
+  const { goals, addGoal, contributeToGoal, deleteGoal, currency } = useBudgetStore();
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [selectedGoalForContribution, setSelectedGoalForContribution] = useState<string | null>(null);
 
@@ -157,7 +157,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                             <div className="text-right">
                               <div className="text-[#FFD166] font-black text-sm tracking-tight">{pct}%</div>
                               <div className="text-white/40 text-[10px] tracking-tight">
-                                ₹{goal.currentAmount.toLocaleString()} / ₹{goal.targetAmount.toLocaleString()}
+                                {currencySymbols[currency]}{goal.currentAmount.toLocaleString()} / {currencySymbols[currency]}{goal.targetAmount.toLocaleString()}
                               </div>
                             </div>
                             <button
@@ -213,7 +213,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                   </div>
 
                   <div className="relative flex items-center">
-                    <span className="absolute left-4 text-[#FFD166] text-lg font-bold">₹</span>
+                    <span className="absolute left-4 text-[#FFD166] text-lg font-bold">{currencySymbols[currency]}</span>
                     <input
                       type="text"
                       inputMode="numeric"
@@ -233,7 +233,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                         onClick={() => setContributionAmount(amt.toString())}
                         className="py-1.5 rounded-xl text-[11px] font-bold bg-white/5 border border-white/10 text-white/80 hover:bg-white/15"
                       >
-                        +₹{amt}
+                        +{currencySymbols[currency]}{amt}
                       </button>
                     ))}
                   </div>
@@ -277,7 +277,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] font-semibold text-white/70 mb-1">Target Amount (₹)</label>
+                      <label className="block text-[11px] font-semibold text-white/70 mb-1">Target Amount ({currencySymbols[currency]})</label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -289,7 +289,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-white/70 mb-1">Initial Deposit (₹)</label>
+                      <label className="block text-[11px] font-semibold text-white/70 mb-1">Initial Deposit ({currencySymbols[currency]})</label>
                       <input
                         type="text"
                         inputMode="numeric"

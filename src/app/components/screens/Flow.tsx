@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { GlassIcon } from "../GlassIcon";
 import { ShoppingBag, Coffee, Car, Home, Heart, Zap, DollarSign, LucideIcon } from "lucide-react";
-import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 const iconMap: Record<string, { icon: LucideIcon; glow: "purple" | "blue" | "pink" | "gold" }> = {
@@ -15,7 +15,7 @@ const iconMap: Record<string, { icon: LucideIcon; glow: "purple" | "blue" | "pin
 };
 
 export function Flow() {
-  const { transactions, theme, colorMode } = useBudgetStore();
+  const { transactions, theme, colorMode, currency } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
 
   const textColor = activeTheme.textColor;
@@ -95,7 +95,7 @@ export function Flow() {
                     <div className="flex items-start justify-between mb-1">
                       <div className={`${textColor} tracking-tight font-bold text-sm`}>{item.title}</div>
                       <div className={`tracking-tighter font-extrabold ${item.type === "income" ? "text-emerald-600" : "text-red-500"}`}>
-                        {item.type === "income" ? "+" : "-"}₹{item.amount.toLocaleString()}
+                        {item.type === "income" ? "+" : "-"}{currencySymbols[currency]}{item.amount.toLocaleString()}
                       </div>
                     </div>
                     <div className={`${subtextColor} text-xs tracking-tight`}>{item.time || "Today"}</div>
@@ -118,7 +118,7 @@ export function Flow() {
             transition={{ delay: 0.5 }}
             className={`mt-8 text-center ${subtextColor} tracking-tight text-xs font-semibold`}
           >
-            Total spent in view: ₹{totalSpent.toLocaleString()}
+            Total spent in view: {currencySymbols[currency]}{totalSpent.toLocaleString()}
           </motion.div>
         </div>
       )}

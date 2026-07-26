@@ -4,7 +4,7 @@ import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
 import { TrendingUp, TrendingDown, Zap, DollarSign, Wallet, CreditCard } from "lucide-react";
 import logo from "../../../imports/zeee.png";
-import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { WalletModal } from "../modals/WalletModal";
 import { CardsModal } from "../modals/CardsModal";
@@ -12,7 +12,7 @@ import { BudgetModal } from "../modals/BudgetModal";
 import { GoalsModal } from "../modals/GoalsModal";
 
 export function Home() {
-  const { user, dailyBudget, transactions, activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
+  const { user, dailyBudget, transactions, activeModal, setActiveModal, theme, colorMode, currency } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
 
   const textColor = activeTheme.textColor;
@@ -108,9 +108,9 @@ export function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              ₹{spentToday.toLocaleString()}
+              {currencySymbols[currency]}{spentToday.toLocaleString()}
             </motion.div>
-            <div className={`${subtextColor} tracking-tight text-sm font-medium`}>of ₹{dailyBudget.toLocaleString()}</div>
+            <div className={`${subtextColor} tracking-tight text-sm font-medium`}>of {currencySymbols[currency]}{dailyBudget.toLocaleString()}</div>
             <motion.div
               className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
                 isOverBudget
@@ -199,7 +199,7 @@ export function Home() {
                     transaction.type === "income" ? "text-emerald-600" : "text-red-500"
                   }`}
                 >
-                  {transaction.type === "income" ? "+" : "-"}₹{transaction.amount.toLocaleString()}
+                  {transaction.type === "income" ? "+" : "-"}{currencySymbols[currency]}{transaction.amount.toLocaleString()}
                 </div>
               </motion.div>
             ))}

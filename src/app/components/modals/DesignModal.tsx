@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Palette, Check, Sparkles, Eye, Moon, Sun } from "lucide-react";
-import { useBudgetStore, AppTheme } from "../../../store/useBudgetStore";
+import { useBudgetStore, AppTheme, currencySymbols } from "../../../store/useBudgetStore";
 import { themeMap, getActiveThemeConfig } from "../../../utils/themePresets";
 
 interface DesignModalProps {
@@ -9,7 +9,7 @@ interface DesignModalProps {
 }
 
 export function DesignModal({ isOpen, onClose }: DesignModalProps) {
-  const { theme, setTheme, colorMode, setColorMode } = useBudgetStore();
+  const { theme, setTheme, colorMode, setColorMode, currency } = useBudgetStore();
 
   const themesList = Object.values(themeMap);
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -113,7 +113,7 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
                     </div>
                   </div>
                   <div className={`${activeTheme.textColor} text-3xl font-black tracking-tighter mb-4`}>
-                    ₹48,250.00
+                    {currencySymbols[currency]}48,250.00
                   </div>
 
                   {/* Gradient Sample Bar */}

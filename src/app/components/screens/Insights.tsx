@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
 import { useState } from "react";
-import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 const categoryColors: Record<string, string> = {
@@ -21,7 +21,7 @@ const categoryColors: Record<string, string> = {
 
 export function Insights() {
   const [period, setPeriod] = useState<"week" | "month" | "year">("week");
-  const { transactions, theme, colorMode } = useBudgetStore();
+  const { transactions, theme, colorMode, currency } = useBudgetStore();
 
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
@@ -109,7 +109,7 @@ export function Insights() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              ₹{totalSpent.toLocaleString()}
+              {currencySymbols[currency]}{totalSpent.toLocaleString()}
             </motion.div>
           </div>
           <div>
@@ -120,7 +120,7 @@ export function Insights() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
             >
-              ₹{avgPerDay.toLocaleString()}
+              {currencySymbols[currency]}{avgPerDay.toLocaleString()}
             </motion.div>
           </div>
         </div>
@@ -182,7 +182,7 @@ export function Insights() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <div className={`${subtextColor} text-xs tracking-tight font-semibold`}>Total</div>
                   <div className={`${textColor} text-2xl tracking-tighter font-black`}>
-                    ₹{totalSpent.toLocaleString()}
+                    {currencySymbols[currency]}{totalSpent.toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -208,7 +208,7 @@ export function Insights() {
                     <span className={`${textColor} tracking-tight font-bold text-sm`}>{category.name}</span>
                   </div>
                   <div className={`${subtextColor} tracking-tight font-extrabold text-sm`}>
-                    ₹{category.value.toLocaleString()}
+                    {currencySymbols[currency]}{category.value.toLocaleString()}
                   </div>
                 </motion.div>
               ))}
