@@ -4,7 +4,8 @@ import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
 import { 
   User, Bell, Lock, CreditCard, Globe, HelpCircle, LogOut, ChevronRight, LogIn,
-  HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check, Palette
+  HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check, Palette,
+  Sun, Moon
 } from "lucide-react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { logout } from "../../../services/firebase";
@@ -18,7 +19,8 @@ export function Profile() {
     user, isAuthenticated, logoutUser, transactions, cardsCount,
     dailyBudget, cards, goals,
     isCloudBackupEnabled, setCloudBackupEnabled,
-    lastBackupTime, setLastBackupTime, restoreCloudState
+    lastBackupTime, setLastBackupTime, restoreCloudState,
+    colorMode, setColorMode, toggleColorMode
   } = useBudgetStore();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -136,7 +138,7 @@ export function Profile() {
         className="mb-8"
       >
         <h1 className="text-white text-3xl tracking-tighter mb-2">Profile</h1>
-        <div className="text-white/60 tracking-tight">Manage your account & privacy</div>
+        <div className="text-white/60 tracking-tight">Manage your account, theme & privacy</div>
       </motion.div>
 
       <GlassCard className="mb-6" glow glowColor="purple">
@@ -188,6 +190,60 @@ export function Profile() {
           </div>
         </div>
       </GlassCard>
+
+      {/* Light / Dark Mode Toggle Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
+        <div className="text-white/60 mb-3 ml-2 tracking-tight">Appearance & Mode</div>
+        <GlassCard glow glowColor="pink">
+          <div className="flex items-center justify-between p-1">
+            <div className="flex items-center gap-3.5">
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center border transition-all ${
+                colorMode === 'dark' 
+                  ? "bg-gradient-to-br from-[#7B61FF]/20 to-[#FF4D8D]/20 border-white/10 text-[#FF4D8D]"
+                  : "bg-amber-400/20 border-amber-400/30 text-amber-300"
+              }`}>
+                {colorMode === 'dark' ? <Moon size={22} /> : <Sun size={22} />}
+              </div>
+              <div>
+                <div className="text-white font-bold text-sm">Theme Mode</div>
+                <div className="text-white/50 text-xs">
+                  {colorMode === 'dark' ? 'Dark Obsidian & Neon Glass' : 'Crisp Light Frosted Mode'}
+                </div>
+              </div>
+            </div>
+
+            {/* Segmented Light/Dark Switcher */}
+            <div className="flex items-center p-1 rounded-2xl bg-white/10 border border-white/10">
+              <button
+                type="button"
+                onClick={() => setColorMode('dark')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  colorMode === 'dark'
+                    ? "bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white shadow-md"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                <Moon size={13} /> Dark
+              </button>
+              <button
+                type="button"
+                onClick={() => setColorMode('light')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  colorMode === 'light'
+                    ? "bg-gradient-to-r from-amber-400 to-orange-400 text-black font-extrabold shadow-md"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                <Sun size={13} /> Light
+              </button>
+            </div>
+          </div>
+        </GlassCard>
+      </motion.div>
 
       {/* Cloud Storage & Local Privacy Section */}
       <motion.div

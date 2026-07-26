@@ -54,6 +54,7 @@ interface BudgetState {
   isCloudBackupEnabled: boolean;
   lastBackupTime: string | null;
   theme: AppTheme;
+  colorMode: 'dark' | 'light';
   
   // Actions
   setUser: (user: UserProfile | null) => void;
@@ -61,6 +62,8 @@ interface BudgetState {
   logoutUser: () => void;
   setActiveModal: (modal: QuickActionModal) => void;
   setTheme: (theme: AppTheme) => void;
+  setColorMode: (mode: 'dark' | 'light') => void;
+  toggleColorMode: () => void;
   setCloudBackupEnabled: (enabled: boolean) => void;
   setLastBackupTime: (time: string | null) => void;
   restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; cards: PaymentCard[]; goals: SavingsGoal[] }) => void;
@@ -89,10 +92,16 @@ export const useBudgetStore = create<BudgetState>()(
       isCloudBackupEnabled: false,
       lastBackupTime: null,
       theme: 'cyber-neon',
+      colorMode: 'dark',
 
       setActiveModal: (modal) => set({ activeModal: modal }),
 
       setTheme: (theme) => set({ theme }),
+
+      setColorMode: (colorMode) => set({ colorMode }),
+
+      toggleColorMode: () =>
+        set((state) => ({ colorMode: state.colorMode === 'dark' ? 'light' : 'dark' })),
 
       setCloudBackupEnabled: (isCloudBackupEnabled) => set({ isCloudBackupEnabled }),
 
@@ -224,6 +233,7 @@ export const useBudgetStore = create<BudgetState>()(
         isCloudBackupEnabled: state.isCloudBackupEnabled,
         lastBackupTime: state.lastBackupTime,
         theme: state.theme,
+        colorMode: state.colorMode,
       }),
     }
   )

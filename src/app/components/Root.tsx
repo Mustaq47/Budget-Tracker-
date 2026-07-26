@@ -4,23 +4,28 @@ import { useBudgetStore } from "../../store/useBudgetStore";
 import { themeMap } from "../../utils/themePresets";
 
 export function Root() {
-  const { theme } = useBudgetStore();
+  const { theme, colorMode } = useBudgetStore();
   const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
 
+  const isLight = colorMode === 'light';
+  const containerBgClass = isLight 
+    ? "bg-gradient-to-b from-[#F8F9FA] via-[#E9ECEF] to-[#DEE2E6]"
+    : activeTheme.bgClass;
+
   return (
-    <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${activeTheme.bgClass}`}>
+    <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${containerBgClass}`}>
       {/* Ambient Radial Glow 1 */}
       <div 
         className="absolute inset-0 opacity-40 transition-all duration-700 pointer-events-none"
         style={{
-          background: `radial-gradient(circle at 50% 0%, ${activeTheme.primaryColor}25, transparent 55%)`
+          background: `radial-gradient(circle at 50% 0%, ${activeTheme.primaryColor}${isLight ? '20' : '25'}, transparent 55%)`
         }}
       />
       {/* Ambient Radial Glow 2 */}
       <div 
         className="absolute inset-0 opacity-30 transition-all duration-700 pointer-events-none"
         style={{
-          background: `radial-gradient(circle at 0% 100%, ${activeTheme.secondaryColor}20, transparent 50%)`
+          background: `radial-gradient(circle at 0% 100%, ${activeTheme.secondaryColor}${isLight ? '15' : '20'}, transparent 50%)`
         }}
       />
 
