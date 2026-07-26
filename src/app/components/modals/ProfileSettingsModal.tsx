@@ -24,6 +24,8 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   
   const [name, setName] = useState(user?.displayName || "");
   const [selectedAvatar, setSelectedAvatar] = useState(user?.photoURL || avatarPresets[0]);
+  const [age, setAge] = useState(user?.age ? user.age.toString() : "");
+  const [gender, setGender] = useState(user?.gender || "");
   const [successMsg, setSuccessMsg] = useState("");
 
   const handleSave = () => {
@@ -31,6 +33,8 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
     updateUserProfile({
       displayName: name.trim(),
       photoURL: selectedAvatar,
+      age: age ? parseInt(age) : null,
+      gender: gender || null,
     });
     setSuccessMsg("Profile updated successfully!");
     setTimeout(() => {
@@ -117,6 +121,34 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                     placeholder="Enter display name"
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all placeholder:text-white/20"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-white/60 text-xs font-bold ml-1 mb-2 block">Age</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, ""))}
+                      placeholder="Age"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all placeholder:text-white/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-white/60 text-xs font-bold ml-1 mb-2 block">Gender</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white/80 text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all cursor-pointer [&>option]:bg-[#0B0914] [&>option]:text-white"
+                    >
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex items-center gap-3">

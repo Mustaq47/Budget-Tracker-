@@ -18,6 +18,8 @@ export interface UserProfile {
   displayName?: string | null;
   photoURL?: string | null;
   phoneNumber?: string | null;
+  age?: number | null;
+  gender?: string | null;
 }
 
 export interface PaymentCard {
