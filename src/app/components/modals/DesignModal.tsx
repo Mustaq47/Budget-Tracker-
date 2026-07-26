@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Palette, Check, Sparkles, Eye, Moon, Sun } from "lucide-react";
 import { useBudgetStore, AppTheme, currencySymbols } from "../../../store/useBudgetStore";
 import { themeMap, getActiveThemeConfig } from "../../../utils/themePresets";
+import { createPortal } from "react-dom";
 
 interface DesignModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
     setTheme(selectedId);
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -200,6 +201,7 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

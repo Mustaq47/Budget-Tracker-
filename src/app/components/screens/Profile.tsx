@@ -17,9 +17,11 @@ import { NotificationsModal } from "../modals/NotificationsModal";
 import { PrivacyModal } from "../modals/PrivacyModal";
 import { LanguageRegionModal } from "../modals/LanguageRegionModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { useTranslation } from "../../../utils/translations";
 
 export function Profile() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { 
     user, isAuthenticated, logoutUser, transactions, cardsCount,
     dailyBudget, cards, goals,
@@ -105,35 +107,35 @@ export function Profile() {
 
   const settingsSections = [
     {
-      title: "Account",
+      title: t.account,
       items: [
-        { icon: User, label: "Profile Settings", glow: "purple" as const, action: () => setActiveModal("profile-settings") },
-        { icon: Bell, label: "Notifications", glow: "blue" as const, action: () => setActiveModal("notifications") },
-        { icon: Lock, label: "Privacy & Security", glow: "pink" as const, action: () => setActiveModal("privacy-security") },
+        { icon: User, label: t.profileSettings, glow: "purple" as const, action: () => setActiveModal("profile-settings") },
+        { icon: Bell, label: t.notifications, glow: "blue" as const, action: () => setActiveModal("notifications") },
+        { icon: Lock, label: t.privacySecurity, glow: "pink" as const, action: () => setActiveModal("privacy-security") },
       ],
     },
     {
-      title: "Preferences",
+      title: t.preferences,
       items: [
-        { icon: Palette, label: "Design & Themes", glow: "pink" as const, action: () => setIsDesignModalOpen(true) },
-        { icon: CreditCard, label: "Payment Methods", glow: "gold" as const, action: () => setActiveModal("cards") },
-        { icon: Globe, label: "Language & Region", glow: "purple" as const, action: () => setActiveModal("language-region") },
+        { icon: Palette, label: t.designThemes, glow: "pink" as const, action: () => setIsDesignModalOpen(true) },
+        { icon: CreditCard, label: t.paymentMethods, glow: "gold" as const, action: () => setActiveModal("cards") },
+        { icon: Globe, label: t.languageRegion, glow: "purple" as const, action: () => setActiveModal("language-region") },
       ],
     },
     {
-      title: "Support",
+      title: t.support,
       items: [
-        { icon: HelpCircle, label: "Help Center", glow: "blue" as const },
+        { icon: HelpCircle, label: t.help, glow: "blue" as const },
         isAuthenticated
           ? {
               icon: LogOut,
-              label: "Sign Out",
+              label: t.logout,
               glow: "pink" as const,
               action: handleLogout,
             }
           : {
               icon: LogIn,
-              label: "Sign In / Register",
+              label: t.login,
               glow: "purple" as const,
               action: () => navigate("/login"),
             },
@@ -148,8 +150,8 @@ export function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>Profile</h1>
-        <div className={`${subtextColor} tracking-tight`}>Manage your account, theme & privacy</div>
+        <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>{t.profile}</h1>
+        <div className={`${subtextColor} tracking-tight`}>{t.manageAccount}</div>
       </motion.div>
 
       <GlassCard className="mb-6" glow glowColor="purple">
@@ -177,7 +179,7 @@ export function Profile() {
               onClick={() => navigate("/login")}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
             >
-              Sign In
+              {t.signInBtn}
             </button>
           )}
         </div>
@@ -189,15 +191,15 @@ export function Profile() {
             <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
               {currencySymbols[currency]}{balance >= 1000 ? `${(balance / 1000).toFixed(1)}K` : balance}
             </div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Balance</div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>{t.balance}</div>
           </div>
           <div>
             <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>{transactions.length}</div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Transactions</div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>{t.transactions}</div>
           </div>
           <div>
             <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>{cardsCount}</div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Cards</div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>{t.cards}</div>
           </div>
         </div>
       </GlassCard>

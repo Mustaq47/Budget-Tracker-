@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, User, Check, Sparkles, Shield, Upload } from "lucide-react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
@@ -76,7 +77,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
     }, 1500);
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -245,6 +246,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

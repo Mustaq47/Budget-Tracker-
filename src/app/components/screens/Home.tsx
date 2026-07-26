@@ -10,9 +10,11 @@ import { WalletModal } from "../modals/WalletModal";
 import { CardsModal } from "../modals/CardsModal";
 import { BudgetModal } from "../modals/BudgetModal";
 import { GoalsModal } from "../modals/GoalsModal";
+import { useTranslation } from "../../../utils/translations";
 
 export function Home() {
   const { user, dailyBudget, transactions, activeModal, setActiveModal, theme, colorMode, currency } = useBudgetStore();
+  const { t } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
 
   const textColor = activeTheme.textColor;
@@ -49,7 +51,7 @@ export function Home() {
         className="mb-12"
       >
         <img src={logo} alt="ZENTRO" className="h-12 mb-8" />
-        <div className={`${subtextColor} mb-2 tracking-tight`}>Welcome back,</div>
+        <div className={`${subtextColor} mb-2 tracking-tight`}>{t.welcome},</div>
         <h1 className={`${textColor} text-3xl tracking-tighter capitalize font-black`}>{userName}</h1>
       </motion.div>
 
@@ -102,7 +104,7 @@ export function Home() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <div className={`${subtextColor} mb-2 tracking-tight font-semibold`}>Spent Today</div>
+            <div className={`${subtextColor} mb-2 tracking-tight font-semibold`}>{t.spentToday}</div>
             <motion.div
               className={`${textColor} text-5xl tracking-tighter mb-2 font-black`}
               initial={{ opacity: 0 }}
@@ -110,7 +112,7 @@ export function Home() {
             >
               {currencySymbols[currency]}{spentToday.toLocaleString()}
             </motion.div>
-            <div className={`${subtextColor} tracking-tight text-sm font-medium`}>of {currencySymbols[currency]}{dailyBudget.toLocaleString()}</div>
+            <div className={`${subtextColor} tracking-tight text-sm font-medium`}>{t.of} {currencySymbols[currency]}{dailyBudget.toLocaleString()}</div>
             <motion.div
               className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
                 isOverBudget

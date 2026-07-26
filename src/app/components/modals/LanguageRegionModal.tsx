@@ -3,6 +3,7 @@ import { X, Globe, Check, Sparkles } from "lucide-react";
 import { useBudgetStore, CurrencyCode, LanguageCode } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 interface LanguageRegionModalProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
     setTimeout(() => setToastMsg(""), 2000);
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -173,6 +174,7 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
