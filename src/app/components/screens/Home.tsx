@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
 import { TrendingUp, TrendingDown, Zap, DollarSign, Wallet, CreditCard } from "lucide-react";
 import logo from "../../../imports/zeee.png";
 import { useBudgetStore } from "../../../store/useBudgetStore";
+import { WalletModal } from "../modals/WalletModal";
+import { CardsModal } from "../modals/CardsModal";
+import { BudgetModal } from "../modals/BudgetModal";
+import { GoalsModal } from "../modals/GoalsModal";
 
 export function Home() {
-  const { user, dailyBudget, transactions } = useBudgetStore();
+  const { user, dailyBudget, transactions, activeModal, setActiveModal } = useBudgetStore();
 
   const userName = user?.displayName || user?.email?.split("@")[0] || "User";
   const todayISO = new Date().toISOString().split("T")[0];
@@ -22,10 +27,10 @@ export function Home() {
   const strokeDashoffset = circumference - (circumference * percentage) / 100;
 
   const quickActions = [
-    { icon: Wallet, label: "Wallet", glow: "purple" as const },
-    { icon: CreditCard, label: "Cards", glow: "blue" as const },
-    { icon: DollarSign, label: "Budget", glow: "pink" as const },
-    { icon: Zap, label: "Goals", glow: "gold" as const },
+    { icon: Wallet, label: "Wallet", glow: "purple" as const, action: () => setActiveModal("wallet") },
+    { icon: CreditCard, label: "Cards", glow: "blue" as const, action: () => setActiveModal("cards") },
+    { icon: DollarSign, label: "Budget", glow: "pink" as const, action: () => setActiveModal("budget") },
+    { icon: Zap, label: "Goals", glow: "gold" as const, action: () => setActiveModal("goals") },
   ];
 
   const recentTransactions = transactions.slice(0, 5);
@@ -132,7 +137,11 @@ export function Home() {
         <div className="text-white/60 mb-4 tracking-tight">Quick Actions</div>
         <div className="grid grid-cols-4 gap-4">
           {quickActions.map((action) => (
-            <button key={action.label} className="flex flex-col items-center gap-2">
+            <button
+              key={action.label}
+              onClick={action.action}
+              className="flex flex-col items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+            >
               <GlassIcon icon={action.icon} size="md" glow={action.glow} asChild />
               <span className="text-xs text-white/60 tracking-tight">{action.label}</span>
             </button>
@@ -185,6 +194,12 @@ export function Home() {
           </div>
         )}
       </GlassCard>
+
+      {/* Quick Action Modals */}
+      <WalletModal isOpen={activeModal === "wallet"} onClose={() => setActiveModal(null)} />
+      <CardsModal isOpen={activeModal === "cards"} onClose={() => setActiveModal(null)} />
+      <BudgetModal isOpen={activeModal === "budget"} onClose={() => setActiveModal(null)} />
+      <GoalsModal isOpen={activeModal === "goals"} onClose={() => setActiveModal(null)} />
     </div>
   );
 }

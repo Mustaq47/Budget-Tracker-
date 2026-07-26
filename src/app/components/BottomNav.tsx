@@ -4,15 +4,31 @@ import { GlassIcon } from "./GlassIcon";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { AddExpenseModal } from "./AddExpenseModal";
+import { useBudgetStore } from "../../store/useBudgetStore";
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showAddModal, setShowAddModal] = useState(false);
+  const { activeModal, setActiveModal } = useBudgetStore();
 
   if (location.pathname === "/login") {
     return null;
   }
+
+  const isModalOpen = activeModal !== null || showAddModal;
+
+  const handleOpenAddModal = () => {
+    setShowAddModal(true);
+    setActiveModal("expense");
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    if (activeModal === "expense") {
+      setActiveModal(null);
+    }
+  };
 
   const tabs = [
     { icon: Home, path: "/", label: "Home" },
@@ -23,10 +39,11 @@ export function BottomNav() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 pb-6 px-6 pointer-events-none z-50">
+      <div className="fixed bottom-0 left-0 right-0 pb-6 px-6 pointer-events-none z-50 overflow-hidden">
         <motion.div
           initial={{ y: 100 }}
-          animate={{ y: 0 }}
+          animate={{ y: isModalOpen ? 180 : 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 280 }}
           className="
             max-w-md mx-auto
             backdrop-blur-[40px]
@@ -43,7 +60,7 @@ export function BottomNav() {
               <button
                 key={tab.path}
                 onClick={() => navigate(tab.path)}
-                className="flex flex-col items-center gap-1 relative"
+                className="flex flex-col items-center gap-1 relative cursor-pointer"
               >
                 <GlassIcon
                   icon={tab.icon}
@@ -65,7 +82,7 @@ export function BottomNav() {
             ))}
 
             <motion.button
-              onClick={() => setShowAddModal(true)}
+              onClick={handleOpenAddModal}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="
@@ -77,6 +94,7 @@ export function BottomNav() {
                 flex items-center justify-center
                 shadow-[0_0_40px_rgba(123,97,255,0.8),0_8px_24px_rgba(0,0,0,0.4)]
                 border-4 border-[#0a0a1f]
+                cursor-pointer
               "
             >
               <motion.div
@@ -98,7 +116,7 @@ export function BottomNav() {
               <button
                 key={tab.path}
                 onClick={() => navigate(tab.path)}
-                className="flex flex-col items-center gap-1 relative"
+                className="flex flex-col items-center gap-1 relative cursor-pointer"
               >
                 <GlassIcon
                   icon={tab.icon}
@@ -122,7 +140,7 @@ export function BottomNav() {
         </motion.div>
       </div>
 
-      <AddExpenseModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
+      <AddExpenseModal isOpen={showAddModal} onClose={handleCloseAddModal} />
     </>
   );
 }
