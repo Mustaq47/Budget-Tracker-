@@ -20,6 +20,7 @@ export function Flow() {
 
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
+  const isLight = !activeTheme.isDark;
 
   const todayISO = new Date().toISOString().split("T")[0];
   const todayTransactions = transactions.filter((t) => t.date === todayISO);

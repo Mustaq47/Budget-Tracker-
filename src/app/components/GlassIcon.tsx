@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import { LucideIcon } from "lucide-react";
+import { useBudgetStore } from "../../store/useBudgetStore";
+import { getActiveThemeConfig } from "../../utils/themePresets";
 
 interface GlassIconProps {
   icon: LucideIcon;
@@ -30,6 +32,29 @@ const borderMap = {
   gold: "border-[#FFD166]/20",
 };
 
+// Light-mode equivalents: visible colored tints
+const lightGlowMap = {
+  purple: "shadow-md border-[#7B61FF]/25 bg-[#7B61FF]/10",
+  blue: "shadow-md border-[#00B4D8]/25 bg-[#00B4D8]/10",
+  pink: "shadow-md border-[#FF4D8D]/25 bg-[#FF4D8D]/10",
+  gold: "shadow-md border-[#F59E0B]/25 bg-[#F59E0B]/10",
+};
+
+const lightBorderMap = {
+  purple: "border-[#7B61FF]/15 bg-[#7B61FF]/8",
+  blue: "border-[#00B4D8]/15 bg-[#00B4D8]/8",
+  pink: "border-[#FF4D8D]/15 bg-[#FF4D8D]/8",
+  gold: "border-[#F59E0B]/15 bg-[#F59E0B]/8",
+};
+
+// Icon text colors for light mode — use the glow accent as the icon color
+const lightIconColorMap = {
+  purple: "text-[#7B61FF]",
+  blue: "text-[#0891B2]",
+  pink: "text-[#E11D73]",
+  gold: "text-[#D97706]",
+};
+
 export function GlassIcon({
   icon: Icon,
   size = "md",
@@ -38,6 +63,10 @@ export function GlassIcon({
   onClick,
   asChild = false
 }: GlassIconProps) {
+  const { theme, colorMode } = useBudgetStore();
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const isLight = !activeTheme.isDark;
+
   const Component = asChild ? motion.div : motion.button;
 
   return (
@@ -53,14 +82,26 @@ export function GlassIcon({
         border
         transition-all duration-300
         ${active
-          ? `bg-white/10 ${glowMap[glow]}`
-          : `bg-white/5 shadow-[0_4px_12px_rgba(0,0,0,0.3)] ${borderMap[glow]}`
+          ? isLight
+            ? `${lightGlowMap[glow]}`
+            : `bg-white/10 ${glowMap[glow]}`
+          : isLight
+            ? `${lightBorderMap[glow]} shadow-sm`
+            : `bg-white/5 shadow-[0_4px_12px_rgba(0,0,0,0.3)] ${borderMap[glow]}`
         }
       `}
     >
       <Icon
         size={sizeMap[size].icon}
-        className={active ? "text-white" : "text-white/70"}
+        className={
+          isLight
+            ? active
+              ? lightIconColorMap[glow]
+              : `${lightIconColorMap[glow]} opacity-80`
+            : active
+              ? "text-white"
+              : "text-white/70"
+        }
         strokeWidth={1.5}
       />
     </Component>

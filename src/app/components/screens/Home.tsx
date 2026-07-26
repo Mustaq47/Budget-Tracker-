@@ -17,6 +17,7 @@ export function Home() {
 
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
+  const isLight = !activeTheme.isDark;
 
   const userName = user?.displayName || user?.email?.split("@")[0] || "User";
   const todayISO = new Date().toISOString().split("T")[0];

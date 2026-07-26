@@ -27,6 +27,7 @@ export function Profile() {
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
+  const isLight = !activeTheme.isDark;
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
@@ -336,7 +337,7 @@ export function Profile() {
             )}
 
             {lastBackupTime && (
-              <div className="text-center text-[10px] text-white/40 pt-1">
+              <div className={`text-center text-[10px] ${subtextColor} pt-1`}>
                 Last Cloud Backup: {new Date(lastBackupTime).toLocaleString()}
               </div>
             )}

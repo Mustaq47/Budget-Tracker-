@@ -26,6 +26,7 @@ export function Insights() {
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
+  const isLight = !activeTheme.isDark;
 
   const expenseTransactions = transactions.filter((t) => t.type === "expense");
 
