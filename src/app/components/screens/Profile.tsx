@@ -154,10 +154,15 @@ export function Profile() {
       <GlassCard className="mb-6" glow glowColor="purple">
         <div className="flex items-center gap-4">
           <motion.div className="relative" whileHover={{ scale: 1.05 }}>
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#16A34A] to-[#3B82F6] flex items-center justify-center shadow-lg overflow-hidden">
-              {user?.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
+            <div 
+              className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center shadow-lg overflow-hidden"
+              style={
+                user?.photoURL?.startsWith("linear-gradient") || !user?.photoURL
+                  ? { background: user?.photoURL || "linear-gradient(135deg, #16A34A 0%, #3B82F6 100%)" }
+                  : { backgroundImage: `url(${user.photoURL})`, backgroundSize: "cover", backgroundPosition: "center" }
+              }
+            >
+              {(user?.photoURL?.startsWith("linear-gradient") || !user?.photoURL) && (
                 <User size={40} className="text-white" strokeWidth={1.5} />
               )}
             </div>

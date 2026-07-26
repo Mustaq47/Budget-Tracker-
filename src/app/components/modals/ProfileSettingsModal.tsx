@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, User, Check, Sparkles, Shield } from "lucide-react";
+import { X, User, Check, Sparkles, Shield, Upload } from "lucide-react";
 import { useState } from "react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
@@ -27,6 +27,39 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   const [age, setAge] = useState(user?.age ? user.age.toString() : "");
   const [gender, setGender] = useState(user?.gender || "");
   const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const getAvatarStyle = (avatar: string) => {
+    if (avatar.startsWith("data:image/") || avatar.startsWith("http://") || avatar.startsWith("https://")) {
+      return {
+        backgroundImage: `url(${avatar})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
+    }
+    return {
+      background: avatar,
+    };
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) {
+      setErrorMsg("Image size must be less than 1MB");
+      setTimeout(() => setErrorMsg(""), 3000);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setSelectedAvatar(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -86,27 +119,56 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
               </div>
 
               {/* Avatar Selector */}
-              <div className="p-4 rounded-3xl bg-white/5 border border-white/10 mb-6 flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full border-4 border-white/10 shadow-xl mb-4 flex items-center justify-center overflow-hidden"
-                     style={{ background: selectedAvatar }}>
-                  <User size={40} className="text-white drop-shadow-md" strokeWidth={1.5} />
+              <div className="p-5 rounded-3xl bg-white/5 border border-white/10 mb-6 flex flex-col items-center">
+                <div 
+                  className="w-20 h-20 rounded-full border-4 border-white/10 shadow-xl mb-4 flex items-center justify-center overflow-hidden"
+                  style={getAvatarStyle(selectedAvatar)}
+                >
+                  {!selectedAvatar.startsWith("data:image/") && !selectedAvatar.startsWith("http") && (
+                    <User size={40} className="text-white drop-shadow-md" strokeWidth={1.5} />
+                  )}
                 </div>
                 
                 <div className="text-white/60 text-xs font-semibold mb-3">Choose Premium Avatar Preset</div>
-                <div className="flex gap-2.5">
-                  {avatarPresets.map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => setSelectedAvatar(preset)}
-                      className={`w-9 h-9 rounded-full border transition-all cursor-pointer flex items-center justify-center ${
-                        selectedAvatar === preset ? "border-white scale-110 shadow-lg" : "border-white/10 scale-100 hover:scale-105"
-                      }`}
-                      style={{ background: preset }}
-                    >
-                      {selectedAvatar === preset && <Check size={14} className="text-white drop-shadow-sm stroke-[3]" />}
-                    </button>
-                  ))}
+                <div className="flex gap-2.5 mb-4">
+                  {avatarPresets.map((preset) => {
+                    const isSelected = selectedAvatar === preset;
+                    return (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setSelectedAvatar(preset)}
+                        className={`w-9 h-9 rounded-full border transition-all cursor-pointer flex items-center justify-center ${
+                          isSelected ? "border-white scale-110 shadow-lg" : "border-white/10 scale-100 hover:scale-105"
+                        }`}
+                        style={{ background: preset }}
+                      >
+                        {isSelected && <Check size={14} className="text-white drop-shadow-sm stroke-[3]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Photo Upload */}
+                <div className="w-full border-t border-white/5 pt-3.5 flex flex-col items-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="avatar-file-input"
+                    onChange={handleImageUpload}
+                  />
+                  <label
+                    htmlFor="avatar-file-input"
+                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl text-[11px] font-bold text-white transition-all flex items-center gap-1.5"
+                  >
+                    <Upload size={13} /> Upload Custom Photo
+                  </label>
+                  {errorMsg && (
+                    <div className="text-red-400 text-[10px] mt-2 font-semibold">
+                      {errorMsg}
+                    </div>
+                  )}
                 </div>
               </div>
 
