@@ -37,5 +37,7 @@ export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
+  // ponytail: skipped email verification blocking, add a /verify-email screen first if required.
+
   return children ? <>{children}</> : <Outlet />;
 }

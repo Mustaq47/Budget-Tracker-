@@ -1,11 +1,37 @@
-import { Outlet } from "react-router";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router";
 import { BottomNav } from "./BottomNav";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
+import { logout } from "../../services/firebase";
 
 export function Root() {
-  const { theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, logoutUser } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    
+    const resetTimer = () => {
+      clearTimeout(timeout);
+      // 30 minutes idle timeout
+      timeout = setTimeout(async () => {
+        await logout();
+        logoutUser();
+        navigate("/login");
+      }, 30 * 60 * 1000);
+    };
+
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart"];
+    events.forEach((event) => document.addEventListener(event, resetTimer));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeout);
+      events.forEach((event) => document.removeEventListener(event, resetTimer));
+    };
+  }, [logoutUser, navigate]);
 
   return (
     <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${activeTheme.bgClass}`}>
