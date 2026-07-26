@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import { ReactNode } from "react";
+import { useBudgetStore } from "../../store/useBudgetStore";
+import { themeMap } from "../../utils/themePresets";
 
 interface GlassCardProps {
   children: ReactNode;
@@ -16,17 +18,25 @@ const glowColors = {
 };
 
 export function GlassCard({ children, className = "", glow = false, glowColor = "purple" }: GlassCardProps) {
+  const { theme, colorMode } = useBudgetStore();
+  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
+  const isLight = colorMode === 'light' || !activeTheme.isDark;
+
+  const defaultCardBg = isLight 
+    ? "bg-white/90 border border-slate-200/80 shadow-md text-slate-900" 
+    : `${activeTheme.cardBg}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`
         backdrop-blur-[40px]
-        bg-white/5
-        border border-white/10
         rounded-3xl
         p-6
-        shadow-[0_8px_32px_rgba(0,0,0,0.4)]
+        transition-all
+        duration-300
+        ${defaultCardBg}
         ${glow ? glowColors[glowColor] : ""}
         ${className}
       `}

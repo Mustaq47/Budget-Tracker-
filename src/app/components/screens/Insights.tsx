@@ -3,20 +3,27 @@ import { GlassCard } from "../GlassCard";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
 import { useState } from "react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
+import { themeMap } from "../../../utils/themePresets";
 
 const categoryColors: Record<string, string> = {
-  Food: "#7B61FF",
-  Shopping: "#FF4D8D",
-  Transport: "#00E5FF",
-  Bills: "#FFD166",
-  Utilities: "#A061FF",
-  Health: "#4DFFB4",
-  Other: "#FF944D",
+  Food: "#16A34A",
+  Shopping: "#3B82F6",
+  Transport: "#F59E0B",
+  Bills: "#8B5CF6",
+  Utilities: "#06B6D4",
+  Health: "#EC4899",
+  Other: "#64748B",
 };
 
 export function Insights() {
   const [period, setPeriod] = useState<"week" | "month" | "year">("week");
-  const { transactions } = useBudgetStore();
+  const { transactions, theme, colorMode } = useBudgetStore();
+
+  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
+  const isLight = colorMode === 'light' || !activeTheme.isDark;
+
+  const textColor = isLight ? "text-slate-900" : activeTheme.textColor;
+  const subtextColor = isLight ? "text-slate-600" : activeTheme.subtextColor;
 
   const expenseTransactions = transactions.filter((t) => t.type === "expense");
 
@@ -29,7 +36,7 @@ export function Insights() {
   expenseTransactions.forEach((t) => {
     if (t.date) {
       const d = new Date(t.date);
-      const dayName = daysOfWeek[(d.getDay() + 6) % 7]; // Convert Sunday=0 to Mon=0 indexing
+      const dayName = daysOfWeek[(d.getDay() + 6) % 7];
       if (weeklyDataMap[dayName] !== undefined) {
         weeklyDataMap[dayName] += t.amount;
       }
@@ -51,7 +58,7 @@ export function Insights() {
   const categoryData = Object.entries(categoryMap).map(([name, value]) => ({
     name,
     value,
-    color: categoryColors[name] || "#7B61FF",
+    color: categoryColors[name] || "#16A34A",
   }));
 
   const totalSpent = expenseTransactions.reduce((sum, item) => sum + item.amount, 0);
@@ -65,8 +72,8 @@ export function Insights() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-white text-3xl tracking-tighter mb-2">Insights</h1>
-        <div className="text-white/60 tracking-tight">Your spending analytics</div>
+        <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>Insights</h1>
+        <div className={`${subtextColor} tracking-tight`}>Your spending analytics</div>
       </motion.div>
 
       <div className="flex gap-2 mb-6">
@@ -75,10 +82,12 @@ export function Insights() {
             key={p}
             onClick={() => setPeriod(p)}
             className={`
-              px-6 py-2 rounded-full tracking-tight transition-all duration-300
+              px-6 py-2 rounded-full tracking-tight font-bold text-xs transition-all duration-300 cursor-pointer
               ${
                 period === p
-                  ? "bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white shadow-[0_0_20px_rgba(123,97,255,0.5)]"
+                  ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white shadow-md"
+                  : isLight
+                  ? "bg-slate-200/80 text-slate-700 hover:bg-slate-300 border border-slate-300"
                   : "bg-white/5 text-white/60 border border-white/10 backdrop-blur-xl"
               }
             `}
@@ -91,9 +100,9 @@ export function Insights() {
       <GlassCard className="mb-6" glow glowColor="purple">
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <div className="text-white/60 mb-1 tracking-tight">Total Spent</div>
+            <div className={`${subtextColor} mb-1 tracking-tight font-semibold text-xs`}>Total Spent</div>
             <motion.div
-              className="text-white text-3xl tracking-tighter"
+              className={`${textColor} text-3xl tracking-tighter font-black`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
             >
@@ -101,9 +110,9 @@ export function Insights() {
             </motion.div>
           </div>
           <div>
-            <div className="text-white/60 mb-1 tracking-tight">Daily Average</div>
+            <div className={`${subtextColor} mb-1 tracking-tight font-semibold text-xs`}>Daily Average</div>
             <motion.div
-              className="text-white text-3xl tracking-tighter"
+              className={`${textColor} text-3xl tracking-tighter font-black`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
@@ -120,7 +129,7 @@ export function Insights() {
                 dataKey="day"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
+                tick={{ fill: isLight ? "#475569" : "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 600 }}
               />
               <YAxis hide />
               <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
@@ -130,8 +139,8 @@ export function Insights() {
               </Bar>
               <defs>
                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#7B61FF" />
-                  <stop offset="100%" stopColor="#FF4D8D" />
+                  <stop offset="0%" stopColor={activeTheme.ringGradient[0]} />
+                  <stop offset="100%" stopColor={activeTheme.ringGradient[1]} />
                 </linearGradient>
               </defs>
             </BarChart>
@@ -140,10 +149,10 @@ export function Insights() {
       </GlassCard>
 
       <GlassCard glow glowColor="blue">
-        <div className="text-white/60 mb-6 tracking-tight">Spending by Category</div>
+        <div className={`${subtextColor} mb-6 tracking-tight font-semibold`}>Spending by Category</div>
 
         {categoryData.length === 0 ? (
-          <div className="py-12 text-center text-white/40 text-sm tracking-tight">
+          <div className={`py-12 text-center ${subtextColor} text-sm tracking-tight`}>
             No category spending recorded yet.
           </div>
         ) : (
@@ -168,8 +177,8 @@ export function Insights() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-white/60 text-xs tracking-tight">Total</div>
-                  <div className="text-white text-2xl tracking-tighter">
+                  <div className={`${subtextColor} text-xs tracking-tight font-semibold`}>Total</div>
+                  <div className={`${textColor} text-2xl tracking-tighter font-black`}>
                     ₹{totalSpent.toLocaleString()}
                   </div>
                 </div>
@@ -193,9 +202,9 @@ export function Insights() {
                         boxShadow: `0 0 10px ${category.color}`,
                       }}
                     />
-                    <span className="text-white tracking-tight">{category.name}</span>
+                    <span className={`${textColor} tracking-tight font-bold text-sm`}>{category.name}</span>
                   </div>
-                  <div className="text-white/60 tracking-tight">
+                  <div className={`${subtextColor} tracking-tight font-extrabold text-sm`}>
                     ₹{category.value.toLocaleString()}
                   </div>
                 </motion.div>

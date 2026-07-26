@@ -12,6 +12,7 @@ import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import { uploadBackupToFirestore, downloadBackupFromFirestore } from "../../../services/firestoreService";
 import { DesignModal } from "../modals/DesignModal";
+import { themeMap } from "../../../utils/themePresets";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -20,8 +21,13 @@ export function Profile() {
     dailyBudget, cards, goals,
     isCloudBackupEnabled, setCloudBackupEnabled,
     lastBackupTime, setLastBackupTime, restoreCloudState,
-    colorMode, setColorMode, toggleColorMode
+    colorMode, setColorMode, toggleColorMode, theme
   } = useBudgetStore();
+
+  const activeTheme = themeMap[theme] || themeMap["cyber-neon"];
+  const isLight = colorMode === 'light' || !activeTheme.isDark;
+  const textColor = isLight ? "text-slate-900" : activeTheme.textColor;
+  const subtextColor = isLight ? "text-slate-600" : activeTheme.subtextColor;
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
@@ -137,34 +143,29 @@ export function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-white text-3xl tracking-tighter mb-2">Profile</h1>
-        <div className="text-white/60 tracking-tight">Manage your account, theme & privacy</div>
+        <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>Profile</h1>
+        <div className={`${subtextColor} tracking-tight`}>Manage your account, theme & privacy</div>
       </motion.div>
 
       <GlassCard className="mb-6" glow glowColor="purple">
         <div className="flex items-center gap-4">
           <motion.div className="relative" whileHover={{ scale: 1.05 }}>
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#7B61FF] to-[#FF4D8D] flex items-center justify-center shadow-[0_0_30px_rgba(123,97,255,0.6)] overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#16A34A] to-[#3B82F6] flex items-center justify-center shadow-lg overflow-hidden">
               {user?.photoURL ? (
                 <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <User size={40} className="text-white" strokeWidth={1.5} />
               )}
             </div>
-            <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-[#7B61FF] to-[#FF4D8D] blur-xl opacity-50 pointer-events-none"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
           </motion.div>
           <div className="flex-1">
-            <div className="text-white text-xl tracking-tight mb-1 capitalize">{displayName}</div>
-            <div className="text-white/60 text-xs tracking-tight">{email}</div>
+            <div className={`${textColor} text-xl tracking-tight mb-1 capitalize font-bold`}>{displayName}</div>
+            <div className={`${subtextColor} text-xs tracking-tight`}>{email}</div>
           </div>
           {!isAuthenticated && (
             <button
               onClick={() => navigate("/login")}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white text-xs font-semibold shadow-md hover:opacity-90 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
             >
               Sign In
             </button>
@@ -175,18 +176,18 @@ export function Profile() {
       <GlassCard className="mb-6">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-white text-2xl tracking-tighter mb-1">
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
               ₹{balance >= 1000 ? `${(balance / 1000).toFixed(1)}K` : balance}
             </div>
-            <div className="text-white/60 text-xs tracking-tight">Balance</div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Balance</div>
           </div>
           <div>
-            <div className="text-white text-2xl tracking-tighter mb-1">{transactions.length}</div>
-            <div className="text-white/60 text-xs tracking-tight">Transactions</div>
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>{transactions.length}</div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Transactions</div>
           </div>
           <div>
-            <div className="text-white text-2xl tracking-tighter mb-1">{cardsCount}</div>
-            <div className="text-white/60 text-xs tracking-tight">Cards</div>
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>{cardsCount}</div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>Cards</div>
           </div>
         </div>
       </GlassCard>
@@ -197,34 +198,34 @@ export function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-6"
       >
-        <div className="text-white/60 mb-3 ml-2 tracking-tight">Appearance & Mode</div>
+        <div className={`${subtextColor} mb-3 ml-2 tracking-tight font-semibold`}>Appearance & Mode</div>
         <GlassCard glow glowColor="pink">
           <div className="flex items-center justify-between p-1">
             <div className="flex items-center gap-3.5">
               <div className={`w-11 h-11 rounded-2xl flex items-center justify-center border transition-all ${
                 colorMode === 'dark' 
-                  ? "bg-gradient-to-br from-[#7B61FF]/20 to-[#FF4D8D]/20 border-white/10 text-[#FF4D8D]"
-                  : "bg-amber-400/20 border-amber-400/30 text-amber-300"
+                  ? "bg-gradient-to-br from-[#16A34A]/20 to-[#3B82F6]/20 border-white/10 text-emerald-400"
+                  : "bg-amber-400/20 border-amber-400/30 text-amber-600"
               }`}>
                 {colorMode === 'dark' ? <Moon size={22} /> : <Sun size={22} />}
               </div>
               <div>
-                <div className="text-white font-bold text-sm">Theme Mode</div>
-                <div className="text-white/50 text-xs">
+                <div className={`${textColor} font-bold text-sm`}>Theme Mode</div>
+                <div className={`${subtextColor} text-xs`}>
                   {colorMode === 'dark' ? 'Dark Obsidian & Neon Glass' : 'Crisp Light Frosted Mode'}
                 </div>
               </div>
             </div>
 
             {/* Segmented Light/Dark Switcher */}
-            <div className="flex items-center p-1 rounded-2xl bg-white/10 border border-white/10">
+            <div className={`flex items-center p-1 rounded-2xl border ${isLight ? "bg-slate-100 border-slate-200" : "bg-white/10 border-white/10"}`}>
               <button
                 type="button"
                 onClick={() => setColorMode('dark')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   colorMode === 'dark'
-                    ? "bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white shadow-md"
-                    : "text-white/50 hover:text-white"
+                    ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white shadow-md"
+                    : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/50 hover:text-white"
                 }`}
               >
                 <Moon size={13} /> Dark
@@ -251,9 +252,9 @@ export function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-6"
       >
-        <div className="text-white/60 mb-3 ml-2 tracking-tight flex items-center justify-between">
+        <div className={`${subtextColor} mb-3 ml-2 tracking-tight flex items-center justify-between font-semibold`}>
           <span>Data Storage & Cloud Backup</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 flex items-center gap-1">
+          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 font-bold border border-emerald-500/30 flex items-center gap-1">
             <HardDrive size={10} /> Local-First Storage
           </span>
         </div>
@@ -262,14 +263,14 @@ export function Profile() {
           <div className="space-y-4">
             
             {/* Storage Status Badge */}
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
+            <div className={`flex items-center justify-between p-3 rounded-2xl border ${isLight ? "bg-slate-100/80 border-slate-200" : "bg-white/5 border-white/10"}`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00E5FF]/20 to-[#7B61FF]/20 border border-white/10 flex items-center justify-center">
-                  <ShieldCheck size={20} className="text-[#00E5FF]" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#16A34A]/20 to-[#3B82F6]/20 border border-emerald-500/20 flex items-center justify-center">
+                  <ShieldCheck size={20} className="text-emerald-500" />
                 </div>
                 <div>
-                  <div className="text-white font-bold text-sm">Phone Data Privacy</div>
-                  <div className="text-white/50 text-xs">
+                  <div className={`${textColor} font-bold text-sm`}>Phone Data Privacy</div>
+                  <div className={`${subtextColor} text-xs`}>
                     {isCloudBackupEnabled ? "Backup Enabled to Firestore" : "Data stored only on user phone"}
                   </div>
                 </div>
@@ -277,18 +278,18 @@ export function Profile() {
             </div>
 
             {/* Cloud Backup Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
+            <div className={`flex items-center justify-between p-3 rounded-2xl border ${isLight ? "bg-slate-100/80 border-slate-200" : "bg-white/5 border-white/10"}`}>
               <div className="flex items-center gap-3">
                 <GlassIcon icon={Cloud} size="sm" glow="purple" asChild />
                 <div>
-                  <div className="text-white text-sm font-semibold">Cloud Backup & Sync</div>
-                  <div className="text-white/40 text-[11px]">Sync data to Firestore database</div>
+                  <div className={`${textColor} text-sm font-bold`}>Cloud Backup & Sync</div>
+                  <div className={`${subtextColor} text-[11px]`}>Sync data to Firestore database</div>
                 </div>
               </div>
               <button
                 onClick={() => setCloudBackupEnabled(!isCloudBackupEnabled)}
                 className={`w-12 h-6 rounded-full transition-colors relative p-1 cursor-pointer ${
-                  isCloudBackupEnabled ? "bg-[#00E5FF]" : "bg-white/15"
+                  isCloudBackupEnabled ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/15"
                 }`}
               >
                 <div
@@ -306,8 +307,8 @@ export function Profile() {
                 disabled={isSyncing || !isAuthenticated}
                 className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
                   isAuthenticated
-                    ? "bg-gradient-to-r from-[#7B61FF] to-[#00E5FF] text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]"
-                    : "bg-white/5 text-white/30 border-white/10 cursor-not-allowed"
+                    ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]"
+                    : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"
                 }`}
               >
                 {isSyncing ? <RefreshCw size={14} className="animate-spin" /> : <CloudUpload size={15} />}
@@ -319,8 +320,8 @@ export function Profile() {
                 disabled={isSyncing || !isAuthenticated}
                 className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
                   isAuthenticated
-                    ? "bg-white/10 hover:bg-white/15 text-white border-white/20 cursor-pointer hover:scale-[1.02]"
-                    : "bg-white/5 text-white/30 border-white/10 cursor-not-allowed"
+                    ? isLight ? "bg-slate-200/80 hover:bg-slate-300 text-slate-900 border-slate-300 cursor-pointer" : "bg-white/10 hover:bg-white/15 text-white border-white/20 cursor-pointer"
+                    : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"
                 }`}
               >
                 {isSyncing ? <RefreshCw size={14} className="animate-spin" /> : <CloudDownload size={15} />}
@@ -352,7 +353,7 @@ export function Profile() {
           transition={{ delay: sectionIndex * 0.1 }}
           className="mb-6"
         >
-          <div className="text-white/60 mb-3 ml-2 tracking-tight">{section.title}</div>
+          <div className={`${subtextColor} mb-3 ml-2 tracking-tight font-semibold`}>{section.title}</div>
           <GlassCard>
             <div className="space-y-1">
               {section.items.map((item) => (
@@ -360,13 +361,15 @@ export function Profile() {
                   key={item.label}
                   onClick={item.action}
                   whileHover={{ x: 4 }}
-                  className="w-full flex items-center justify-between p-3 rounded-2xl transition-all hover:bg-white/5 cursor-pointer"
+                  className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all cursor-pointer ${
+                    isLight ? "hover:bg-slate-100" : "hover:bg-white/5"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <GlassIcon icon={item.icon} size="sm" glow={item.glow} asChild />
-                    <span className="text-white tracking-tight">{item.label}</span>
+                    <span className={`${textColor} tracking-tight font-bold text-sm`}>{item.label}</span>
                   </div>
-                  <ChevronRight size={20} className="text-white/40" />
+                  <ChevronRight size={20} className={isLight ? "text-slate-400" : "text-white/40"} />
                 </motion.button>
               ))}
             </div>
@@ -374,7 +377,7 @@ export function Profile() {
         </motion.div>
       ))}
 
-      <div className="text-center text-white/40 text-xs tracking-tight mb-8">
+      <div className={`text-center ${subtextColor} text-xs tracking-tight mb-8 font-medium`}>
         ZENTRO v1.0.0
       </div>
 
