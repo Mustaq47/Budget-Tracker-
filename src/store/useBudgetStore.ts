@@ -39,7 +39,15 @@ export interface SavingsGoal {
 }
 
 export type QuickActionModal = 'wallet' | 'cards' | 'budget' | 'goals' | 'expense' | null;
-export type AppTheme = 'cyber-neon' | 'midnight-oled' | 'champagne-luxury' | 'emerald-quartz' | 'industrial-tactical';
+export type AppTheme = 
+  | 'dark-theme' 
+  | 'light-theme' 
+  | 'material-design' 
+  | 'glassmorphism' 
+  | 'neumorphism' 
+  | 'minimalist-theme' 
+  | 'gradient-theme'
+  | 'cyber-neon';
 
 interface BudgetState {
   user: UserProfile | null;

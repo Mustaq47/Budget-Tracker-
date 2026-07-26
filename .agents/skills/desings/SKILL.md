@@ -1,11 +1,23 @@
 ---
 name: desings
-description: Master UI/UX & Visual Design Skill synthesizing Apple Design principles, Anti-Slop Frontend Taste, High-End Agency Visual Standards, 花叔 (Huashu) High-Fidelity Prototyping, Motion Animation Discovery, Project Redesigns, Stitch Design Systems, and Android/Mobile UI Aesthetics.
+description: Master UI/UX & Visual Design Skill synthesizing Apple Design principles, Anti-Slop Frontend Taste, High-End Agency Visual Standards, 花叔 (Huashu) High-Fidelity Prototyping, Motion Animation Discovery, Project Redesigns, Stitch Design Systems, Android/Mobile UI, and 7 Core Theme Paradigms (Dark, Light, Material, Glassmorphism, Neumorphism, Minimalist, Gradient).
 ---
 
 # 🎨 DESINGS — Master UI/UX & Visual Design System
 
-The definitive, anti-generic design skill for building state-of-the-art web and mobile interfaces. Combines Apple's physical motion & material depth, agency-grade typography, non-templated color theory, micro-animations, and mobile-native responsiveness.
+The definitive, anti-generic design skill for building state-of-the-art web and mobile interfaces. Combines 7 core visual themes, Apple's physical motion, agency-grade typography, non-templated color theory, micro-animations, and mobile-native responsiveness.
+
+---
+
+## 🎨 7 Core Design & Theme Paradigms
+
+1. 🌙 **Dark Theme** — Pure OLED/Obsidian black backgrounds (`#000000`) paired with high-contrast, bright vibrant accents (`#00E5FF`, `#FF4D8D`).
+2. ☀️ **Light Theme** — Clean white/off-white interface (`#FFFFFF`, `#F8F9FA`) with soft pastel borders, dark slate typography (`#0F172A`), and pleasant accent highlights.
+3. 🎨 **Material Design** — Google's modern M3 design language with elevated surface containers (`rounded-[28px]`), tonal color palettes, and crisp ripple feedback.
+4. 💎 **Glassmorphism** — High-end frosted glass effects with heavy backdrop blur (`backdrop-blur-3xl`), semi-transparent white fills (`bg-white/10`), and subtle light-reflecting borders (`border-white/15`).
+5. 🟢 **Neumorphism** — Soft tactile embossed UI elements using dual light/dark extruded shadows (`shadow-[6px_6px_14px_rgba(0,0,0,0.5),-6px_-6px_14px_rgba(255,255,255,0.05)]`).
+6. 📱 **Minimalist Theme** — Spacious, clutter-free layouts with broad typography scale, generous breathing whitespace, and warm editorial monochrome tones (`#0F0E13` charcoal, `#F4E8D1` champagne).
+7. 🌈 **Gradient Theme** — Vibrant multi-stop color spectrums (`from-[#FF4D8D] via-[#7B61FF] to-[#00E5FF]`) for buttons, progress rings, and animated background halos.
 
 ---
 
@@ -20,7 +32,7 @@ The definitive, anti-generic design skill for building state-of-the-art web and 
 
 ---
 
-## 2. Synthesis of Integrated Design Foundations
+## 2. Integrated Framework Foundations
 
 ### 🍏 Apple Interface & Fluid Motion Philosophy
 - **Translucent Materials & Depth**: Use frosted glassmorphic layers (`backdrop-blur-3xl`, `bg-white/10` to `bg-white/5`).
