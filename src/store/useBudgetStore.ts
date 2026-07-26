@@ -39,6 +39,7 @@ export interface SavingsGoal {
 }
 
 export type QuickActionModal = 'wallet' | 'cards' | 'budget' | 'goals' | 'expense' | null;
+export type AppTheme = 'cyber-neon' | 'midnight-oled' | 'champagne-luxury' | 'emerald-quartz' | 'industrial-tactical';
 
 interface BudgetState {
   user: UserProfile | null;
@@ -52,12 +53,14 @@ interface BudgetState {
   activeModal: QuickActionModal;
   isCloudBackupEnabled: boolean;
   lastBackupTime: string | null;
+  theme: AppTheme;
   
   // Actions
   setUser: (user: UserProfile | null) => void;
   setAuthLoading: (loading: boolean) => void;
   logoutUser: () => void;
   setActiveModal: (modal: QuickActionModal) => void;
+  setTheme: (theme: AppTheme) => void;
   setCloudBackupEnabled: (enabled: boolean) => void;
   setLastBackupTime: (time: string | null) => void;
   restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; cards: PaymentCard[]; goals: SavingsGoal[] }) => void;
@@ -85,8 +88,11 @@ export const useBudgetStore = create<BudgetState>()(
       activeModal: null,
       isCloudBackupEnabled: false,
       lastBackupTime: null,
+      theme: 'cyber-neon',
 
       setActiveModal: (modal) => set({ activeModal: modal }),
+
+      setTheme: (theme) => set({ theme }),
 
       setCloudBackupEnabled: (isCloudBackupEnabled) => set({ isCloudBackupEnabled }),
 
@@ -217,6 +223,7 @@ export const useBudgetStore = create<BudgetState>()(
         goals: state.goals,
         isCloudBackupEnabled: state.isCloudBackupEnabled,
         lastBackupTime: state.lastBackupTime,
+        theme: state.theme,
       }),
     }
   )

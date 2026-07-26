@@ -4,12 +4,13 @@ import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
 import { 
   User, Bell, Lock, CreditCard, Globe, HelpCircle, LogOut, ChevronRight, LogIn,
-  HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check
+  HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check, Palette
 } from "lucide-react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import { uploadBackupToFirestore, downloadBackupFromFirestore } from "../../../services/firestoreService";
+import { DesignModal } from "../modals/DesignModal";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export function Profile() {
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || (isAuthenticated ? "Authenticated User" : "Guest User");
   const email = user?.email || user?.phoneNumber || (isAuthenticated ? "Registered Account" : "Not signed in");
@@ -100,6 +102,7 @@ export function Profile() {
     {
       title: "Preferences",
       items: [
+        { icon: Palette, label: "Design & Themes", glow: "pink" as const, action: () => setIsDesignModalOpen(true) },
         { icon: CreditCard, label: "Payment Methods", glow: "gold" as const },
         { icon: Globe, label: "Language & Region", glow: "purple" as const },
       ],
@@ -318,6 +321,11 @@ export function Profile() {
       <div className="text-center text-white/40 text-xs tracking-tight mb-8">
         ZENTRO v1.0.0
       </div>
+
+      <DesignModal
+        isOpen={isDesignModalOpen}
+        onClose={() => setIsDesignModalOpen(false)}
+      />
     </div>
   );
 }
