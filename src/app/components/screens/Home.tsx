@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
 import { TrendingUp, TrendingDown, Zap, DollarSign, Wallet, CreditCard } from "lucide-react";
-import logo from "../../../imports/zeee.png";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { WalletModal } from "../modals/WalletModal";
@@ -48,11 +47,31 @@ export function Home() {
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="mb-12"
+        className="flex items-center gap-4 mb-12"
       >
-        <img src={logo} alt="ZENTRO" className="h-12 mb-8" />
-        <div className={`${subtextColor} mb-2 tracking-tight`}>{t.welcome},</div>
-        <h1 className={`${textColor} text-3xl tracking-tighter capitalize font-black`}>{userName}</h1>
+        <div className="relative shrink-0">
+          {user?.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt={userName}
+              className="w-14 h-14 rounded-full object-cover border-2 border-white/20 shadow-md"
+            />
+          ) : (
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg text-white shadow-md"
+              style={{
+                background: `linear-gradient(135deg, ${activeTheme.primaryColor}, ${activeTheme.secondaryColor})`,
+              }}
+            >
+              {userName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-[#0a0a1f] rounded-full" />
+        </div>
+        <div>
+          <div className={`${subtextColor} text-sm font-medium tracking-tight`}>{t.welcome},</div>
+          <h1 className={`${textColor} text-2xl sm:text-3xl tracking-tighter capitalize font-black`}>{userName}</h1>
+        </div>
       </motion.div>
 
       <div className="flex justify-center mb-12">
@@ -114,11 +133,10 @@ export function Home() {
             </motion.div>
             <div className={`${subtextColor} tracking-tight text-sm font-medium`}>{t.of} {currencySymbols[currency]}{dailyBudget.toLocaleString()}</div>
             <motion.div
-              className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
-                isOverBudget
-                  ? "bg-red-500/20 text-red-600 border border-red-500/30 font-bold"
-                  : "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 font-bold"
-              } tracking-tight text-xs`}
+              className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${isOverBudget
+                ? "bg-red-500/20 text-red-600 border border-red-500/30 font-bold"
+                : "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 font-bold"
+                } tracking-tight text-xs`}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
@@ -171,19 +189,17 @@ export function Home() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
-                  isLight 
-                    ? "bg-slate-100/70 border-slate-200/80" 
-                    : "bg-white/5 backdrop-blur-xl border-white/5"
-                }`}
+                className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${isLight
+                  ? "bg-slate-100/70 border-slate-200/80"
+                  : "bg-white/5 backdrop-blur-xl border-white/5"
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border ${
-                      transaction.type === "income" 
-                        ? "bg-emerald-500/10 border-emerald-500/20" 
-                        : isLight ? "bg-slate-200 border-slate-300" : "bg-white/5 border-white/10"
-                    }`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border ${transaction.type === "income"
+                      ? "bg-emerald-500/10 border-emerald-500/20"
+                      : isLight ? "bg-slate-200 border-slate-300" : "bg-white/5 border-white/10"
+                      }`}
                   >
                     {transaction.type === "income" ? (
                       <TrendingUp size={18} className="text-emerald-500" />
@@ -197,9 +213,8 @@ export function Home() {
                   </div>
                 </div>
                 <div
-                  className={`tracking-tight font-extrabold text-sm ${
-                    transaction.type === "income" ? "text-emerald-600" : "text-red-500"
-                  }`}
+                  className={`tracking-tight font-extrabold text-sm ${transaction.type === "income" ? "text-emerald-600" : "text-red-500"
+                    }`}
                 >
                   {transaction.type === "income" ? "+" : "-"}{currencySymbols[currency]}{transaction.amount.toLocaleString()}
                 </div>

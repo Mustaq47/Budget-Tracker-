@@ -2,17 +2,22 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Zap, Plus, Coins, Target, Trash2, Sparkles, Trophy } from "lucide-react";
 import { useBudgetStore, SavingsGoal, currencySymbols } from "../../../store/useBudgetStore";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 interface GoalsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const goalCategories = ["Savings", "Travel", "Gadgets", "Emergency", "Investment", "Vehicle"];
+const goalCategories = ["Vacation", "Emergency Fund", "Electronics", "Vehicle", "Home", "Investment", "Other"];
 const glowThemes: Array<"gold" | "blue" | "purple" | "pink"> = ["gold", "blue", "purple", "pink"];
 
 export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
-  const { goals, addGoal, contributeToGoal, deleteGoal, currency } = useBudgetStore();
+  const { goals, addGoal, contributeToGoal, deleteGoal, currency, theme, colorMode } = useBudgetStore();
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const isLight = !activeTheme.isDark;
+  const textColor = activeTheme.textColor;
+  const subtextColor = activeTheme.subtextColor;
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [selectedGoalForContribution, setSelectedGoalForContribution] = useState<string | null>(null);
 
@@ -83,16 +88,25 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto"
           >
-            <div className="backdrop-blur-3xl bg-gradient-to-b from-[#181530]/95 via-[#0F0D24]/98 to-[#090816] border-t border-white/20 rounded-t-[40px] p-6 pt-3 shadow-[0_-12px_50px_rgba(255,209,102,0.25),0_-4px_25px_rgba(0,0,0,0.8)] max-h-[85vh] overflow-y-auto pb-12 relative text-white">
-              
+            <div
+              className={`backdrop-blur-3xl border-t rounded-t-[40px] p-6 pt-3 max-h-[85vh] overflow-y-auto pb-12 relative transition-colors ${
+                isLight
+                  ? "bg-white/95 border-slate-200 text-slate-900 shadow-[0_-12px_50px_rgba(0,0,0,0.1)]"
+                  : "bg-gradient-to-b from-[#181530]/95 via-[#0F0D24]/98 to-[#090816] border-white/20 text-white shadow-[0_-12px_50px_rgba(255,209,102,0.25)]"
+              }`}
+            >
               {/* Drag Handle */}
-              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+              <div className={`w-12 h-1 rounded-full mx-auto mb-5 ${isLight ? "bg-slate-300" : "bg-white/20"}`} />
 
               <button
                 onClick={onClose}
-                className="absolute top-5 right-6 w-9 h-9 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/15 cursor-pointer hover:bg-white/20 transition-colors z-10"
+                className={`absolute top-5 right-6 w-9 h-9 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-colors z-10 ${
+                  isLight
+                    ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
+                    : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"
+                }`}
               >
-                <X size={18} className="text-white/80" />
+                <X size={18} />
               </button>
 
               {/* Header */}
@@ -103,10 +117,10 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-white text-xl font-black tracking-tight flex items-center gap-2">
+                  <h2 className={`${textColor} text-xl font-black tracking-tight flex items-center gap-2`}>
                     Savings Goals <Trophy size={16} className="text-[#FFD166]" />
                   </h2>
-                  <div className="text-white/50 text-xs tracking-tight">
+                  <div className={`${subtextColor} text-xs tracking-tight`}>
                     {goals.length === 0 ? "No active goals" : `${goals.length} Financial Milestone${goals.length > 1 ? "s" : ""}`}
                   </div>
                 </div>
@@ -114,12 +128,16 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
               {/* Goals List or Empty State */}
               {goals.length === 0 && !showAddGoal ? (
-                <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center mb-6 backdrop-blur-xl">
+                <div
+                  className={`p-8 rounded-3xl border text-center mb-6 backdrop-blur-xl ${
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                  }`}
+                >
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD166]/20 to-[#FF4D8D]/20 border border-white/10 flex items-center justify-center mx-auto mb-4">
                     <Target size={32} className="text-[#FFD166]" />
                   </div>
-                  <h3 className="text-white font-bold text-base mb-1">No Savings Goals Set</h3>
-                  <p className="text-white/40 text-xs mb-6 max-w-xs mx-auto">
+                  <h3 className={`${textColor} font-bold text-base mb-1`}>No Savings Goals Set</h3>
+                  <p className={`${subtextColor} text-xs mb-6 max-w-[240px] mx-auto`}>
                     Set up custom target goals for vacations, emergency funds, or tech upgrades and track your progress.
                   </p>
                   <button
@@ -138,11 +156,13 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                     return (
                       <div
                         key={goal.id}
-                        className="p-5 rounded-3xl bg-white/5 border border-white/12 hover:border-white/25 transition-all backdrop-blur-xl relative overflow-hidden group"
+                        className={`p-5 rounded-3xl border transition-all backdrop-blur-xl relative overflow-hidden group ${
+                          isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/12 hover:border-white/25"
+                        }`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <div className="text-white font-extrabold text-base tracking-tight flex items-center gap-2">
+                            <div className={`${textColor} font-extrabold text-base tracking-tight flex items-center gap-2`}>
                               {goal.title}
                               {isCompleted && (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">
@@ -150,13 +170,13 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                                 </span>
                               )}
                             </div>
-                            <div className="text-white/40 text-xs tracking-tight capitalize">{goal.category}</div>
+                            <div className={`${subtextColor} text-xs tracking-tight capitalize`}>{goal.category}</div>
                           </div>
                           
                           <div className="flex items-center gap-2">
                             <div className="text-right">
                               <div className="text-[#FFD166] font-black text-sm tracking-tight">{pct}%</div>
-                              <div className="text-white/40 text-[10px] tracking-tight">
+                              <div className={`${subtextColor} text-[10px] tracking-tight`}>
                                 {currencySymbols[currency]}{goal.currentAmount.toLocaleString()} / {currencySymbols[currency]}{goal.targetAmount.toLocaleString()}
                               </div>
                             </div>
@@ -171,7 +191,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                         </div>
 
                         {/* Animated Glowing Progress Bar */}
-                        <div className="w-full h-3 bg-black/40 rounded-full overflow-hidden mb-4 p-[1px] border border-white/10">
+                        <div className={`w-full h-3 rounded-full overflow-hidden mb-4 p-[1px] border ${isLight ? "bg-slate-200 border-slate-300" : "bg-black/40 border-white/10"}`}>
                           <motion.div
                             className={`h-full rounded-full ${
                               isCompleted
@@ -186,7 +206,11 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
                         <button
                           onClick={() => setSelectedGoalForContribution(goal.id)}
-                          className="w-full py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/10"
+                          className={`w-full py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                            isLight
+                              ? "bg-white hover:bg-slate-100 text-slate-900 border-slate-200"
+                              : "bg-white/10 hover:bg-white/15 text-white border-white/10"
+                          }`}
                         >
                           <Coins size={15} className="text-[#FFD166]" /> Contribute Funds
                         </button>
@@ -198,15 +222,20 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
               {/* Contribute Sub-Modal / Form */}
               {selectedGoalForContribution && (
-                <form onSubmit={handleContribute} className="p-5 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-[#FFD166]/40 mb-6 space-y-3 shadow-lg">
-                  <div className="flex items-center justify-between text-white text-xs font-bold">
-                    <span className="flex items-center gap-1.5">
+                <form
+                  onSubmit={handleContribute}
+                  className={`p-5 rounded-3xl border mb-6 space-y-3 shadow-lg ${
+                    isLight ? "bg-slate-50 border-amber-300" : "bg-gradient-to-br from-white/10 to-white/5 border-[#FFD166]/40"
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className={`${textColor} flex items-center gap-1.5`}>
                       <Target size={16} className="text-[#FFD166]" /> Deposit Funds to Goal
                     </span>
                     <button
                       type="button"
                       onClick={() => setSelectedGoalForContribution(null)}
-                      className="text-white/50 hover:text-white"
+                      className={`${subtextColor} hover:text-current`}
                     >
                       <X size={14} />
                     </button>
@@ -221,7 +250,11 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                       placeholder="Amount to deposit"
                       value={contributionAmount}
                       onChange={(e) => setContributionAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                      className="w-full bg-black/40 border border-white/20 rounded-2xl pl-10 pr-4 py-3 text-white text-base font-extrabold focus:outline-none focus:border-[#FFD166]"
+                      className={`w-full border rounded-2xl pl-10 pr-4 py-3 text-base font-extrabold focus:outline-none focus:border-[#FFD166] ${
+                        isLight
+                          ? "bg-white border-slate-200 text-slate-900"
+                          : "bg-black/40 border-white/20 text-white"
+                      }`}
                     />
                   </div>
 
@@ -231,9 +264,14 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                         key={amt}
                         type="button"
                         onClick={() => setContributionAmount(amt.toString())}
-                        className="py-1.5 rounded-xl text-[11px] font-bold bg-white/5 border border-white/10 text-white/80 hover:bg-white/15"
+                        className={`py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                          isLight
+                            ? "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
+                            : "bg-white/5 border-white/10 text-white/80 hover:bg-white/15"
+                        }`}
                       >
-                        +{currencySymbols[currency]}{amt}
+                        +{currencySymbols[currency]}
+                        {amt}
                       </button>
                     ))}
                   </div>
@@ -242,7 +280,11 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                     <button
                       type="button"
                       onClick={() => setSelectedGoalForContribution(null)}
-                      className="flex-1 py-2.5 rounded-xl text-xs bg-white/10 text-white/70"
+                      className={`flex-1 py-2.5 rounded-xl text-xs transition-all cursor-pointer ${
+                        isLight
+                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                          : "bg-white/10 text-white/70 hover:bg-white/15"
+                      }`}
                     >
                       Cancel
                     </button>
@@ -258,26 +300,39 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
               {/* Create New Goal */}
               {showAddGoal ? (
-                <form onSubmit={handleCreateGoal} className="space-y-4 bg-white/5 p-5 rounded-3xl border border-white/15">
-                  <div className="text-white text-sm font-extrabold tracking-tight flex items-center gap-2">
+                <form
+                  onSubmit={handleCreateGoal}
+                  className={`space-y-4 p-5 rounded-3xl border ${
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/15"
+                  }`}
+                >
+                  <div className={`${textColor} text-sm font-extrabold tracking-tight flex items-center gap-2`}>
                     <Sparkles size={16} className="text-[#FFD166]" /> Create New Savings Goal
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-white/70 mb-1">Goal Title</label>
+                    <label className={`block text-[11px] font-semibold mb-1 ${isLight ? "text-slate-700" : "text-white/70"}`}>
+                      Goal Title
+                    </label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Dream Trip to Japan, New Macbook"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-white text-xs placeholder:text-white/30 focus:outline-none focus:border-[#FFD166] transition-all"
+                      className={`w-full border rounded-2xl px-4 py-3 text-xs focus:outline-none transition-all ${
+                        isLight
+                          ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#FFD166]"
+                          : "bg-black/40 border-white/15 text-white placeholder:text-white/30 focus:border-[#FFD166]"
+                      }`}
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] font-semibold text-white/70 mb-1">Target Amount ({currencySymbols[currency]})</label>
+                      <label className={`block text-[11px] font-semibold mb-1 ${isLight ? "text-slate-700" : "text-white/70"}`}>
+                        Target Amount ({currencySymbols[currency]})
+                      </label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -285,28 +340,44 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                         placeholder="50000"
                         value={targetAmount}
                         onChange={(e) => setTargetAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                        className="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-white text-xs font-bold placeholder:text-white/30 focus:outline-none focus:border-[#FFD166] transition-all"
+                        className={`w-full border rounded-2xl px-4 py-3 text-xs font-bold focus:outline-none transition-all ${
+                          isLight
+                            ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#FFD166]"
+                            : "bg-black/40 border-white/15 text-white placeholder:text-white/30 focus:border-[#FFD166]"
+                        }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-white/70 mb-1">Initial Deposit ({currencySymbols[currency]})</label>
+                      <label className={`block text-[11px] font-semibold mb-1 ${isLight ? "text-slate-700" : "text-white/70"}`}>
+                        Initial Deposit ({currencySymbols[currency]})
+                      </label>
                       <input
                         type="text"
                         inputMode="numeric"
                         placeholder="0 (Optional)"
                         value={initialAmount}
                         onChange={(e) => setInitialAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                        className="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-white text-xs font-bold placeholder:text-white/30 focus:outline-none focus:border-[#FFD166] transition-all"
+                        className={`w-full border rounded-2xl px-4 py-3 text-xs font-bold focus:outline-none transition-all ${
+                          isLight
+                            ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#FFD166]"
+                            : "bg-black/40 border-white/15 text-white placeholder:text-white/30 focus:border-[#FFD166]"
+                        }`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-white/70 mb-1">Category</label>
+                    <label className={`block text-[11px] font-semibold mb-1 ${isLight ? "text-slate-700" : "text-white/70"}`}>
+                      Category
+                    </label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full bg-[#120F28] border border-white/15 rounded-2xl px-3 py-3 text-white text-xs focus:outline-none focus:border-[#FFD166]"
+                      className={`w-full border rounded-2xl px-3 py-3 text-xs focus:outline-none ${
+                        isLight
+                          ? "bg-white border-slate-200 text-slate-900 focus:border-[#FFD166]"
+                          : "bg-[#120F28] border-white/15 text-white focus:border-[#FFD166]"
+                      }`}
                     >
                       {goalCategories.map((cat) => (
                         <option key={cat} value={cat}>
@@ -320,7 +391,11 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                     <button
                       type="button"
                       onClick={() => setShowAddGoal(false)}
-                      className="flex-1 py-3 rounded-2xl text-xs bg-white/10 text-white/70 hover:bg-white/15 transition-all cursor-pointer"
+                      className={`flex-1 py-3 rounded-2xl text-xs transition-all cursor-pointer ${
+                        isLight
+                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                          : "bg-white/10 text-white/70 hover:bg-white/15"
+                      }`}
                     >
                       Cancel
                     </button>
@@ -336,7 +411,11 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                 goals.length > 0 && (
                   <button
                     onClick={() => setShowAddGoal(true)}
-                    className="w-full py-3.5 rounded-2xl border border-dashed border-white/25 hover:border-white/40 text-white/80 hover:text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer bg-white/5 hover:bg-white/10"
+                    className={`w-full py-3.5 rounded-2xl border border-dashed font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      isLight
+                        ? "border-slate-300 hover:border-slate-400 text-slate-700 hover:text-slate-900 bg-slate-50 hover:bg-slate-100"
+                        : "border-white/25 hover:border-white/40 text-white/80 hover:text-white bg-white/5 hover:bg-white/10"
+                    }`}
                   >
                     <Plus size={16} /> Create New Savings Goal
                   </button>

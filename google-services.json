@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "593055127936",
+    "project_id": "cozify-47",
+    "storage_bucket": "cozify-47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593055127936:android:ce535bdbb1c6fe32758965",
+        "android_client_info": {
+          "package_name": "com.coZify.coZyra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbc39vX7QxKrObwC0M0oAGqIJTdh41FI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

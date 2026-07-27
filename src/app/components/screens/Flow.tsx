@@ -1,7 +1,17 @@
-import { motion } from "motion/react";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { GlassIcon } from "../GlassIcon";
-import { ShoppingBag, Coffee, Car, Home, Heart, Zap, DollarSign, LucideIcon } from "lucide-react";
-import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import {
+  ShoppingBag,
+  Coffee,
+  Car,
+  Home,
+  Heart,
+  Zap,
+  DollarSign,
+  LucideIcon,
+} from "lucide-react";
+import { useBudgetStore, currencySymbols, Transaction } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 const iconMap: Record<string, { icon: LucideIcon; glow: "purple" | "blue" | "pink" | "gold" }> = {
@@ -14,9 +24,132 @@ const iconMap: Record<string, { icon: LucideIcon; glow: "purple" | "blue" | "pin
   Other: { icon: DollarSign, glow: "purple" },
 };
 
+interface FlowItemCardProps {
+  item: Transaction;
+  index: number;
+  textColor: string;
+  subtextColor: string;
+  isLight: boolean;
+  currency: keyof typeof currencySymbols;
+  onLongPress: () => void;
+}
+
+function FlowItemCard({
+  item,
+  index,
+  textColor,
+  subtextColor,
+  isLight,
+  currency,
+  onLongPress,
+}: FlowItemCardProps) {
+  const meta = iconMap[item.category] || { icon: DollarSign, glow: "purple" };
+  const IconComp = meta.icon;
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startLongPress = () => {
+    clearLongPress();
+    longPressTimerRef.current = setTimeout(() => {
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(30);
+      }
+      onLongPress();
+    }, 400);
+  };
+
+  const clearLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1, type: "spring", stiffness: 350, damping: 30 }}
+      className="relative flex items-center gap-4 select-none cursor-pointer"
+      style={{
+        transform: `translateX(${Math.sin(index * 0.5) * 8}px)`,
+      }}
+      onPointerDown={startLongPress}
+      onPointerUp={clearLongPress}
+      onPointerLeave={clearLongPress}
+      onPointerCancel={clearLongPress}
+      onPointerMove={(e) => {
+        if (Math.abs(e.movementX) > 6 || Math.abs(e.movementY) > 6) {
+          clearLongPress();
+        }
+      }}
+    >
+      <motion.div className="relative z-10 shrink-0" whileHover={{ scale: 1.1 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={item.category}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeInOut" }}
+          >
+            <GlassIcon icon={IconComp} size="md" glow={item.glow || meta.glow} />
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      <motion.div
+        className={`flex-1 backdrop-blur-[40px] rounded-2xl p-4 border transition-all ${
+          isLight
+            ? "bg-white/90 border-slate-200/90 shadow-md text-slate-900"
+            : "bg-white/5 border-white/10 text-white shadow-xl"
+        }`}
+        whileHover={{ scale: 1.01, y: -2 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18, ease: "easeInOut" }}
+                className={`${textColor} tracking-tight font-bold text-sm`}
+              >
+                {item.title}
+              </motion.div>
+            </AnimatePresence>
+            <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || "Today"}</div>
+          </div>
+          <div
+            className={`tracking-tighter font-extrabold text-sm sm:text-base ${
+              item.type === "income" ? "text-emerald-600" : "text-red-500"
+            }`}
+          >
+            {item.type === "income" ? "+" : "-"}
+            {currencySymbols[currency]}
+            {item.amount.toLocaleString()}
+          </div>
+        </div>
+
+        <motion.div
+          className="h-[1px] bg-gradient-to-r from-[#16A34A]/50 to-transparent mt-3"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: index * 0.1 + 0.2 }}
+          style={{ transformOrigin: "left" }}
+        />
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export function Flow() {
-  const { transactions, theme, colorMode, currency } = useBudgetStore();
+  const { transactions, theme, colorMode, currency, updateTransactionCategory } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const [floatingItem, setFloatingItem] = useState<Transaction | null>(null);
 
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -25,6 +158,7 @@ export function Flow() {
   const todayISO = new Date().toISOString().split("T")[0];
   const todayTransactions = transactions.filter((t) => t.date === todayISO);
   const flowItems = todayTransactions.length > 0 ? todayTransactions : transactions;
+  const categories = Object.keys(iconMap);
 
   const totalSpent = flowItems
     .filter((t) => t.type === "expense")
@@ -64,52 +198,18 @@ export function Flow() {
           </div>
 
           <div className="space-y-6">
-            {flowItems.map((item, index) => {
-              const meta = iconMap[item.category] || { icon: DollarSign, glow: "purple" };
-              const IconComp = meta.icon;
-
-              return (
-                <motion.div
-                  key={item.id || index}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="relative flex items-start gap-4"
-                  style={{
-                    transform: `translateX(${Math.sin(index * 0.5) * 8}px)`,
-                  }}
-                >
-                  <motion.div className="relative z-10" whileHover={{ scale: 1.1 }}>
-                    <GlassIcon icon={IconComp} size="md" glow={item.glow || meta.glow} />
-                  </motion.div>
-
-                  <motion.div
-                    className={`flex-1 backdrop-blur-[40px] rounded-2xl p-4 border transition-all ${
-                      isLight 
-                        ? "bg-white/90 border-slate-200/90 shadow-md text-slate-900" 
-                        : "bg-white/5 border-white/10 text-white shadow-xl"
-                    }`}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className={`${textColor} tracking-tight font-bold text-sm`}>{item.title}</div>
-                      <div className={`tracking-tighter font-extrabold ${item.type === "income" ? "text-emerald-600" : "text-red-500"}`}>
-                        {item.type === "income" ? "+" : "-"}{currencySymbols[currency]}{item.amount.toLocaleString()}
-                      </div>
-                    </div>
-                    <div className={`${subtextColor} text-xs tracking-tight`}>{item.time || "Today"}</div>
-                    <motion.div
-                      className="h-[1px] bg-gradient-to-r from-[#16A34A]/50 to-transparent mt-3"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ delay: index * 0.1 + 0.2 }}
-                      style={{ transformOrigin: "left" }}
-                    />
-                  </motion.div>
-                </motion.div>
-              );
-            })}
+            {flowItems.map((item, index) => (
+              <FlowItemCard
+                key={item.id || index}
+                item={item}
+                index={index}
+                textColor={textColor}
+                subtextColor={subtextColor}
+                isLight={isLight}
+                currency={currency}
+                onLongPress={() => setFloatingItem(item)}
+              />
+            ))}
           </div>
 
           <motion.div
@@ -122,6 +222,68 @@ export function Flow() {
           </motion.div>
         </div>
       )}
+
+      {/* Floating Category Icons Overlay */}
+      <AnimatePresence>
+        {floatingItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setFloatingItem(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.85, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.85, y: 20, opacity: 0 }}
+              transition={{ type: "spring", damping: 24, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-sm rounded-[28px] p-6 border shadow-2xl backdrop-blur-2xl ${
+                isLight
+                  ? "bg-white/95 border-slate-200 text-slate-900"
+                  : "bg-[#0a0a1f]/95 border-white/15 text-white"
+              }`}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {categories.map((cat, i) => {
+                  const catMeta = iconMap[cat];
+                  const CatIcon = catMeta.icon;
+                  const isSelected = cat === floatingItem.category;
+                  return (
+                    <motion.button
+                      key={cat}
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                        ease: "easeInOut",
+                      }}
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        updateTransactionCategory(floatingItem.id, cat);
+                        setFloatingItem(null);
+                      }}
+                      className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#16A34A] border-[#16A34A] text-white shadow-lg font-bold"
+                          : isLight
+                            ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                            : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10"
+                      }`}
+                    >
+                      <CatIcon className="w-6 h-6 mb-1.5" />
+                      <span className="text-xs font-semibold">{cat}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

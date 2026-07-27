@@ -106,6 +106,7 @@ interface BudgetState {
   restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; cards: PaymentCard[]; goals: SavingsGoal[] }) => void;
   addTransaction: (tx: Omit<Transaction, 'id' | 'date'>) => void;
   deleteTransaction: (id: string) => void;
+  updateTransactionCategory: (id: string, category: string) => void;
   setDailyBudget: (budget: number) => void;
   addCard: (card: Omit<PaymentCard, 'id'>) => void;
   deleteCard: (id: string) => void;
@@ -113,7 +114,7 @@ interface BudgetState {
   deleteGoal: (id: string) => void;
   contributeToGoal: (goalId: string, amount: number) => void;
   updateNotificationSettings: (settings: Partial<BudgetState['notificationSettings']>) => void;
-  updateUserProfile: (profile: { displayName?: string | null; photoURL?: string | null }) => void;
+  updateUserProfile: (profile: Partial<UserProfile>) => void;
   wipeAllData: () => void;
 }
 
@@ -198,6 +199,19 @@ export const useBudgetStore = create<BudgetState>()(
       deleteTransaction: (id) =>
         set((state) => ({
           transactions: state.transactions.filter((t) => t.id !== id),
+        })),
+
+      updateTransactionCategory: (id, category) =>
+        set((state) => ({
+          transactions: state.transactions.map((t) =>
+            t.id === id
+              ? {
+                  ...t,
+                  category,
+                  title: `${category} ${t.type === "income" ? "Income" : "Expense"}`,
+                }
+              : t
+          ),
         })),
 
       setDailyBudget: (dailyBudget) => set({ dailyBudget }),

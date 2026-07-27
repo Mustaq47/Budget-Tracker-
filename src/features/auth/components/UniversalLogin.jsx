@@ -110,7 +110,7 @@ export default function UniversalLogin({
   onPhoneAuth,
   onPasswordReset,
   onVerifyOTP,
-  onLogout,
+  onLogout = () => {},
   onAuthSuccess,
   allowPhoneAuth = true,
   countryCodes = [
@@ -207,7 +207,6 @@ export default function UniversalLogin({
           await onEmailSignIn?.({ email: normalizeEmail(email), password });
           clearSensitiveState();
           loginLimiter.reset();
-          onAuthSuccess?.();
         } else {
           await onPhoneAuth?.({ countryCode, phone: phone.replace(/\D/g, ''), isSignUp: false });
           otpResendCooldown.start();
@@ -218,7 +217,6 @@ export default function UniversalLogin({
           await onEmailSignUp?.({ email: normalizeEmail(email), name: fullName.trim(), password });
           clearSensitiveState();
           loginLimiter.reset();
-          onAuthSuccess?.();
         } else {
           await onPhoneAuth?.({ countryCode, phone: phone.replace(/\D/g, ''), isSignUp: true });
           otpResendCooldown.start();
@@ -239,7 +237,6 @@ export default function UniversalLogin({
           await onVerifyOTP?.(otpCode);
           clearSensitiveState();
           setOtpAttempts(0);
-          onAuthSuccess?.();
         } catch (otpErr) {
           setOtpAttempts(prev => prev + 1);
           setOtpError(
@@ -274,23 +271,6 @@ export default function UniversalLogin({
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#FAF9FF] text-[#051A3E] font-sans antialiased">
-      {/* Header */}
-      <header className="w-full border-b border-[#C3C6D6] bg-white sticky top-0 z-30 shadow-xs">
-        <div className="flex justify-between items-center h-16 sm:h-20 px-4 sm:px-8 max-w-7xl mx-auto">
-          <div className="font-bold text-xl sm:text-2xl text-[#003D9B] cursor-pointer hover:opacity-90 tracking-tight">
-            {companyName}
-          </div>
-          <button 
-            type="button"
-            className="text-[#434654] hover:bg-[#F1F3FF] transition-colors p-2.5 rounded-full flex items-center justify-center cursor-pointer"
-            aria-label="Help"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
-        </div>
-      </header>
 
       {/* Main Container — Screen Optimized & Mobile Responsive */}
       <main className="flex-grow flex items-center justify-center px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12 w-full">
@@ -532,7 +512,6 @@ export default function UniversalLogin({
                     try {
                       await onGoogleSignIn?.();
                       clearSensitiveState();
-                      onAuthSuccess?.();
                     } catch (err) {
                       setError(err?.message || 'Google sign-in failed.');
                     } finally {

@@ -15,6 +15,9 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
+  signInWithCredential,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail,
@@ -24,6 +27,24 @@ import {
   signOut,
   onAuthStateChanged
 } from "firebase/auth";
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
+// Detect Capacitor native (mobile) environment
+const isCapacitorNative = typeof window !== 'undefined' && Boolean(window.Capacitor?.isNativePlatform?.());
+
+if (isCapacitorNative) {
+  try {
+    GoogleAuth.initialize({
+      clientId: '322273012281-be2d9feb1b3712e6903be8.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
+      grantOfflineAccess: false,
+    });
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn('[GoogleAuth Init]', e);
+    }
+  }
+}
 
 // ─── C-01 FIX: Config from environment variables ───
 const firebaseConfig = {
@@ -96,21 +117,71 @@ const AUTH_ERROR_MAP = {
 
 function safeAuthError(error) {
   const code = error?.code || '';
-  const safeMessage = AUTH_ERROR_MAP[code] || 'An unexpected error occurred. Please try again.';
-  // In development, log the real error for debugging
-  if (import.meta.env.DEV) {
-    console.warn('[Auth Debug]', code, error?.message);
+  const rawMsg = error?.message || error?.toString() || 'Unknown error';
+  
+  if (AUTH_ERROR_MAP[code]) {
+    return new Error(AUTH_ERROR_MAP[code]);
   }
-  return new Error(safeMessage);
+
+  // Handle Google Play Services DEVELOPER_ERROR 10 (missing SHA-1 in Firebase Console)
+  if (rawMsg.includes('10') || rawMsg.includes('DEVELOPER_ERROR') || rawMsg.includes('12500')) {
+    return new Error('Google Auth Error (SHA-1 missing): Add SHA-1 5E:80:B0:29:3E:7E:6B:F5:B0:95:42:EE:03:F2:B8:C4:FA:BF:10:E1 to Firebase Console under Project Settings -> Android Apps.');
+  }
+
+  // Show descriptive error message instead of generic fallback
+  return new Error(`Sign-In Error: ${rawMsg} (${code})`);
 }
 
 // ─── Auth Helpers (all throw sanitized errors) ───
 
 export const signInWithGoogle = async () => {
   try {
+    if (isCapacitorNative) {
+      // Use Capacitor Native Google Sign-In overlay (Google Play Services)
+      // This prevents web redirect back to localhost (ERR_CONNECTION_REFUSED)
+      const googleUser = await GoogleAuth.signIn();
+      const idToken = googleUser?.authentication?.idToken || googleUser?.idToken || googleUser?.token;
+      if (!idToken) {
+        throw new Error('No ID token returned from Google Sign-In. Check SHA-1 in Firebase Console.');
+      }
+      const credential = GoogleAuthProvider.credential(idToken);
+      return await signInWithCredential(auth, credential);
+    }
     return await signInWithPopup(auth, googleProvider);
   } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[Google Auth Error]', error);
+    }
+    // Handle user cancellation gracefully
+    if (
+      error?.code === 'auth/popup-closed-by-user' ||
+      error?.message?.includes('12501') ||
+      error?.message?.toLowerCase()?.includes('cancel')
+    ) {
+      return null;
+    }
+    if (
+      error?.code === 'auth/popup-blocked' ||
+      error?.code === 'auth/operation-not-supported-in-this-environment'
+    ) {
+      await signInWithRedirect(auth, googleProvider);
+      return null;
+    }
     throw safeAuthError(error);
+  }
+};
+
+// Handle redirect result on app init (for Web browsers only)
+export const handleGoogleRedirectResult = async () => {
+  try {
+    if (isCapacitorNative) return null;
+    const result = await getRedirectResult(auth);
+    return result;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[Auth] Redirect result error:', error?.code);
+    }
+    return null;
   }
 };
 

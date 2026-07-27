@@ -9,3 +9,5 @@ android/app/build/
 .DS_Store
 dist/
 .codegraph/
+*.apk
+*.mp4

@@ -69,6 +69,29 @@ export function GlassIcon({
 
   const Component = asChild ? motion.div : motion.button;
 
+  let themeContainerStyle = "";
+  let themeIconColor = "";
+
+  if (theme === "minimalist-theme") {
+    themeContainerStyle = isLight
+      ? "bg-zinc-100 border-zinc-300 shadow-sm hover:bg-zinc-200"
+      : "bg-zinc-800/80 border-zinc-700 shadow-sm hover:bg-zinc-700";
+    themeIconColor = isLight ? "text-zinc-900" : "text-zinc-100";
+  } else if (theme === "gradient-theme") {
+    themeContainerStyle = "bg-zinc-900 border-2 border-orange-500 shadow-[2px_2px_0px_#f97316] rounded-xl";
+    themeIconColor = "text-orange-400";
+  } else if (theme === "neumorphism") {
+    themeContainerStyle = isLight
+      ? "bg-[#E2E8F0] border border-white shadow-[4px_4px_8px_#CBD5E1,-4px_-4px_8px_#FFFFFF]"
+      : "bg-slate-800 border border-slate-700 shadow-[4px_4px_8px_#0F172A,-4px_-4px_8px_#334155]";
+    themeIconColor = isLight ? "text-slate-700" : "text-slate-200";
+  } else if (theme === "material-design") {
+    themeContainerStyle = isLight
+      ? "bg-emerald-50 border-emerald-200 shadow-sm hover:bg-emerald-100"
+      : "bg-emerald-950/40 border-emerald-500/30 shadow-md hover:bg-emerald-900/50";
+    themeIconColor = isLight ? "text-emerald-700" : "text-emerald-400";
+  }
+
   return (
     <Component
       onClick={onClick}
@@ -81,7 +104,9 @@ export function GlassIcon({
         backdrop-blur-[40px]
         border
         transition-all duration-300
-        ${active
+        ${themeContainerStyle
+          ? themeContainerStyle
+          : active
           ? isLight
             ? `${lightGlowMap[glow]}`
             : `bg-white/10 ${glowMap[glow]}`
@@ -94,13 +119,15 @@ export function GlassIcon({
       <Icon
         size={sizeMap[size].icon}
         className={
-          isLight
+          themeIconColor
+            ? themeIconColor
+            : isLight
             ? active
               ? lightIconColorMap[glow]
               : `${lightIconColorMap[glow]} opacity-80`
             : active
-              ? "text-white"
-              : "text-white/70"
+            ? "text-white"
+            : "text-white/70"
         }
         strokeWidth={1.5}
       />
