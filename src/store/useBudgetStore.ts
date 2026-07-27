@@ -321,8 +321,7 @@ export const useBudgetStore = create<BudgetState>()(
     {
       name: 'budtrack-storage-v2',
       partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
+        // ponytail: never persist isAuthenticated/user in localStorage; let Firebase Auth control session truth
         dailyBudget: state.dailyBudget,
         transactions: state.transactions,
         cardsCount: state.cardsCount,

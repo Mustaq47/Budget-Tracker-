@@ -81,6 +81,33 @@ Implement:
 
 Optimize Firebase Auth lifecycle.
 
+### CRITICAL REMEDIATION — UNAUTHENTICATED SESSION BYPASS & STORAGE AUDIT
+
+#### Problem Statement
+When a new user opens the app or tries to sign in without an account, the app can incorrectly allow access without requiring valid authentication.
+Root Causes:
+1. **Zustand LocalStorage Persistence**: `isAuthenticated` and `user` are currently whitelisted in `partialize` (`budtrack-storage-v2`). Cached local state from previous sessions or mock state starts `isAuthenticated` as `true`.
+2. **Missing Session Wipe on Null Firebase User**: In `useAuthLifecycle.ts`, when `onAuthStateChanged` reports `firebaseUser === null`, the hook only calls `setAuthLoading(false)` without calling `logoutUser()`. Thus, cached `isAuthenticated` remains `true`.
+
+#### User Review Required
+> [!IMPORTANT]
+> This change removes `isAuthenticated` and `user` from `localStorage` persistence. The app will rely 100% on Firebase Auth (`onAuthStateChanged`) as the single source of truth for session authentication on startup.
+
+#### Proposed Changes
+
+##### Auth Lifecycle
+#### [MODIFY] [useAuthLifecycle.ts](file:///d:/project/New%20folder/but-test/src/features/auth/hooks/useAuthLifecycle.ts)
+- Update `else` block in `onAuthStateChanged` to explicitly invoke `logoutUser()` when `firebaseUser` is null, clearing any remaining store auth state before calling `setAuthLoading(false)`.
+
+##### State Management
+#### [MODIFY] [useBudgetStore.ts](file:///d:/project/New%20folder/but-test/src/store/useBudgetStore.ts)
+- Exclude `user` and `isAuthenticated` from `partialize` in the Zustand `persist` configuration so local storage never overrides Firebase Auth cryptographic verification.
+
+##### Verification Plan
+1. Test clearing browser storage / fresh APK install -> verify app redirects to `/login`.
+2. Attempt login with unregistered email -> verify "Invalid email or password." error is displayed.
+3. Verify that `isAuthenticated` is `false` until Firebase returns a valid user session.
+
 ------------------------------------------------------------
 
 PHASE 2 — APPLICATION INTEGRITY

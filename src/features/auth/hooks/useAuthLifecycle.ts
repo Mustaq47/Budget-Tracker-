@@ -53,6 +53,8 @@ export function useAuthLifecycle() {
           }
         }, TOKEN_REFRESH_INTERVAL_MS);
       } else {
+        // Ensure any cached local auth state is wiped when Firebase reports no authenticated user
+        logoutUser();
         setAuthLoading(false);
       }
     });
