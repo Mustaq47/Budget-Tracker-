@@ -1,28 +1,18 @@
-import React, { useEffect } from "react";
-import { Navigate, Outlet } from "react-router";
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router";
 import { useBudgetStore } from "../../store/useBudgetStore";
-import { onAuthStateChanged, auth } from "../../services/firebase";
+import { sanitizeReturnUrl } from "../../features/auth/hooks/useAuthSecurity";
 
+/**
+ * Enterprise-Grade ProtectedRoute Guard (Phase 1 Login Security).
+ *
+ * 1. Checks unified auth loading & authentication state without duplicate subscriptions.
+ * 2. Redirects unauthenticated users to /login while preserving safe returnUrl.
+ * 3. Sanitizes returnUrl to prevent Open Redirect vulnerabilities.
+ */
 export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
-  const { isAuthenticated, authLoading, setUser, setAuthLoading } = useBudgetStore();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
-          photoURL: firebaseUser.photoURL,
-          phoneNumber: firebaseUser.phoneNumber,
-        });
-      } else {
-        setAuthLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [setUser, setAuthLoading]);
+  const { isAuthenticated, authLoading } = useBudgetStore();
+  const location = useLocation();
 
   if (authLoading) {
     return (
@@ -34,10 +24,11 @@ export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Sanitize current location path to prevent open redirect vulnerabilities
+    const safeReturnPath = sanitizeReturnUrl(location.pathname);
+    const returnParam = safeReturnPath !== "/" ? `?returnUrl=${encodeURIComponent(safeReturnPath)}` : "";
+    return <Navigate to={`/login${returnParam}`} replace />;
   }
-
-  // ponytail: skipped email verification blocking, add a /verify-email screen first if required.
 
   return children ? <>{children}</> : <Outlet />;
 }

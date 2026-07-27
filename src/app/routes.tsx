@@ -23,9 +23,9 @@ export const router = createBrowserRouter([
           { path: "flow", Component: Flow },
           { path: "insights", Component: Insights },
           { path: "profile", Component: Profile },
+          { path: "*", Component: Home },
         ],
       },
-      { path: "*", Component: Home },
     ],
   },
 ]);

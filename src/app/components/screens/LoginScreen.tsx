@@ -1,50 +1,44 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router";
 import UniversalLogin from "../../../features/auth/components/UniversalLogin";
 import {
-  signInWithGoogle,
   signInWithEmail,
   signUpWithEmail,
-  resetPassword,
+  signInWithGoogle,
   sendPhoneOTP,
-  verifyOTP,
+  resetPassword,
   setupRecaptcha,
   handleGoogleRedirectResult,
-  onAuthStateChanged,
-  auth,
 } from "../../../services/firebase";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import {
+  useAuthRateLimit,
+  sanitizeReturnUrl,
+  sanitizeEmail,
+} from "../../../features/auth/hooks/useAuthSecurity";
 
 export function LoginScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser, isAuthenticated, theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const { checkRateLimit, recordFailedAttempt } = useAuthRateLimit();
 
-  // Listen for auth state changes (handles redirect result automatically)
+  // Determine safe redirect path from returnUrl query parameter
+  const returnUrlParam = new URLSearchParams(location.search).get("returnUrl");
+  const safeRedirectPath = sanitizeReturnUrl(returnUrlParam, "/");
+
+  // Check for pending Google redirect result on mount
   useEffect(() => {
-    // Check for pending Google redirect result on mount
     handleGoogleRedirectResult();
-
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
-          photoURL: firebaseUser.photoURL,
-          phoneNumber: firebaseUser.phoneNumber,
-        });
-      }
-    });
-    return () => unsubscribe();
-  }, [setUser]);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/", { replace: true });
+      navigate(safeRedirectPath, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, safeRedirectPath]);
 
   const handleAuthSuccess = (userPayload: {
     uid: string;
@@ -54,42 +48,68 @@ export function LoginScreen() {
     phoneNumber?: string | null;
   }) => {
     setUser(userPayload);
-    navigate("/", { replace: true });
+    navigate(safeRedirectPath, { replace: true });
   };
 
   const handleEmailSignIn = async ({ email, password }: { email: string; password: string }) => {
-    const res = await signInWithEmail(email, password);
-    if (res?.user) {
-      handleAuthSuccess({
-        uid: res.user.uid,
-        email: res.user.email,
-        displayName: res.user.displayName || email.split("@")[0],
-        photoURL: res.user.photoURL,
-      });
+    if (!checkRateLimit()) {
+      throw new Error("Too many login attempts. Please wait 30 seconds before retrying.");
+    }
+    try {
+      const cleanEmail = sanitizeEmail(email);
+      const res = await signInWithEmail(cleanEmail, password);
+      if (res?.user) {
+        handleAuthSuccess({
+          uid: res.user.uid,
+          email: res.user.email,
+          displayName: res.user.displayName || cleanEmail.split("@")[0],
+          photoURL: res.user.photoURL,
+        });
+      }
+    } catch (err) {
+      recordFailedAttempt();
+      throw err;
     }
   };
 
   const handleEmailSignUp = async ({ email, password, name }: { email: string; password: string; name?: string }) => {
-    const res = await signUpWithEmail(email, password, name);
-    if (res?.user) {
-      handleAuthSuccess({
-        uid: res.user.uid,
-        email: res.user.email,
-        displayName: name || res.user.displayName || email.split("@")[0],
-        photoURL: res.user.photoURL,
-      });
+    if (!checkRateLimit()) {
+      throw new Error("Too many sign up attempts. Please wait 30 seconds before retrying.");
+    }
+    try {
+      const cleanEmail = sanitizeEmail(email);
+      const res = await signUpWithEmail(cleanEmail, password, name);
+      if (res?.user) {
+        handleAuthSuccess({
+          uid: res.user.uid,
+          email: res.user.email,
+          displayName: name || res.user.displayName || cleanEmail.split("@")[0],
+          photoURL: res.user.photoURL,
+        });
+      }
+    } catch (err) {
+      recordFailedAttempt();
+      throw err;
     }
   };
 
   const handleGoogleSignIn = async () => {
-    const res = await signInWithGoogle();
-    if (res?.user) {
-      handleAuthSuccess({
-        uid: res.user.uid,
-        email: res.user.email,
-        displayName: res.user.displayName,
-        photoURL: res.user.photoURL,
-      });
+    if (!checkRateLimit()) {
+      throw new Error("Too many login attempts. Please wait 30 seconds before retrying.");
+    }
+    try {
+      const res = await signInWithGoogle();
+      if (res?.user) {
+        handleAuthSuccess({
+          uid: res.user.uid,
+          email: res.user.email,
+          displayName: res.user.displayName,
+          photoURL: res.user.photoURL,
+        });
+      }
+    } catch (err) {
+      recordFailedAttempt();
+      throw err;
     }
   };
 

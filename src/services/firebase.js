@@ -253,7 +253,16 @@ export const verifyOTP = async (confirmationResult, otpCode) => {
 };
 
 // ─── L-02 FIX: Logout mechanism ───
-export const logout = () => signOut(auth);
+export const logout = async () => {
+  if (isCapacitorNative) {
+    try {
+      await GoogleAuth.signOut();
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('[logout] GoogleAuth.signOut warning:', e);
+    }
+  }
+  return signOut(auth);
+};
 
 // ─── C-03 FIX: Auth state observer ───
-export { onAuthStateChanged };
+export { onAuthStateChanged, isCapacitorNative };
