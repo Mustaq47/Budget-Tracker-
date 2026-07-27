@@ -1,5 +1,5 @@
 {
-  "appId": "com.budtrack.app",
+  "appId": "com.coZify.com",
   "appName": "BudTrack",
   "webDir": "dist",
   "bundledWebRuntime": false,
@@ -19,7 +19,7 @@
     },
     "GoogleAuth": {
       "scopes": ["profile", "email"],
-      "serverClientId": "322273012281-be2d9feb1b3712e6903be8.apps.googleusercontent.com",
+      "serverClientId": "322273012281-5n61kne9n68unsmi9u8gqciushfardga.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
     }
   }

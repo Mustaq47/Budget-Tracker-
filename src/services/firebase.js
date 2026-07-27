@@ -35,7 +35,7 @@ const isCapacitorNative = typeof window !== 'undefined' && Boolean(window.Capaci
 if (isCapacitorNative) {
   try {
     GoogleAuth.initialize({
-      clientId: '322273012281-be2d9feb1b3712e6903be8.apps.googleusercontent.com',
+      clientId: '322273012281-5n61kne9n68unsmi9u8gqciushfardga.apps.googleusercontent.com',
       scopes: ['profile', 'email'],
       grantOfflineAccess: false,
     });

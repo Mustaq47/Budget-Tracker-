@@ -1,4 +1,4 @@
-package com.budtrack.app;
+package com.coZify.com;
 
 import com.getcapacitor.BridgeActivity;
 
