@@ -120,6 +120,11 @@ function safeAuthError(error) {
   const code = error?.code || '';
   const rawMsg = error?.message || error?.toString() || 'Unknown error';
   
+  // Pass through custom user-friendly guidance messages without prefix
+  if (rawMsg.includes("You haven't created an account") || rawMsg.includes("An account with this email already exists")) {
+    return new Error(rawMsg);
+  }
+
   if (AUTH_ERROR_MAP[code]) {
     return new Error(AUTH_ERROR_MAP[code]);
   }
@@ -166,7 +171,7 @@ export const signInWithGoogle = async (isSignUp = false) => {
       if (isCapacitorNative) {
         try { await GoogleAuth.signOut(); } catch (_) {}
       }
-      throw new Error("No account found with this email. Please switch to 'Sign up' to create an account.");
+      throw new Error("You haven't created an account, so sign-up to create an account");
     }
 
     // Prevent existing users from registering again on Create Account tab
