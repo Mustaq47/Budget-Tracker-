@@ -93,12 +93,12 @@ export function LoginScreen() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (isSignUp = false) => {
     if (!checkRateLimit()) {
       throw new Error("Too many login attempts. Please wait 30 seconds before retrying.");
     }
     try {
-      const res = await signInWithGoogle();
+      const res = await signInWithGoogle(isSignUp);
       if (res?.user) {
         handleAuthSuccess({
           uid: res.user.uid,

@@ -510,7 +510,7 @@ export default function UniversalLogin({
                     setIsLoading(true);
                     setStatusMessage('');
                     try {
-                      await onGoogleSignIn?.();
+                      await onGoogleSignIn?.(view === 'signup');
                       clearSensitiveState();
                     } catch (err) {
                       setError(err?.message || 'Google sign-in failed.');

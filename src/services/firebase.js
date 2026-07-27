@@ -25,7 +25,8 @@ import {
   signInWithPhoneNumber,
   updateProfile,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  getAdditionalUserInfo
 } from "firebase/auth";
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
@@ -134,8 +135,9 @@ function safeAuthError(error) {
 
 // ─── Auth Helpers (all throw sanitized errors) ───
 
-export const signInWithGoogle = async () => {
+export const signInWithGoogle = async (isSignUp = false) => {
   try {
+    let result;
     if (isCapacitorNative) {
       // Use Capacitor Native Google Sign-In overlay (Google Play Services)
       // This prevents web redirect back to localhost (ERR_CONNECTION_REFUSED)
@@ -145,9 +147,35 @@ export const signInWithGoogle = async () => {
         throw new Error('No ID token returned from Google Sign-In. Check SHA-1 in Firebase Console.');
       }
       const credential = GoogleAuthProvider.credential(idToken);
-      return await signInWithCredential(auth, credential);
+      result = await signInWithCredential(auth, credential);
+    } else {
+      result = await signInWithPopup(auth, googleProvider);
     }
-    return await signInWithPopup(auth, googleProvider);
+
+    const additionalInfo = getAdditionalUserInfo(result);
+    const isNewUser = additionalInfo?.isNewUser || 
+      (result?.user?.metadata?.creationTime && result?.user?.metadata?.creationTime === result?.user?.metadata?.lastSignInTime);
+
+    // Prevent new users from logging in via Sign-In tab
+    if (!isSignUp && isNewUser) {
+      // Clean up accidentally created Google account and sign out
+      try { await result.user.delete(); } catch (_) { await signOut(auth); }
+      if (isCapacitorNative) {
+        try { await GoogleAuth.signOut(); } catch (_) {}
+      }
+      throw new Error("No account found with this email. Please switch to 'Sign up' to create an account.");
+    }
+
+    // Prevent existing users from registering again on Create Account tab
+    if (isSignUp && !isNewUser) {
+      await signOut(auth);
+      if (isCapacitorNative) {
+        try { await GoogleAuth.signOut(); } catch (_) {}
+      }
+      throw new Error("An account with this email already exists. Please switch to 'Sign-In'.");
+    }
+
+    return result;
   } catch (error) {
     if (import.meta.env.DEV) {
       console.warn('[Google Auth Error]', error);
