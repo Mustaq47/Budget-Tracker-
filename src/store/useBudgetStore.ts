@@ -71,6 +71,7 @@ export const currencySymbols: Record<CurrencyCode, string> = {
 
 interface BudgetState {
   user: UserProfile | null;
+  lastUserUid: string | null;
   isAuthenticated: boolean;
   authLoading: boolean;
   dailyBudget: number;
@@ -122,6 +123,7 @@ export const useBudgetStore = create<BudgetState>()(
   persist(
     (set) => ({
       user: null,
+      lastUserUid: null,
       isAuthenticated: false,
       authLoading: true,
       dailyBudget: 2000,
@@ -168,20 +170,54 @@ export const useBudgetStore = create<BudgetState>()(
         }),
 
       setUser: (user) =>
-        set({
-          user,
-          isAuthenticated: !!user,
-          authLoading: false,
+        set((state) => {
+          if (user && state.lastUserUid && state.lastUserUid !== user.uid) {
+            return {
+              user,
+              lastUserUid: user.uid,
+              isAuthenticated: true,
+              authLoading: false,
+              dailyBudget: 2000,
+              transactions: [],
+              cardsCount: 0,
+              cards: [],
+              goals: [],
+              activeModal: null,
+              isCloudBackupEnabled: false,
+              lastBackupTime: null,
+            };
+          }
+          return {
+            user,
+            lastUserUid: user?.uid || state.lastUserUid || null,
+            isAuthenticated: !!user,
+            authLoading: false,
+          };
         }),
 
       setAuthLoading: (authLoading) => set({ authLoading }),
 
-      logoutUser: () =>
+      logoutUser: () => {
         set({
           user: null,
+          lastUserUid: null,
           isAuthenticated: false,
           authLoading: false,
-        }),
+          dailyBudget: 2000,
+          transactions: [],
+          cardsCount: 0,
+          cards: [],
+          goals: [],
+          activeModal: null,
+          isCloudBackupEnabled: false,
+          lastBackupTime: null,
+        });
+        if (typeof window !== 'undefined' && window.localStorage) {
+          try {
+            window.localStorage.removeItem('budtrack-storage-v2');
+          } catch (_) {}
+        }
+      },
 
       addTransaction: (tx) => {
         const todayISO = new Date().toISOString().split('T')[0];
@@ -321,6 +357,7 @@ export const useBudgetStore = create<BudgetState>()(
     {
       name: 'budtrack-storage-v2',
       partialize: (state) => ({
+        lastUserUid: state.lastUserUid,
         // ponytail: never persist isAuthenticated/user in localStorage; let Firebase Auth control session truth
         dailyBudget: state.dailyBudget,
         transactions: state.transactions,

@@ -28,9 +28,12 @@ export async function secureLogout(logoutStoreCallback?: () => void): Promise<vo
       logoutStoreCallback();
     }
 
-    // 4. Safely clear any temporary session storage without touching local persistence
-    if (typeof window !== "undefined" && window.sessionStorage) {
-      window.sessionStorage.clear();
+    // 4. Clear temporary session storage and stored local persistence for privacy
+    if (typeof window !== "undefined") {
+      if (window.sessionStorage) window.sessionStorage.clear();
+      if (window.localStorage) {
+        try { window.localStorage.removeItem('budtrack-storage-v2'); } catch (_) {}
+      }
     }
   } catch (error) {
     if (import.meta.env.DEV) {
