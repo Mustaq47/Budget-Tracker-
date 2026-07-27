@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { onAuthStateChanged, auth, logout } from "../../../services/firebase";
+import { onAuthStateChanged, auth, logout, isOAuthValidating } from "../../../services/firebase";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { secureLogout } from "../utils/secureLogout";
 
@@ -29,6 +29,10 @@ export function useAuthLifecycle() {
       }
 
       if (firebaseUser) {
+        if (isOAuthValidating) {
+          // Do not hydrate store or navigate while Google OAuth is validating new/existing user tab rules
+          return;
+        }
         // Hydrate store cleanly
         setUser({
           uid: firebaseUser.uid,

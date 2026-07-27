@@ -135,7 +135,10 @@ function safeAuthError(error) {
 
 // ─── Auth Helpers (all throw sanitized errors) ───
 
+export let isOAuthValidating = false;
+
 export const signInWithGoogle = async (isSignUp = false) => {
+  isOAuthValidating = true;
   try {
     let result;
     if (isCapacitorNative) {
@@ -196,6 +199,8 @@ export const signInWithGoogle = async (isSignUp = false) => {
       return null;
     }
     throw safeAuthError(error);
+  } finally {
+    isOAuthValidating = false;
   }
 };
 
