@@ -50,6 +50,7 @@ export type QuickActionModal =
   | 'notifications' 
   | 'privacy-security' 
   | 'language-region'
+  | 'report'
   | null;
 export type AppTheme = 
   | 'material-design' 

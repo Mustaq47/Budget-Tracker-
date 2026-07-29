@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import {
@@ -42,6 +42,7 @@ const parseLocalDate = (dateStr?: string): Date => {
   }
   return new Date(dateStr);
 };
+
 
 const categoryColors: Record<string, string> = {
   Income: "#22C55E",
@@ -104,6 +105,7 @@ export function Insights() {
     currency,
     addTransaction,
     setDailyBudget,
+    setActiveModal,
   } = useBudgetStore();
 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
@@ -116,6 +118,24 @@ export function Insights() {
     rangeEnd: number;
   } | null>(null);
   const weekPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [selectedMonthReport, setSelectedMonthReport] = useState<{
+    name: string;
+    monthIndex: number;
+  } | null>(null);
+  const monthPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [showModalChart, setShowModalChart] = useState(false);
+
+  useEffect(() => {
+    if (selectedWeekReport || selectedMonthReport) {
+      setShowModalChart(false);
+      const timer = setTimeout(() => setShowModalChart(true), 250);
+      return () => clearTimeout(timer);
+    } else {
+      setShowModalChart(false);
+    }
+  }, [selectedWeekReport, selectedMonthReport]);
 
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
@@ -341,6 +361,21 @@ export function Insights() {
     "Wk 4 (22-31)": { start: 22, end: 31 },
   };
 
+  const monthsList = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
   const openWeekReportModal = (weekName: string) => {
     const range = weekRanges[weekName] || { start: 1, end: 7 };
     setSelectedWeekReport({
@@ -348,6 +383,19 @@ export function Insights() {
       rangeStart: range.start,
       rangeEnd: range.end,
     });
+    setActiveModal("report");
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  };
+
+  const openMonthReportModal = (monthName: string) => {
+    const monthIndex = monthsList.indexOf(monthName);
+    setSelectedMonthReport({
+      name: monthName,
+      monthIndex: monthIndex >= 0 ? monthIndex : 0,
+    });
+    setActiveModal("report");
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate(30);
     }
@@ -358,6 +406,7 @@ export function Insights() {
     budgetPressTimerRef.current = setTimeout(() => {
       setTempBudgetInput(monthlyBudgetLimit.toString());
       setIsEditingBudget(true);
+      setActiveModal("budget");
       if (typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate(50);
       }
@@ -371,9 +420,55 @@ export function Insights() {
     }
   };
 
+  const renderCustomTick = (props: any) => {
+    const { x, y, payload } = props;
+    const isMonth = period === "month";
+    const isYear = period === "year";
+    const isInteractive = isMonth || isYear;
+
+    const handlePointerDown = () => {
+      if (!isInteractive) return;
+      if (weekPressTimerRef.current) clearTimeout(weekPressTimerRef.current);
+      weekPressTimerRef.current = setTimeout(() => {
+        if (isMonth) openWeekReportModal(payload.value);
+        if (isYear) openMonthReportModal(payload.value);
+      }, 350);
+    };
+
+    const handlePointerUp = () => {
+      if (weekPressTimerRef.current) {
+        clearTimeout(weekPressTimerRef.current);
+        weekPressTimerRef.current = null;
+      }
+    };
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text
+          x={0}
+          y={0}
+          dy={16}
+          textAnchor="middle"
+          fill={isLight ? "#475569" : "rgba(255,255,255,0.6)"}
+          fontSize={11}
+          fontWeight={600}
+          className={isInteractive ? "cursor-pointer select-none" : ""}
+          onClick={() => {
+            if (isMonth) openWeekReportModal(payload.value);
+            if (isYear) openMonthReportModal(payload.value);
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
+  };
+
   return (
     <div className="min-h-screen px-6 pt-12 pb-24">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -514,9 +609,16 @@ export function Insights() {
           {/* Main Analytics Bar Chart Card */}
           <GlassCard className="mb-6" glow glowColor="purple">
             <div className="flex items-center justify-between mb-4">
-              <span className={`${subtextColor} font-bold text-sm`}>
-                {periodTitle}
-              </span>
+              <div>
+                <span className={`${subtextColor} font-bold text-sm block`}>
+                  {periodTitle}
+                </span>
+                {(period === "month" || period === "year") && (
+                  <span className="text-[10px] text-blue-400 font-semibold block mt-0.5">
+                    Hold label or bar for {period === "month" ? "daily" : "weekly"} report
+                  </span>
+                )}
+              </div>
               <BarChart3 className={`w-4 h-4 ${subtextColor}`} />
             </div>
 
@@ -556,19 +658,21 @@ export function Insights() {
 
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
+                <BarChart key={`main-chart-${period}`} data={chartData}>
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{
-                      fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
-                      fontSize: 11,
-                      fontWeight: 600,
-                    }}
+                    tick={renderCustomTick}
                   />
                   <YAxis hide />
                   <Tooltip
+                    cursor={{
+                      fill: isLight
+                        ? "rgba(0, 0, 0, 0.04)"
+                        : "rgba(255, 255, 255, 0.05)",
+                      radius: [8, 8, 0, 0],
+                    }}
                     content={
                       <CustomTooltip
                         currencySymbol={currencySymbol}
@@ -579,24 +683,56 @@ export function Insights() {
                   <Bar
                     dataKey="amount"
                     radius={[8, 8, 0, 0]}
+                    isAnimationActive={true}
+                    animationBegin={0}
+                    animationDuration={1000}
+                    animationEasing="ease-out"
                     onClick={(data: any) => {
                       if (period === "month" && data && data.name) {
                         openWeekReportModal(data.name);
+                      } else if (period === "year" && data && data.name) {
+                        openMonthReportModal(data.name);
                       }
                     }}
                   >
-                    {chartData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill="url(#barGradient)"
-                        className="cursor-pointer"
-                        onClick={() => {
-                          if (period === "month" && entry && entry.name) {
-                            openWeekReportModal(entry.name);
-                          }
-                        }}
-                      />
-                    ))}
+                    {chartData.map((entry, index) => {
+                      const isInteractive = period === "month" || period === "year";
+                      return (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill="url(#barGradient)"
+                          className={isInteractive ? "cursor-pointer" : ""}
+                          onClick={() => {
+                            if (period === "month" && entry && entry.name) {
+                              openWeekReportModal(entry.name);
+                            } else if (period === "year" && entry && entry.name) {
+                              openMonthReportModal(entry.name);
+                            }
+                          }}
+                          onPointerDown={() => {
+                            if (isInteractive && entry && entry.name) {
+                              if (weekPressTimerRef.current) clearTimeout(weekPressTimerRef.current);
+                              weekPressTimerRef.current = setTimeout(() => {
+                                if (period === "month") openWeekReportModal(entry.name);
+                                if (period === "year") openMonthReportModal(entry.name);
+                              }, 350);
+                            }
+                          }}
+                          onPointerUp={() => {
+                            if (weekPressTimerRef.current) {
+                              clearTimeout(weekPressTimerRef.current);
+                              weekPressTimerRef.current = null;
+                            }
+                          }}
+                          onPointerLeave={() => {
+                            if (weekPressTimerRef.current) {
+                              clearTimeout(weekPressTimerRef.current);
+                              weekPressTimerRef.current = null;
+                            }
+                          }}
+                        />
+                      );
+                    })}
                   </Bar>
                   <defs>
                     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
@@ -613,47 +749,6 @@ export function Insights() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-
-            {period === "month" && (
-              <div className="mt-5 pt-4 border-t border-white/10">
-                <div className={`${subtextColor} text-xs font-semibold mb-3 flex items-center justify-between`}>
-                  <span>Tap or long press any week for daily report (Week 1 to Week 7 days)</span>
-                  <span className="text-[10px] text-blue-400 font-bold">Interactive</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {chartData.map((wk) => (
-                    <motion.div
-                      key={wk.name}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => openWeekReportModal(wk.name)}
-                      onPointerDown={() => {
-                        if (weekPressTimerRef.current) clearTimeout(weekPressTimerRef.current);
-                        weekPressTimerRef.current = setTimeout(() => {
-                          openWeekReportModal(wk.name);
-                        }, 400);
-                      }}
-                      className={`p-3 rounded-xl border cursor-pointer backdrop-blur-md transition-all ${
-                        isLight
-                          ? "bg-slate-100/80 border-slate-200 text-slate-900 hover:bg-slate-200"
-                          : "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-extrabold text-[#16A34A]">
-                          {wk.name}
-                        </span>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-                      </div>
-                      <div className="text-sm font-black">
-                        {currencySymbol}
-                        {wk.amount.toLocaleString()}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
           </GlassCard>
 
           {/* Category Pie Chart Card */}
@@ -685,7 +780,7 @@ export function Insights() {
                 <div className="flex items-center justify-center mb-6">
                   <div className="relative w-48 h-48">
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
+                      <PieChart key={`pie-chart-${period}-${categoryData.length}`}>
                         <Pie
                           data={categoryData}
                           cx="50%"
@@ -694,12 +789,17 @@ export function Insights() {
                           outerRadius={80}
                           dataKey="value"
                           strokeWidth={0}
+                          isAnimationActive={true}
+                          animationBegin={0}
+                          animationDuration={1000}
+                          animationEasing="ease-out"
                         >
                           {categoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
                         <Tooltip
+                          cursor={false}
                           content={
                             <CustomTooltip
                               currencySymbol={currencySymbol}
@@ -793,7 +893,10 @@ export function Insights() {
                   </h3>
                 </div>
                 <button
-                  onClick={() => setIsEditingBudget(false)}
+                  onClick={() => {
+                    setIsEditingBudget(false);
+                    setActiveModal(null);
+                  }}
                   className="p-1.5 rounded-full hover:bg-white/10 opacity-70"
                 >
                   <X className="w-5 h-5" />
@@ -823,7 +926,10 @@ export function Insights() {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => setIsEditingBudget(false)}
+                  onClick={() => {
+                    setIsEditingBudget(false);
+                    setActiveModal(null);
+                  }}
                   className={`flex-1 py-3 rounded-2xl font-bold text-xs tracking-tight ${
                     isLight
                       ? "bg-slate-200 text-slate-700"
@@ -838,6 +944,7 @@ export function Insights() {
                     if (!isNaN(monthlyVal) && monthlyVal > 0) {
                       setDailyBudget(Math.round(monthlyVal / 30));
                       setIsEditingBudget(false);
+                      setActiveModal(null);
                       if (typeof navigator !== "undefined" && navigator.vibrate) {
                         navigator.vibrate(30);
                       }
@@ -882,7 +989,10 @@ export function Insights() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setSelectedWeekReport(null)}
+                  onClick={() => {
+                    setSelectedWeekReport(null);
+                    setActiveModal(null);
+                  }}
                   className="p-1.5 rounded-full hover:bg-white/10 opacity-70"
                 >
                   <X className="w-5 h-5" />
@@ -917,75 +1027,108 @@ export function Insights() {
 
                   weekTransactions.forEach((t) => {
                     if (t.date) {
-                      const dayOfMonth = parseLocalDate(t.date).getDate();
-                      const idx = dayOfMonth - selectedWeekReport.rangeStart;
-                      if (dailyBuckets[idx]) {
+                      const dom = parseLocalDate(t.date).getDate();
+                      const idx = dom - selectedWeekReport.rangeStart;
+                      if (idx >= 0 && idx < dailyBuckets.length) {
                         dailyBuckets[idx].amount += t.amount;
                       }
-                    } else if (dailyBuckets[0]) {
+                    } else if (dailyBuckets.length > 0) {
                       dailyBuckets[0].amount += t.amount;
                     }
                   });
 
                   return (
                     <>
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                        <div>
-                          <span className={`${subtextColor} text-xs block mb-0.5`}>
-                            Total Week Spending
+                      {/* Summary Badges */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div
+                          className={`p-3.5 rounded-2xl border ${
+                            isLight
+                              ? "bg-slate-50 border-slate-200"
+                              : "bg-white/5 border-white/5"
+                          }`}
+                        >
+                          <span className={`${subtextColor} text-[10px] block font-bold mb-0.5`}>
+                            Week Total Spent
                           </span>
-                          <span className="text-2xl font-black text-[#16A34A]">
+                          <span className="text-lg font-black tracking-tight text-emerald-400">
                             {currencySymbol}
                             {totalSpentWeek.toLocaleString()}
                           </span>
                         </div>
-                        <div className="text-right">
-                          <span className={`${subtextColor} text-xs block mb-0.5`}>
+                        <div
+                          className={`p-3.5 rounded-2xl border ${
+                            isLight
+                              ? "bg-slate-50 border-slate-200"
+                              : "bg-white/5 border-white/5"
+                          }`}
+                        >
+                          <span className={`${subtextColor} text-[10px] block font-bold mb-0.5`}>
                             Transactions
                           </span>
-                          <span className="text-sm font-bold">
+                          <span className="text-lg font-black tracking-tight">
                             {weekTransactions.length}
                           </span>
                         </div>
                       </div>
 
-                      {/* Daily Breakdown Mini Chart */}
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                        <span className={`${subtextColor} text-xs font-semibold block mb-2`}>
-                          Daily Trend (Day {selectedWeekReport.rangeStart} - Day {selectedWeekReport.rangeEnd})
+                      {/* Daily Chart */}
+                      <div
+                        className={`p-4 rounded-2xl border ${
+                          isLight
+                            ? "bg-slate-50 border-slate-200"
+                            : "bg-white/5 border-white/5"
+                        }`}
+                      >
+                        <span className={`${subtextColor} text-xs font-semibold block mb-3`}>
+                          Daily Trend (Days {selectedWeekReport.rangeStart}-{selectedWeekReport.rangeEnd})
                         </span>
                         <div className="h-32">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={dailyBuckets}>
-                              <XAxis
-                                dataKey="label"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{
-                                  fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
-                                  fontSize: 10,
-                                  fontWeight: 600,
-                                }}
-                              />
-                              <YAxis hide />
-                              <Tooltip
-                                content={
-                                  <CustomTooltip
-                                    currencySymbol={currencySymbol}
-                                    isLight={isLight}
-                                  />
-                                }
-                              />
-                              <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
-                                {dailyBuckets.map((_, index) => (
-                                  <Cell
-                                    key={`cell-${index}`}
-                                    fill="url(#barGradient)"
-                                  />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
+                          {showModalChart && (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart key={`week-modal-chart-${selectedWeekReport.name}`} data={dailyBuckets}>
+                                <XAxis
+                                  dataKey="label"
+                                  axisLine={false}
+                                  tickLine={false}
+                                  tick={{
+                                    fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
+                                    fontSize: 10,
+                                    fontWeight: 600,
+                                  }}
+                                />
+                                <Tooltip
+                                  cursor={{
+                                    fill: isLight
+                                      ? "rgba(0, 0, 0, 0.04)"
+                                      : "rgba(255, 255, 255, 0.05)",
+                                    radius: [6, 6, 0, 0],
+                                  }}
+                                  content={
+                                    <CustomTooltip
+                                      currencySymbol={currencySymbol}
+                                      isLight={isLight}
+                                    />
+                                  }
+                                />
+                                <Bar
+                                  dataKey="amount"
+                                  radius={[6, 6, 0, 0]}
+                                  isAnimationActive={true}
+                                  animationBegin={0}
+                                  animationDuration={1000}
+                                  animationEasing="ease-out"
+                                >
+                                  {dailyBuckets.map((_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill="url(#barGradient)"
+                                    />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
                         </div>
                       </div>
 
@@ -1033,8 +1176,237 @@ export function Insights() {
 
               <div className="mt-4 pt-3 border-t border-white/10 flex-shrink-0">
                 <button
-                  onClick={() => setSelectedWeekReport(null)}
+                  onClick={() => {
+                    setSelectedWeekReport(null);
+                    setActiveModal(null);
+                  }}
                   className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#16A34A] to-[#2563EB] text-white font-bold text-xs shadow-lg"
+                >
+                  Close Report
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Month Report Modal (for Annual Spending by Month) */}
+      <AnimatePresence>
+        {selectedMonthReport && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className={`w-full max-w-md max-h-[85vh] flex flex-col rounded-3xl p-6 border shadow-2xl backdrop-blur-2xl overflow-hidden ${
+                isLight
+                  ? "bg-white/95 border-slate-200 text-slate-900"
+                  : "bg-slate-900/95 border-slate-800 text-white"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-2xl bg-purple-500/15 text-purple-400">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-lg tracking-tight">
+                      {selectedMonthReport.name} Report
+                    </h3>
+                    <p className={`${subtextColor} text-xs`}>
+                      4-Week cashflow breakdown & transaction list
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedMonthReport(null);
+                    setActiveModal(null);
+                  }}
+                  className="p-1.5 rounded-full hover:bg-white/10 opacity-70"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Scrollable Content */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+                {(() => {
+                  const monthTransactions = expenseTransactions.filter((t) => {
+                    if (!t.date) return selectedMonthReport.monthIndex === new Date().getMonth();
+                    const tMonth = parseLocalDate(t.date).getMonth();
+                    return tMonth === selectedMonthReport.monthIndex;
+                  });
+
+                  const totalSpentMonth = monthTransactions.reduce(
+                    (sum, t) => sum + t.amount,
+                    0
+                  );
+
+                  // 4-Week breakdown for this month
+                  const weeklyBuckets = [
+                    { label: "Wk 1", amount: 0 },
+                    { label: "Wk 2", amount: 0 },
+                    { label: "Wk 3", amount: 0 },
+                    { label: "Wk 4", amount: 0 },
+                  ];
+
+                  monthTransactions.forEach((t) => {
+                    if (t.date) {
+                      const dayOfMonth = parseLocalDate(t.date).getDate();
+                      if (dayOfMonth <= 7) weeklyBuckets[0].amount += t.amount;
+                      else if (dayOfMonth <= 14) weeklyBuckets[1].amount += t.amount;
+                      else if (dayOfMonth <= 21) weeklyBuckets[2].amount += t.amount;
+                      else weeklyBuckets[3].amount += t.amount;
+                    } else {
+                      weeklyBuckets[0].amount += t.amount;
+                    }
+                  });
+
+                  return (
+                    <>
+                      {/* Summary Badges */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div
+                          className={`p-3.5 rounded-2xl border ${
+                            isLight
+                              ? "bg-slate-50 border-slate-200"
+                              : "bg-white/5 border-white/5"
+                          }`}
+                        >
+                          <span className={`${subtextColor} text-[10px] block font-bold mb-0.5`}>
+                            {selectedMonthReport.name} Total Spent
+                          </span>
+                          <span className="text-lg font-black tracking-tight text-emerald-400">
+                            {currencySymbol}
+                            {totalSpentMonth.toLocaleString()}
+                          </span>
+                        </div>
+                        <div
+                          className={`p-3.5 rounded-2xl border ${
+                            isLight
+                              ? "bg-slate-50 border-slate-200"
+                              : "bg-white/5 border-white/5"
+                          }`}
+                        >
+                          <span className={`${subtextColor} text-[10px] block font-bold mb-0.5`}>
+                            Transactions
+                          </span>
+                          <span className="text-lg font-black tracking-tight">
+                            {monthTransactions.length}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 4-Week Chart */}
+                      <div
+                        className={`p-4 rounded-2xl border ${
+                          isLight
+                            ? "bg-slate-50 border-slate-200"
+                            : "bg-white/5 border-white/5"
+                        }`}
+                      >
+                        <span className={`${subtextColor} text-xs font-semibold block mb-3`}>
+                          Weekly Breakdown (Wk 1 to Wk 4)
+                        </span>
+                        <div className="h-32">
+                          {showModalChart && (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart key={`month-modal-chart-${selectedMonthReport.name}`} data={weeklyBuckets}>
+                                <XAxis
+                                  dataKey="label"
+                                  axisLine={false}
+                                  tickLine={false}
+                                  tick={{
+                                    fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
+                                    fontSize: 10,
+                                    fontWeight: 600,
+                                  }}
+                                />
+                                <Tooltip
+                                  cursor={{
+                                    fill: isLight
+                                      ? "rgba(0, 0, 0, 0.04)"
+                                      : "rgba(255, 255, 255, 0.05)",
+                                    radius: [6, 6, 0, 0],
+                                  }}
+                                  content={
+                                    <CustomTooltip
+                                      currencySymbol={currencySymbol}
+                                      isLight={isLight}
+                                    />
+                                  }
+                                />
+                                <Bar
+                                  dataKey="amount"
+                                  radius={[6, 6, 0, 0]}
+                                  isAnimationActive={true}
+                                  animationBegin={0}
+                                  animationDuration={1000}
+                                  animationEasing="ease-out"
+                                >
+                                  {weeklyBuckets.map((_, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill="url(#barGradient)"
+                                    />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Transaction List */}
+                      <div>
+                        <span className={`${subtextColor} text-xs font-semibold block mb-2`}>
+                          {selectedMonthReport.name} Transactions
+                        </span>
+                        {monthTransactions.length === 0 ? (
+                          <div className="py-6 text-center text-xs opacity-60">
+                            No transactions recorded for {selectedMonthReport.name}.
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {monthTransactions.map((tx) => (
+                              <div
+                                key={tx.id}
+                                className={`p-3 rounded-xl border flex items-center justify-between ${
+                                  isLight
+                                    ? "bg-slate-50 border-slate-200"
+                                    : "bg-white/5 border-white/5"
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-bold text-xs">
+                                    {tx.title}
+                                  </div>
+                                  <div className="text-[10px] opacity-60">
+                                    {tx.category || "Other"} • {tx.date || "N/A"}
+                                  </div>
+                                </div>
+                                <div className="font-extrabold text-xs text-rose-400">
+                                  -{currencySymbol}
+                                  {tx.amount.toLocaleString()}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-white/10 flex-shrink-0">
+                <button
+                  onClick={() => {
+                    setSelectedMonthReport(null);
+                    setActiveModal(null);
+                  }}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-blue-600 text-white font-bold text-xs shadow-lg"
                 >
                   Close Report
                 </button>
