@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import {
@@ -22,6 +22,10 @@ import {
   PieChart as PieChartIcon,
   PlusCircle,
   Trash2,
+  X,
+  Edit3,
+  Calendar,
+  ChevronRight,
 } from "lucide-react";
 import {
   useBudgetStore,
@@ -29,6 +33,15 @@ import {
   Transaction,
 } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+
+const parseLocalDate = (dateStr?: string): Date => {
+  if (!dateStr) return new Date();
+  const parts = dateStr.split("-").map(Number);
+  if (parts.length === 3) {
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  return new Date(dateStr);
+};
 
 const categoryColors: Record<string, string> = {
   Income: "#22C55E",
@@ -90,7 +103,19 @@ export function Insights() {
     colorMode,
     currency,
     addTransaction,
+    setDailyBudget,
   } = useBudgetStore();
+
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [tempBudgetInput, setTempBudgetInput] = useState("");
+  const budgetPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [selectedWeekReport, setSelectedWeekReport] = useState<{
+    name: string;
+    rangeStart: number;
+    rangeEnd: number;
+  } | null>(null);
+  const weekPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
@@ -126,9 +151,25 @@ export function Insights() {
       Sun: 0,
     };
 
-    expenseTransactions.forEach((t) => {
+    const now = new Date();
+    const currentDayIdx = (now.getDay() + 6) % 7; // Mon=0 .. Sun=6
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - currentDayIdx);
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const thisWeekExpenses = expenseTransactions.filter((t) => {
+      if (!t.date) return true;
+      const d = parseLocalDate(t.date);
+      return d >= startOfWeek && d <= endOfWeek;
+    });
+    const targetExpenses =
+      thisWeekExpenses.length > 0 ? thisWeekExpenses : expenseTransactions;
+
+    targetExpenses.forEach((t) => {
       if (t.date) {
-        const d = new Date(t.date);
+        const d = parseLocalDate(t.date);
         const dayName = daysOfWeek[(d.getDay() + 6) % 7];
         if (weeklyMap[dayName] !== undefined) {
           weeklyMap[dayName] += t.amount;
@@ -141,7 +182,7 @@ export function Insights() {
       amount: weeklyMap[name],
     }));
 
-    statValue1 = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+    statValue1 = targetExpenses.reduce((sum, t) => sum + t.amount, 0);
     const activeDays = chartData.filter((d) => d.amount > 0).length || 1;
     statValue2 = Math.round(statValue1 / activeDays);
   } else if (period === "month") {
@@ -160,7 +201,7 @@ export function Insights() {
 
     expenseTransactions.forEach((t) => {
       if (t.date) {
-        const dayOfMonth = new Date(t.date).getDate();
+        const dayOfMonth = parseLocalDate(t.date).getDate();
         if (dayOfMonth <= 7) {
           weeklyBuckets[0].amount += t.amount;
         } else if (dayOfMonth <= 14) {
@@ -293,6 +334,43 @@ export function Insights() {
     sampleExpenses.forEach((tx) => addTransaction(tx));
   };
 
+  const weekRanges: Record<string, { start: number; end: number }> = {
+    "Wk 1 (1-7)": { start: 1, end: 7 },
+    "Wk 2 (8-14)": { start: 8, end: 14 },
+    "Wk 3 (15-21)": { start: 15, end: 21 },
+    "Wk 4 (22-31)": { start: 22, end: 31 },
+  };
+
+  const openWeekReportModal = (weekName: string) => {
+    const range = weekRanges[weekName] || { start: 1, end: 7 };
+    setSelectedWeekReport({
+      name: weekName,
+      rangeStart: range.start,
+      rangeEnd: range.end,
+    });
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  };
+
+  const startBudgetPress = () => {
+    if (budgetPressTimerRef.current) clearTimeout(budgetPressTimerRef.current);
+    budgetPressTimerRef.current = setTimeout(() => {
+      setTempBudgetInput(monthlyBudgetLimit.toString());
+      setIsEditingBudget(true);
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, 400);
+  };
+
+  const clearBudgetPress = () => {
+    if (budgetPressTimerRef.current) {
+      clearTimeout(budgetPressTimerRef.current);
+      budgetPressTimerRef.current = null;
+    }
+  };
+
   return (
     <div className="min-h-screen px-6 pt-12 pb-24">
       {/* Header */}
@@ -350,24 +428,36 @@ export function Insights() {
         >
           {/* SPECIAL MONTHLY INSIGHTS WIDGET (When 'month' is selected) */}
           {period === "month" && (
-            <GlassCard className="mb-6 p-5" glow glowColor="blue">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-emerald-400" />
-                  <span
-                    className={`${subtextColor} tracking-tight font-semibold text-xs uppercase`}
-                  >
-                    Monthly Budget Progress
+            <div
+              onPointerDown={startBudgetPress}
+              onPointerUp={clearBudgetPress}
+              onPointerLeave={clearBudgetPress}
+              className="cursor-pointer select-none"
+            >
+              <GlassCard className="mb-6 p-5" glow glowColor="blue">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <span
+                        className={`${subtextColor} tracking-tight font-semibold text-xs uppercase block`}
+                      >
+                        Monthly Budget Progress
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                        <Edit3 className="w-2.5 h-2.5 inline" />
+                        Long press to update budget
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                    {budgetUsedPercent < 75
+                      ? "Healthy"
+                      : budgetUsedPercent < 90
+                      ? "Caution"
+                      : "Over Budget"}
                   </span>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                  {budgetUsedPercent < 75
-                    ? "Healthy"
-                    : budgetUsedPercent < 90
-                    ? "Caution"
-                    : "Over Budget"}
-                </span>
-              </div>
 
               <div className="flex items-baseline justify-between mb-2">
                 <div className={`${textColor} text-2xl font-black tracking-tight`}>
@@ -418,6 +508,7 @@ export function Insights() {
                 </div>
               )}
             </GlassCard>
+            </div>
           )}
 
           {/* Main Analytics Bar Chart Card */}
@@ -485,9 +576,26 @@ export function Insights() {
                       />
                     }
                   />
-                  <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
-                    {chartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill="url(#barGradient)" />
+                  <Bar
+                    dataKey="amount"
+                    radius={[8, 8, 0, 0]}
+                    onClick={(data: any) => {
+                      if (period === "month" && data && data.name) {
+                        openWeekReportModal(data.name);
+                      }
+                    }}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill="url(#barGradient)"
+                        className="cursor-pointer"
+                        onClick={() => {
+                          if (period === "month" && entry && entry.name) {
+                            openWeekReportModal(entry.name);
+                          }
+                        }}
+                      />
                     ))}
                   </Bar>
                   <defs>
@@ -505,6 +613,47 @@ export function Insights() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+
+            {period === "month" && (
+              <div className="mt-5 pt-4 border-t border-white/10">
+                <div className={`${subtextColor} text-xs font-semibold mb-3 flex items-center justify-between`}>
+                  <span>Tap or long press any week for daily report (Week 1 to Week 7 days)</span>
+                  <span className="text-[10px] text-blue-400 font-bold">Interactive</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {chartData.map((wk) => (
+                    <motion.div
+                      key={wk.name}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => openWeekReportModal(wk.name)}
+                      onPointerDown={() => {
+                        if (weekPressTimerRef.current) clearTimeout(weekPressTimerRef.current);
+                        weekPressTimerRef.current = setTimeout(() => {
+                          openWeekReportModal(wk.name);
+                        }, 400);
+                      }}
+                      className={`p-3 rounded-xl border cursor-pointer backdrop-blur-md transition-all ${
+                        isLight
+                          ? "bg-slate-100/80 border-slate-200 text-slate-900 hover:bg-slate-200"
+                          : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-extrabold text-[#16A34A]">
+                          {wk.name}
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                      </div>
+                      <div className="text-sm font-black">
+                        {currencySymbol}
+                        {wk.amount.toLocaleString()}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
           </GlassCard>
 
           {/* Category Pie Chart Card */}
@@ -618,6 +767,281 @@ export function Insights() {
             )}
           </GlassCard>
         </motion.div>
+      </AnimatePresence>
+
+      {/* UPDATE MONTHLY BUDGET MODAL */}
+      <AnimatePresence>
+        {isEditingBudget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className={`w-full max-w-sm rounded-3xl p-6 border shadow-2xl backdrop-blur-2xl ${
+                isLight
+                  ? "bg-white/95 border-slate-200 text-slate-900"
+                  : "bg-slate-900/95 border-slate-800 text-white"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400">
+                    <Edit3 className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-extrabold text-lg tracking-tight">
+                    Update Monthly Budget
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsEditingBudget(false)}
+                  className="p-1.5 rounded-full hover:bg-white/10 opacity-70"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <p className={`${subtextColor} text-xs mb-4`}>
+                Enter your targeted spending limit for the entire month. We automatically adjust your daily limit.
+              </p>
+
+              <div className="mb-6">
+                <label className={`${subtextColor} block text-xs font-bold mb-1.5`}>
+                  Monthly Limit ({currencySymbol})
+                </label>
+                <input
+                  type="number"
+                  value={tempBudgetInput}
+                  onChange={(e) => setTempBudgetInput(e.target.value)}
+                  placeholder="e.g. 60000"
+                  className={`w-full px-4 py-3 rounded-2xl border font-black text-xl outline-none transition-all ${
+                    isLight
+                      ? "bg-slate-100 border-slate-300 focus:border-emerald-500 text-slate-900"
+                      : "bg-white/5 border-white/10 focus:border-emerald-500 text-white"
+                  }`}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsEditingBudget(false)}
+                  className={`flex-1 py-3 rounded-2xl font-bold text-xs tracking-tight ${
+                    isLight
+                      ? "bg-slate-200 text-slate-700"
+                      : "bg-white/10 text-white/80"
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const monthlyVal = Number(tempBudgetInput);
+                    if (!isNaN(monthlyVal) && monthlyVal > 0) {
+                      setDailyBudget(Math.round(monthlyVal / 30));
+                      setIsEditingBudget(false);
+                      if (typeof navigator !== "undefined" && navigator.vibrate) {
+                        navigator.vibrate(30);
+                      }
+                    }
+                  }}
+                  className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-extrabold text-xs tracking-tight shadow-lg shadow-emerald-500/20"
+                >
+                  Save Budget
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* WEEKLY REPORT MODAL (Day 1 - Day 7 of Selected Week) */}
+      <AnimatePresence>
+        {selectedWeekReport && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className={`w-full max-w-md max-h-[85vh] flex flex-col rounded-3xl p-6 border shadow-2xl backdrop-blur-2xl overflow-hidden ${
+                isLight
+                  ? "bg-white/95 border-slate-200 text-slate-900"
+                  : "bg-slate-900/95 border-slate-800 text-white"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-2xl bg-blue-500/15 text-blue-400">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-lg tracking-tight">
+                      {selectedWeekReport.name} Report
+                    </h3>
+                    <p className={`${subtextColor} text-xs`}>
+                      Days {selectedWeekReport.rangeStart} to {selectedWeekReport.rangeEnd} of the month
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedWeekReport(null)}
+                  className="p-1.5 rounded-full hover:bg-white/10 opacity-70"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Scrollable Content */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+                {(() => {
+                  const weekTransactions = expenseTransactions.filter((t) => {
+                    if (!t.date) return selectedWeekReport.rangeStart === 1;
+                    const dayOfMonth = parseLocalDate(t.date).getDate();
+                    return (
+                      dayOfMonth >= selectedWeekReport.rangeStart &&
+                      dayOfMonth <= selectedWeekReport.rangeEnd
+                    );
+                  });
+
+                  const totalSpentWeek = weekTransactions.reduce(
+                    (sum, t) => sum + t.amount,
+                    0
+                  );
+
+                  // 7-day breakdown for this week
+                  const daysSpan =
+                    selectedWeekReport.rangeEnd - selectedWeekReport.rangeStart + 1;
+                  const dailyBuckets = Array.from({ length: daysSpan }, (_, i) => ({
+                    dayNum: selectedWeekReport.rangeStart + i,
+                    label: `D${selectedWeekReport.rangeStart + i}`,
+                    amount: 0,
+                  }));
+
+                  weekTransactions.forEach((t) => {
+                    if (t.date) {
+                      const dayOfMonth = parseLocalDate(t.date).getDate();
+                      const idx = dayOfMonth - selectedWeekReport.rangeStart;
+                      if (dailyBuckets[idx]) {
+                        dailyBuckets[idx].amount += t.amount;
+                      }
+                    } else if (dailyBuckets[0]) {
+                      dailyBuckets[0].amount += t.amount;
+                    }
+                  });
+
+                  return (
+                    <>
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div>
+                          <span className={`${subtextColor} text-xs block mb-0.5`}>
+                            Total Week Spending
+                          </span>
+                          <span className="text-2xl font-black text-[#16A34A]">
+                            {currencySymbol}
+                            {totalSpentWeek.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className={`${subtextColor} text-xs block mb-0.5`}>
+                            Transactions
+                          </span>
+                          <span className="text-sm font-bold">
+                            {weekTransactions.length}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Daily Breakdown Mini Chart */}
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                        <span className={`${subtextColor} text-xs font-semibold block mb-2`}>
+                          Daily Trend (Day {selectedWeekReport.rangeStart} - Day {selectedWeekReport.rangeEnd})
+                        </span>
+                        <div className="h-32">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={dailyBuckets}>
+                              <XAxis
+                                dataKey="label"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{
+                                  fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                }}
+                              />
+                              <YAxis hide />
+                              <Tooltip
+                                content={
+                                  <CustomTooltip
+                                    currencySymbol={currencySymbol}
+                                    isLight={isLight}
+                                  />
+                                }
+                              />
+                              <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
+                                {dailyBuckets.map((_, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill="url(#barGradient)"
+                                  />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Transaction List */}
+                      <div>
+                        <span className={`${subtextColor} text-xs font-semibold block mb-2`}>
+                          Week Transactions
+                        </span>
+                        {weekTransactions.length === 0 ? (
+                          <div className="py-6 text-center text-xs opacity-60">
+                            No transactions recorded for this week.
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {weekTransactions.map((tx) => (
+                              <div
+                                key={tx.id}
+                                className={`p-3 rounded-xl border flex items-center justify-between ${
+                                  isLight
+                                    ? "bg-slate-50 border-slate-200"
+                                    : "bg-white/5 border-white/5"
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-bold text-xs">
+                                    {tx.title}
+                                  </div>
+                                  <div className="text-[10px] opacity-60">
+                                    {tx.category || "Other"} • {tx.date || "N/A"}
+                                  </div>
+                                </div>
+                                <div className="font-extrabold text-xs text-rose-400">
+                                  -{currencySymbol}
+                                  {tx.amount.toLocaleString()}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-white/10 flex-shrink-0">
+                <button
+                  onClick={() => setSelectedWeekReport(null)}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#16A34A] to-[#2563EB] text-white font-bold text-xs shadow-lg"
+                >
+                  Close Report
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </div>
   );
