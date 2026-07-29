@@ -9,6 +9,7 @@ import {
   Heart,
   Zap,
   DollarSign,
+  Trash2,
   LucideIcon,
 } from "lucide-react";
 import { useBudgetStore, currencySymbols, Transaction } from "../../../store/useBudgetStore";
@@ -32,6 +33,7 @@ interface FlowItemCardProps {
   isLight: boolean;
   currency: keyof typeof currencySymbols;
   onLongPress: () => void;
+  onDelete: () => void;
 }
 
 function FlowItemCard({
@@ -42,11 +44,11 @@ function FlowItemCard({
   isLight,
   currency,
   onLongPress,
+  onDelete,
 }: FlowItemCardProps) {
   const meta = iconMap[item.category] || { icon: DollarSign, glow: "purple" };
   const IconComp = meta.icon;
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const startLongPress = () => {
     clearLongPress();
     longPressTimerRef.current = setTimeout(() => {
@@ -69,7 +71,7 @@ function FlowItemCard({
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.1, type: "spring", stiffness: 350, damping: 30 }}
-      className="relative flex items-center gap-4 select-none cursor-pointer"
+      className="relative flex items-center gap-4 select-none cursor-pointer overflow-hidden rounded-2xl"
       style={{
         transform: `translateX(${Math.sin(index * 0.5) * 8}px)`,
       }}
@@ -83,71 +85,97 @@ function FlowItemCard({
         }
       }}
     >
-      <motion.div className="relative z-10 shrink-0" whileHover={{ scale: 1.1 }}>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={item.category}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: "easeInOut" }}
-          >
-            <GlassIcon icon={IconComp} size="md" glow={item.glow || meta.glow} />
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
+      {/* Decorative Swipe Indicators (No buttons) */}
+      <div className="absolute inset-y-0 left-4 flex items-center justify-start pointer-events-none opacity-40 z-0">
+        <Trash2 className="w-5 h-5 text-[#EF4444]" />
+      </div>
+      <div className="absolute inset-y-0 right-4 flex items-center justify-end pointer-events-none opacity-40 z-0">
+        <Trash2 className="w-5 h-5 text-[#EF4444]" />
+      </div>
 
       <motion.div
-        className={`flex-1 backdrop-blur-[40px] rounded-2xl p-4 border transition-all ${
-          isLight
-            ? "bg-white/90 border-slate-200/90 shadow-md text-slate-900"
-            : "bg-white/5 border-white/10 text-white shadow-xl"
-        }`}
-        whileHover={{ scale: 1.01, y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 300 }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.65}
+        onDragStart={() => {
+          clearLongPress();
+        }}
+        onDragEnd={(_, info) => {
+          if (Math.abs(info.offset.x) > 90 || Math.abs(info.velocity.x) > 450) {
+            if (typeof navigator !== "undefined" && navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+            onDelete();
+          }
+        }}
+        className="relative z-10 flex items-center gap-4 w-full"
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.18, ease: "easeInOut" }}
-                className={`${textColor} tracking-tight font-bold text-sm`}
-              >
-                {item.title}
-              </motion.div>
-            </AnimatePresence>
-            <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || "Today"}</div>
-          </div>
-          <div
-            className={`tracking-tighter font-extrabold text-sm sm:text-base ${
-              item.type === "income" ? "text-emerald-600" : "text-red-500"
-            }`}
-          >
-            {item.type === "income" ? "+" : "-"}
-            {currencySymbols[currency]}
-            {item.amount.toLocaleString()}
-          </div>
-        </div>
+        <motion.div className="relative z-10 shrink-0" whileHover={{ scale: 1.1 }}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={item.category}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: "easeInOut" }}
+            >
+              <GlassIcon icon={IconComp} size="md" glow={item.glow || meta.glow} />
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
 
         <motion.div
-          className="h-[1px] bg-gradient-to-r from-[#16A34A]/50 to-transparent mt-3"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: index * 0.1 + 0.2 }}
-          style={{ transformOrigin: "left" }}
-        />
+          className={`flex-1 backdrop-blur-[40px] rounded-2xl p-4 border transition-all ${
+            isLight
+              ? "bg-white/90 border-slate-200/90 shadow-md text-slate-900"
+              : "bg-white/5 border-white/10 text-white shadow-xl"
+          }`}
+          whileHover={{ scale: 1.01, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18, ease: "easeInOut" }}
+                  className={`${textColor} tracking-tight font-bold text-sm`}
+                >
+                  {item.title}
+                </motion.div>
+              </AnimatePresence>
+              <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || "Today"}</div>
+            </div>
+            <div
+              className={`tracking-tighter font-extrabold text-sm sm:text-base ${
+                item.type === "income" ? "text-emerald-600" : "text-red-500"
+              }`}
+            >
+              {item.type === "income" ? "+" : "-"}
+              {currencySymbols[currency]}
+              {item.amount.toLocaleString()}
+            </div>
+          </div>
+
+          <motion.div
+            className="h-[1px] bg-gradient-to-r from-[#16A34A]/50 to-transparent mt-3"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: index * 0.1 + 0.2 }}
+            style={{ transformOrigin: "left" }}
+          />
+        </motion.div>
       </motion.div>
     </motion.div>
   );
 }
 
 export function Flow() {
-  const { transactions, theme, colorMode, currency, updateTransactionCategory } = useBudgetStore();
+  const { transactions, theme, colorMode, currency, updateTransactionCategory, deleteTransaction } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const [floatingItem, setFloatingItem] = useState<Transaction | null>(null);
 
@@ -172,7 +200,7 @@ export function Flow() {
         className="mb-8"
       >
         <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>Flow</h1>
-        <div className={`${subtextColor} tracking-tight`}>Your spending timeline</div>
+        <div className={`${subtextColor} tracking-tight`}>Your spending timeline • Swipe left on any item to remove</div>
       </motion.div>
 
       {flowItems.length === 0 ? (
@@ -198,18 +226,29 @@ export function Flow() {
           </div>
 
           <div className="space-y-6">
-            {flowItems.map((item, index) => (
-              <FlowItemCard
-                key={item.id || index}
-                item={item}
-                index={index}
-                textColor={textColor}
-                subtextColor={subtextColor}
-                isLight={isLight}
-                currency={currency}
-                onLongPress={() => setFloatingItem(item)}
-              />
-            ))}
+            <AnimatePresence mode="popLayout">
+              {flowItems.map((item, index) => (
+                <motion.div
+                  key={item.id || index}
+                  layout
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, x: -80 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                >
+                  <FlowItemCard
+                    item={item}
+                    index={index}
+                    textColor={textColor}
+                    subtextColor={subtextColor}
+                    isLight={isLight}
+                    currency={currency}
+                    onLongPress={() => setFloatingItem(item)}
+                    onDelete={() => deleteTransaction(item.id)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
           <motion.div
