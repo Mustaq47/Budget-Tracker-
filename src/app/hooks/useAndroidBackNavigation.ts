@@ -18,6 +18,13 @@ export function useAndroidBackNavigation() {
 
         const store = useBudgetStore.getState();
 
+        // Priority 0: If pending terms acceptance, exit app if back button is pressed
+        if (store.pendingTermsAcceptance) {
+          store.logoutUser();
+          App.exitApp();
+          return;
+        }
+
         // Priority 1: Close active QuickActionModal or sheet
         if (store.activeModal !== null) {
           store.setActiveModal(null);

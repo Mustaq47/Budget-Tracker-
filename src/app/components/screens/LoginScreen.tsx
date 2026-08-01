@@ -22,7 +22,7 @@ import { logger } from "../../../utils/logger";
 export function LoginScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setUser, isAuthenticated, theme, colorMode } = useBudgetStore();
+  const { setUser, setPendingTermsAcceptance, isAuthenticated, theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const { checkRateLimit, recordFailedAttempt } = useAuthRateLimit();
 
@@ -81,6 +81,7 @@ export function LoginScreen() {
       const cleanEmail = sanitizeEmail(email);
       const res = await signUpWithEmail(cleanEmail, password, name);
       if (res?.user) {
+        setPendingTermsAcceptance(true);
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,
@@ -101,6 +102,9 @@ export function LoginScreen() {
     try {
       const res = await signInWithGoogle(isSignUp);
       if (res?.user) {
+        if (isSignUp) {
+          setPendingTermsAcceptance(true);
+        }
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,

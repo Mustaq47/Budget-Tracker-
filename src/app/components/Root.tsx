@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "./BottomNav";
+import { MandatoryTermsModal } from "./modals/MandatoryTermsModal";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAndroidBackNavigation } from "../hooks/useAndroidBackNavigation";
@@ -53,6 +54,7 @@ export function Root() {
       </div>
 
       <BottomNav />
+      <MandatoryTermsModal />
     </div>
   );
 }

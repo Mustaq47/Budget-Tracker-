@@ -52,6 +52,7 @@ export type QuickActionModal =
   | 'language-region'
   | 'help-center'
   | 'privacy-policy'
+  | 'terms-conditions'
   | 'report'
   | null;
 export type AppTheme = 
@@ -94,9 +95,11 @@ interface BudgetState {
   };
   currency: CurrencyCode;
   language: LanguageCode;
+  pendingTermsAcceptance: boolean;
   
   // Actions
   setUser: (user: UserProfile | null) => void;
+  setPendingTermsAcceptance: (pending: boolean) => void;
   setCurrency: (currency: CurrencyCode) => void;
   setLanguage: (language: LanguageCode) => void;
   setAuthLoading: (loading: boolean) => void;
@@ -158,7 +161,9 @@ export const useBudgetStore = create<BudgetState>()(
       },
       currency: 'INR',
       language: 'en',
+      pendingTermsAcceptance: false,
 
+      setPendingTermsAcceptance: (pending) => set({ pendingTermsAcceptance: pending }),
       setActiveModal: (modal) => set({ activeModal: modal }),
 
       setCurrency: (currency) => set({ currency }),

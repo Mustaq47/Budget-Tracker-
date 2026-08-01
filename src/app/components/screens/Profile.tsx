@@ -6,7 +6,7 @@ import { SafeAvatar } from "../SafeAvatar";
 import { 
   User, Bell, Lock, CreditCard, Globe, HelpCircle, LogOut, ChevronRight, LogIn,
   HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check, Palette,
-  Sun, Moon, Users
+  Sun, Moon, Users, FileText
 } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { logout } from "../../../services/firebase";
@@ -21,6 +21,7 @@ import { AccountSwitcherModal } from "../modals/AccountSwitcherModal";
 import { UserProfileModal } from "../modals/UserProfileModal";
 import { HelpCenterModal } from "../modals/HelpCenterModal";
 import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
+import { TermsConditionsModal } from "../modals/TermsConditionsModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
 import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
@@ -143,6 +144,7 @@ export function Profile() {
       items: [
         { icon: HelpCircle, label: t.help, glow: "blue" as const, action: () => setActiveModal("help-center") },
         { icon: ShieldCheck, label: "Privacy Policy", glow: "purple" as const, action: () => setActiveModal("privacy-policy") },
+        { icon: FileText, label: "Terms & Conditions", glow: "blue" as const, action: () => setActiveModal("terms-conditions") },
         isAuthenticated
           ? {
               icon: LogOut,
@@ -449,6 +451,11 @@ export function Profile() {
 
       <PrivacyPolicyModal
         isOpen={activeModal === "privacy-policy"}
+        onClose={() => setActiveModal(null)}
+      />
+
+      <TermsConditionsModal
+        isOpen={activeModal === "terms-conditions"}
         onClose={() => setActiveModal(null)}
       />
     </div>
