@@ -2,10 +2,11 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
+import { SafeAvatar } from "../SafeAvatar";
 import { 
   User, Bell, Lock, CreditCard, Globe, HelpCircle, LogOut, ChevronRight, LogIn,
   HardDrive, Cloud, CloudUpload, CloudDownload, ShieldCheck, RefreshCw, Check, Palette,
-  Sun, Moon
+  Sun, Moon, Users
 } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { logout } from "../../../services/firebase";
@@ -16,8 +17,15 @@ import { ProfileSettingsModal } from "../modals/ProfileSettingsModal";
 import { NotificationsModal } from "../modals/NotificationsModal";
 import { PrivacyModal } from "../modals/PrivacyModal";
 import { LanguageRegionModal } from "../modals/LanguageRegionModal";
+import { AccountSwitcherModal } from "../modals/AccountSwitcherModal";
+import { UserProfileModal } from "../modals/UserProfileModal";
+import { HelpCenterModal } from "../modals/HelpCenterModal";
+import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
+import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
+import { useLongPress } from "../../../utils/useLongPress";
+import { logger } from "../../../utils/logger";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -28,7 +36,7 @@ export function Profile() {
     isCloudBackupEnabled, setCloudBackupEnabled,
     lastBackupTime, setLastBackupTime, restoreCloudState,
     colorMode, setColorMode, toggleColorMode, theme,
-    activeModal, setActiveModal, currency
+    activeModal, setActiveModal, currency, savedAccounts
   } = useBudgetStore();
 
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -39,6 +47,14 @@ export function Profile() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
+  const [isAccountSwitcherOpen, setIsAccountSwitcherOpen] = useState(false);
+  const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
+
+  const accountLongPressHandlers = useLongPress({
+    onLongPress: () => setIsAccountSwitcherOpen(true),
+    onClick: () => setIsUserProfileOpen(true),
+    delayMs: 500,
+  });
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || (isAuthenticated ? "Authenticated User" : "Guest User");
   const email = user?.email || user?.phoneNumber || (isAuthenticated ? "Registered Account" : "Not signed in");
@@ -51,7 +67,7 @@ export function Profile() {
     try {
       await logout();
     } catch (err) {
-      console.warn("Logout error:", err);
+      logger.warn("Logout error:", err);
     }
     logoutUser();
     navigate("/login", { replace: true });
@@ -125,7 +141,8 @@ export function Profile() {
     {
       title: t.support,
       items: [
-        { icon: HelpCircle, label: t.help, glow: "blue" as const },
+        { icon: HelpCircle, label: t.help, glow: "blue" as const, action: () => setActiveModal("help-center") },
+        { icon: ShieldCheck, label: "Privacy Policy", glow: "purple" as const, action: () => setActiveModal("privacy-policy") },
         isAuthenticated
           ? {
               icon: LogOut,
@@ -150,38 +167,69 @@ export function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>{t.profile}</h1>
-        <div className={`${subtextColor} tracking-tight`}>{t.manageAccount}</div>
+        <h1 className={`${textColor} ${pageTitleClass}`}>{t.profile}</h1>
+        <div className={`${subtextColor} ${pageSubtitleClass}`}>{t.manageAccount}</div>
       </motion.div>
 
-      <GlassCard className="mb-6" glow glowColor="purple">
-        <div className="flex items-center gap-4">
-          <motion.div className="relative" whileHover={{ scale: 1.05 }}>
-            <div 
-              className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center shadow-lg overflow-hidden"
-              style={
-                user?.photoURL?.startsWith("linear-gradient") || !user?.photoURL
-                  ? { background: user?.photoURL || "linear-gradient(135deg, #16A34A 0%, #3B82F6 100%)" }
-                  : { backgroundImage: `url(${user.photoURL})`, backgroundSize: "cover", backgroundPosition: "center" }
-              }
-            >
-              {(user?.photoURL?.startsWith("linear-gradient") || !user?.photoURL) && (
-                <User size={40} className="text-white" strokeWidth={1.5} />
-              )}
-            </div>
+      <GlassCard
+        className="mb-6 cursor-pointer select-none active:scale-[0.99] transition-all"
+        glow
+        glowColor="purple"
+        onClick={() => setIsUserProfileOpen(true)}
+        {...accountLongPressHandlers}
+      >
+        <div
+          className="flex items-center gap-4 cursor-pointer select-none py-1 w-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsUserProfileOpen(true);
+          }}
+          title="Tap to show user profile, hold to add/switch user"
+        >
+          <motion.div
+            className="relative cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsUserProfileOpen(true);
+            }}
+          >
+            <SafeAvatar src={user?.photoURL} name={displayName} size="2xl" />
           </motion.div>
-          <div className="flex-1">
+          <div
+            className="flex-1 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsUserProfileOpen(true);
+            }}
+          >
             <div className={`${textColor} text-xl tracking-tight mb-1 capitalize font-bold`}>{displayName}</div>
             <div className={`${subtextColor} text-xs tracking-tight`}>{email}</div>
           </div>
-          {!isAuthenticated && (
-            <button
-              onClick={() => navigate("/login")}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
-            >
-              {t.signInBtn}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {!isAuthenticated ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/login");
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
+              >
+                {t.signInBtn}
+              </button>
+            ) : (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUserProfileOpen(true);
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <span className="text-xs font-bold text-purple-300">Profile</span>
+                <ChevronRight className="w-4 h-4 text-white/40" />
+              </div>
+            )}
+          </div>
         </div>
       </GlassCard>
 
@@ -335,8 +383,26 @@ export function Profile() {
         </motion.div>
       ))}
 
-      <div className={`text-center ${subtextColor} text-xs tracking-tight mb-8 font-medium`}>
-        ZENTRO v1.0.0
+      <div className="flex flex-col items-center justify-center mb-8">
+        <div className="relative group cursor-pointer" onClick={() => navigate("/")}>
+          <img
+            src="/cozify-logo.png"
+            alt="coZify Brand Logo"
+            className={`h-10 w-auto mb-3 object-contain transition-all duration-300 ${
+              isLight
+                ? "opacity-95 drop-shadow-sm group-hover:scale-105"
+                : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)] group-hover:scale-105"
+            }`}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[11px] uppercase tracking-wider shadow-sm">
+            v1.0.0
+          </span>
+          <span className={`${subtextColor} text-xs font-semibold tracking-tight`}>
+            Track • Manage • Grow
+          </span>
+        </div>
       </div>
 
       <DesignModal
@@ -361,6 +427,28 @@ export function Profile() {
 
       <LanguageRegionModal
         isOpen={activeModal === "language-region"}
+        onClose={() => setActiveModal(null)}
+      />
+
+      <AccountSwitcherModal
+        isOpen={isAccountSwitcherOpen}
+        onClose={() => setIsAccountSwitcherOpen(false)}
+      />
+
+      <UserProfileModal
+        isOpen={isUserProfileOpen}
+        onClose={() => setIsUserProfileOpen(false)}
+        onEditProfile={() => setActiveModal("profile-settings")}
+        onSwitchUser={() => setIsAccountSwitcherOpen(true)}
+      />
+
+      <HelpCenterModal
+        isOpen={activeModal === "help-center"}
+        onClose={() => setActiveModal(null)}
+      />
+
+      <PrivacyPolicyModal
+        isOpen={activeModal === "privacy-policy"}
         onClose={() => setActiveModal(null)}
       />
     </div>

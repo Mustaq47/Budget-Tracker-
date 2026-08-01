@@ -97,7 +97,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 </div>
                 <div>
                   <h2 className={`${textColor} text-xl font-black tracking-tight flex items-center gap-2`}>
-                    Zentro Wallet <Sparkles size={16} className="text-[#FFD166]" />
+                    coZify Wallet <Sparkles size={16} className="text-[#FFD166]" />
                   </h2>
                   <div className={`${subtextColor} text-xs tracking-tight`}>Available Funds & Digital Cashflow</div>
                 </div>

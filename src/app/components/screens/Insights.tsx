@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import {
@@ -33,30 +33,10 @@ import {
   Transaction,
 } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
+import { categoryColors, monthsOfYear, getCategoryMeta } from "../../../utils/categoryConfig";
+import { parseLocalDate } from "../../../utils/formatters";
 
-const parseLocalDate = (dateStr?: string): Date => {
-  if (!dateStr) return new Date();
-  const parts = dateStr.split("-").map(Number);
-  if (parts.length === 3) {
-    return new Date(parts[0], parts[1] - 1, parts[2]);
-  }
-  return new Date(dateStr);
-};
-
-
-const categoryColors: Record<string, string> = {
-  Income: "#22C55E",
-  Expense: "#EF4444",
-  Savings: "#F59E0B",
-  Investments: "#6366F1",
-  Bills: "#F97316",
-  Shopping: "#EC4899",
-  Transport: "#06B6D4",
-  Food: "#8B5CF6",
-  Utilities: "#06B6D4",
-  Health: "#EC4899",
-  Other: "#64748B",
-};
 
 // Custom Glassmorphic Tooltip for Recharts
 interface CustomTooltipProps {
@@ -137,28 +117,48 @@ export function Insights() {
     }
   }, [selectedWeekReport, selectedMonthReport]);
 
+  useEffect(() => {
+    return () => {
+      if (budgetPressTimerRef.current) clearTimeout(budgetPressTimerRef.current);
+      if (weekPressTimerRef.current) clearTimeout(weekPressTimerRef.current);
+      if (monthPressTimerRef.current) clearTimeout(monthPressTimerRef.current);
+    };
+  }, []);
+
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
   const isLight = !activeTheme.isDark;
   const currencySymbol = currencySymbols[currency];
 
-  const expenseTransactions = transactions.filter((t) => t.type === "expense");
+  const expenseTransactions = useMemo(
+    () => transactions.filter((t) => t.type === "expense"),
+    [transactions]
+  );
 
   // Dynamic Data Calculation by Period
-  let chartData: { name: string; amount: number }[] = [];
-  let periodTitle = "";
-  let periodSubtitle = "";
-  let statLabel1 = "";
-  let statValue1 = 0;
-  let statLabel2 = "";
-  let statValue2 = 0;
+  const {
+    chartData,
+    periodTitle,
+    periodSubtitle,
+    statLabel1,
+    statValue1,
+    statLabel2,
+    statValue2,
+  } = useMemo(() => {
+    let chartData: { name: string; amount: number }[] = [];
+    let periodTitle = "";
+    let periodSubtitle = "";
+    let statLabel1 = "";
+    let statValue1 = 0;
+    let statLabel2 = "";
+    let statValue2 = 0;
 
-  if (period === "week") {
-    periodTitle = "Weekly Spending Breakdown";
-    periodSubtitle = "Daily spending across the week";
-    statLabel1 = "Total Spent This Week";
-    statLabel2 = "Daily Average";
+    if (period === "week") {
+      periodTitle = "Weekly Spending Breakdown";
+      periodSubtitle = "Daily spending across the week";
+      statLabel1 = "Total Spent This Week";
+      statLabel2 = "Daily Average";
 
     const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const weeklyMap: Record<string, number> = {
@@ -207,9 +207,14 @@ export function Insights() {
     statValue2 = Math.round(statValue1 / activeDays);
   } else if (period === "month") {
     // Monthly Insights - 4 Weeks breakdown
-    periodTitle = "Monthly Spending by Week";
-    periodSubtitle = "4-Week cashflow trajectory for this month";
-    statLabel1 = "Total Spent This Month";
+    const now = new Date();
+    const monthName = now.toLocaleString("default", { month: "long" });
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    periodTitle = `${monthName} Spending by Week`;
+    periodSubtitle = `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
+    statLabel1 = `Total Spent in ${monthName}`;
     statLabel2 = "Weekly Average";
 
     const weeklyBuckets = [
@@ -219,7 +224,15 @@ export function Insights() {
       { name: "Wk 4 (22-31)", amount: 0 },
     ];
 
-    expenseTransactions.forEach((t) => {
+    const thisMonthExpenses = expenseTransactions.filter((t) => {
+      if (!t.date) return true;
+      const d = parseLocalDate(t.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+    const targetExpenses =
+      thisMonthExpenses.length > 0 ? thisMonthExpenses : expenseTransactions;
+
+    targetExpenses.forEach((t) => {
       if (t.date) {
         const dayOfMonth = parseLocalDate(t.date).getDate();
         if (dayOfMonth <= 7) {
@@ -237,9 +250,10 @@ export function Insights() {
       }
     });
 
-    chartData = weeklyBuckets;
-    statValue1 = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
-    statValue2 = Math.round(statValue1 / 4);
+    chartData = [...weeklyBuckets];
+    statValue1 = targetExpenses.reduce((sum, t) => sum + t.amount, 0);
+    const activeWeeks = chartData.filter((d) => d.amount > 0).length || 1;
+    statValue2 = Math.round(statValue1 / activeWeeks);
   } else {
     // Annual Insights - 12 Months breakdown
     periodTitle = "Annual Spending by Month";
@@ -247,20 +261,6 @@ export function Insights() {
     statLabel1 = "Total Spent This Year";
     statLabel2 = "Monthly Average";
 
-    const monthsOfYear = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
     const annualMap: Record<string, number> = {};
     monthsOfYear.forEach((m) => (annualMap[m] = 0));
 
@@ -277,26 +277,40 @@ export function Insights() {
       amount: annualMap[name],
     }));
 
-    statValue1 = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
-    statValue2 = Math.round(statValue1 / 12);
-  }
+      statValue1 = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+      statValue2 = Math.round(statValue1 / 12);
+    }
+
+    return {
+      chartData,
+      periodTitle,
+      periodSubtitle,
+      statLabel1,
+      statValue1,
+      statLabel2,
+      statValue2,
+    };
+  }, [period, expenseTransactions]);
 
   // Dynamic Category Breakdown
-  const categoryMap: Record<string, number> = {};
-  expenseTransactions.forEach((t) => {
-    const cat = t.category || "Other";
-    categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
-  });
+  const { categoryData, topCategory } = useMemo(() => {
+    const categoryMap: Record<string, number> = {};
+    expenseTransactions.forEach((t) => {
+      const cat = t.category || "Other";
+      categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
+    });
 
-  const categoryData = Object.entries(categoryMap)
-    .map(([name, value]) => ({
-      name,
-      value,
-      color: categoryColors[name] || "#16A34A",
-    }))
-    .sort((a, b) => b.value - a.value);
+    const categoryData = Object.entries(categoryMap)
+      .map(([name, value]) => ({
+        name,
+        value,
+        color: getCategoryMeta(name).color,
+      }))
+      .sort((a, b) => b.value - a.value);
 
-  const topCategory = categoryData.length > 0 ? categoryData[0] : null;
+    const topCategory = categoryData.length > 0 ? categoryData[0] : null;
+    return { categoryData, topCategory };
+  }, [expenseTransactions]);
 
   // Monthly Budget Burn Rate Metrics
   const monthlyBudgetLimit = (dailyBudget || 2000) * 30;
@@ -450,7 +464,7 @@ export function Insights() {
           dy={16}
           textAnchor="middle"
           fill={isLight ? "#475569" : "rgba(255,255,255,0.6)"}
-          fontSize={11}
+          fontSize={isYear ? 9.5 : 10.5}
           fontWeight={600}
           className={isInteractive ? "cursor-pointer select-none" : ""}
           onClick={() => {
@@ -477,11 +491,11 @@ export function Insights() {
         <div className="flex items-center justify-between">
           <div>
             <h1
-              className={`${textColor} text-3xl tracking-tighter mb-1 font-black`}
+              className={`${textColor} ${pageTitleClass}`}
             >
               Insights
             </h1>
-            <div className={`${subtextColor} tracking-tight`}>
+            <div className={`${subtextColor} ${pageSubtitleClass}`}>
               {periodSubtitle}
             </div>
           </div>
@@ -524,10 +538,12 @@ export function Insights() {
           {/* SPECIAL MONTHLY INSIGHTS WIDGET (When 'month' is selected) */}
           {period === "month" && (
             <div
-              onPointerDown={startBudgetPress}
-              onPointerUp={clearBudgetPress}
-              onPointerLeave={clearBudgetPress}
-              className="cursor-pointer select-none"
+              className="select-none cursor-pointer"
+              onClick={() => {
+                setIsEditingBudget(true);
+                setTempBudgetInput(Math.round((dailyBudget || 2000) * 30).toString());
+              }}
+              title="Click or hold to edit monthly budget limit"
             >
               <GlassCard className="mb-6 p-5" glow glowColor="blue">
                 <div className="flex items-center justify-between mb-3">
@@ -537,21 +553,30 @@ export function Insights() {
                       <span
                         className={`${subtextColor} tracking-tight font-semibold text-xs uppercase block`}
                       >
-                        Monthly Budget Progress
-                      </span>
-                      <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                        <Edit3 className="w-2.5 h-2.5 inline" />
-                        Long press to update budget
+                        {new Date().toLocaleString("default", { month: "long" })} Budget Progress
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                    {budgetUsedPercent < 75
-                      ? "Healthy"
-                      : budgetUsedPercent < 90
-                      ? "Caution"
-                      : "Over Budget"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                      {budgetUsedPercent < 75
+                        ? "Healthy"
+                        : budgetUsedPercent < 90
+                        ? "Caution"
+                        : "Over Budget"}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditingBudget(true);
+                        setTempBudgetInput(Math.round((dailyBudget || 2000) * 30).toString());
+                      }}
+                      className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 transition-colors"
+                      title="Edit monthly budget"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
               <div className="flex items-baseline justify-between mb-2">
@@ -658,12 +683,13 @@ export function Insights() {
 
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart key={`main-chart-${period}`} data={chartData}>
+                <BarChart key={`main-chart-${period}-${statValue1}`} data={chartData}>
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
                     tick={renderCustomTick}
+                    interval={0}
                   />
                   <YAxis hide />
                   <Tooltip
@@ -671,7 +697,7 @@ export function Insights() {
                       fill: isLight
                         ? "rgba(0, 0, 0, 0.04)"
                         : "rgba(255, 255, 255, 0.05)",
-                      radius: [8, 8, 0, 0],
+                      radius: 8,
                     }}
                     content={
                       <CustomTooltip
@@ -1091,6 +1117,7 @@ export function Insights() {
                                   dataKey="label"
                                   axisLine={false}
                                   tickLine={false}
+                                  interval={0}
                                   tick={{
                                     fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
                                     fontSize: 10,
@@ -1102,7 +1129,7 @@ export function Insights() {
                                     fill: isLight
                                       ? "rgba(0, 0, 0, 0.04)"
                                       : "rgba(255, 255, 255, 0.05)",
-                                    radius: [6, 6, 0, 0],
+                                    radius: 6,
                                   }}
                                   content={
                                     <CustomTooltip
@@ -1317,6 +1344,7 @@ export function Insights() {
                                   dataKey="label"
                                   axisLine={false}
                                   tickLine={false}
+                                  interval={0}
                                   tick={{
                                     fill: isLight ? "#475569" : "rgba(255,255,255,0.6)",
                                     fontSize: 10,
@@ -1328,7 +1356,7 @@ export function Insights() {
                                     fill: isLight
                                       ? "rgba(0, 0, 0, 0.04)"
                                       : "rgba(255, 255, 255, 0.05)",
-                                    radius: [6, 6, 0, 0],
+                                    radius: 6,
                                   }}
                                   content={
                                     <CustomTooltip

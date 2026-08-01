@@ -11,7 +11,7 @@ interface ProfileSettingsModalProps {
 }
 
 const avatarPresets = [
-  "linear-gradient(135deg, #16A34A 0%, #3B82F6 100%)", // Zentro Green-Blue
+  "linear-gradient(135deg, #16A34A 0%, #3B82F6 100%)", // coZify Green-Blue
   "linear-gradient(135deg, #7B61FF 0%, #00E5FF 100%)", // Cyber Neon Purple-Cyan
   "linear-gradient(135deg, #FF4D8D 0%, #FF8F6B 100%)", // Sunset Orange-Pink
   "linear-gradient(135deg, #FFD166 0%, #F78C6A 100%)", // Peach Gold

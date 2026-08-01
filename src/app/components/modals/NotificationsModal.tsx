@@ -5,6 +5,7 @@ import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
 import { useState } from "react";
+import { logger } from "../../../utils/logger";
 
 interface NotificationsModalProps {
   isOpen: boolean;
@@ -39,7 +40,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
                 notifications: [
                   {
                     id: 1,
-                    title: "Zentro Budget Tracker 💰",
+                    title: "coZify Budget Tracker 💰",
                     body: "Time to log today's expenses and check your savings goals!",
                     schedule: {
                       on: { hour: 20, minute: 0 },
@@ -54,7 +55,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
               updateNotificationSettings({ dailyReminder: false });
             }
           } catch (err) {
-            console.warn("Notifications schedule error:", err);
+            logger.warn("Notifications schedule error:", err);
             setToastMsg("Local notifications not available.");
             updateNotificationSettings({ dailyReminder: false });
           }
@@ -67,7 +68,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
           try {
             await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
           } catch (err) {
-            console.warn("Notifications cancel error:", err);
+            logger.warn("Notifications cancel error:", err);
           }
         }
         setToastMsg("Daily reminder disabled.");

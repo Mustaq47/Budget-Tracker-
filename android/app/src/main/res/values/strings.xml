@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">BudTrack</string>
-    <string name="title_activity_main">BudTrack</string>
+    <string name="app_name">coZify</string>
+    <string name="title_activity_main">coZify</string>
     <string name="package_name">com.coZify.com</string>
     <string name="custom_url_scheme">com.coZify.com</string>
     <string name="server_client_id">322273012281-5n61kne9n68unsmi9u8gqciushfardga.apps.googleusercontent.com</string>

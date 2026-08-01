@@ -1,7 +1,7 @@
 {
-  "name": "budtrack",
-  "version": "6.0.0",
-  "description": "Smart Budget Tracker",
+  "name": "cozify",
+  "version": "1.0.0",
+  "description": "coZify — Track • Manage • Grow",
   "main": "index.js",
   "scripts": {
     "build": "vite build",

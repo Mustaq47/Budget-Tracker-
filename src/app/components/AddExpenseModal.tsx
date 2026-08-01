@@ -1,48 +1,48 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, ShoppingBag, Coffee, Car, Home, Zap, Heart, MoreHorizontal } from "lucide-react";
+import { X } from "lucide-react";
 import { GlassIcon } from "./GlassIcon";
 import { useState } from "react";
 import { useBudgetStore, currencySymbols } from "../../store/useBudgetStore";
+import { getCombinedCategories, getCategoryMeta } from "../../utils/categoryConfig";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const categories = [
-  { icon: ShoppingBag, label: "Shopping", glow: "purple" as const },
-  { icon: Coffee, label: "Food", glow: "blue" as const },
-  { icon: Car, label: "Transport", glow: "pink" as const },
-  { icon: Home, label: "Bills", glow: "gold" as const },
-  { icon: Zap, label: "Utilities", glow: "purple" as const },
-  { icon: Heart, label: "Health", glow: "blue" as const },
-  { icon: MoreHorizontal, label: "Other", glow: "pink" as const },
-];
-
 export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(0);
-  const { addTransaction, currency } = useBudgetStore();
+  const [customName, setCustomName] = useState("");
+  const { addTransaction, currency, customCategories, addCustomCategory } = useBudgetStore();
+  const combinedCategories = getCombinedCategories(customCategories);
+  const isOtherSelected = combinedCategories[selectedCategory] === "Other";
 
   const handleSubmit = () => {
     const num = parseFloat(amount);
     if (isNaN(num) || num <= 0) return;
 
-    const cat = categories[selectedCategory];
+    let catLabel = combinedCategories[selectedCategory] || "Other";
+    if (catLabel === "Other" && customName.trim()) {
+      catLabel = customName.trim();
+      addCustomCategory(catLabel);
+    }
+    const meta = getCategoryMeta(catLabel);
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     addTransaction({
-      title: `${cat.label} Expense`,
+      title: `${catLabel} Expense`,
       amount: num,
-      category: cat.label,
+      category: catLabel,
       time: timeStr,
       type: "expense",
-      glow: cat.glow,
+      glow: meta.glow,
     });
 
     onClose();
     setAmount("");
+    setCustomName("");
     setSelectedCategory(0);
   };
 
@@ -116,30 +116,72 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               <div className="mb-8">
                 <div className="text-white/60 mb-4 tracking-tight">Category</div>
                 <div className="grid grid-cols-4 gap-4">
-                  {categories.map((category, index) => (
-                    <button
-                      key={category.label}
-                      onClick={() => setSelectedCategory(index)}
-                      className="flex flex-col items-center gap-2 cursor-pointer"
-                    >
-                      <GlassIcon
-                        icon={category.icon}
-                        size="md"
-                        active={selectedCategory === index}
-                        glow={category.glow}
-                        asChild
-                      />
-                      <span
-                        className={`text-xs tracking-tight transition-all ${
-                          selectedCategory === index ? "text-white font-semibold" : "text-white/50"
-                        }`}
+                  {combinedCategories.map((catLabel, index) => {
+                    const meta = getCategoryMeta(catLabel);
+                    return (
+                      <button
+                        key={catLabel}
+                        type="button"
+                        onClick={() => setSelectedCategory(index)}
+                        className="flex flex-col items-center gap-2 cursor-pointer"
                       >
-                        {category.label}
-                      </span>
-                    </button>
-                  ))}
+                        <GlassIcon
+                          icon={meta.icon}
+                          size="md"
+                          active={selectedCategory === index}
+                          glow={meta.glow}
+                          asChild
+                        />
+                        <span
+                          className={`text-xs tracking-tight transition-all ${
+                            selectedCategory === index ? "text-white font-semibold" : "text-white/50"
+                          }`}
+                        >
+                          {catLabel}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
+
+              {isOtherSelected && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-4 mb-6 overflow-hidden"
+                >
+                  <div className="text-white/60 text-xs mb-2 tracking-tight font-medium">
+                    New Custom Category
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                      placeholder="e.g. Gym, Pets, Subscriptions..."
+                      className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none placeholder:text-white/30 focus:border-white/40"
+                    />
+                    <button
+                      type="button"
+                      disabled={!customName.trim()}
+                      onClick={() => {
+                        const trimmed = customName.trim();
+                        if (!trimmed) return;
+                        addCustomCategory(trimmed);
+                        setCustomName("");
+                        const updated = getCombinedCategories([...customCategories, trimmed]);
+                        const index = updated.indexOf(trimmed);
+                        if (index !== -1) setSelectedCategory(index);
+                      }}
+                      className="px-4 py-3 bg-[#22C55E] disabled:bg-white/10 disabled:text-white/30 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                    >
+                      Add & Select
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               <motion.button
                 onClick={handleSubmit}

@@ -2,9 +2,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Secure user isolation rules
+    
+    // Helper function to verify authenticated user ownership
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Helper function to validate backup payload schema & size limits
+    function isValidBackupPayload() {
+      let data = request.resource.data;
+      return request.resource.size < 1 * 1024 * 1024
+        && data.keys().hasOnly(['dailyBudget', 'transactions', 'cards', 'goals', 'checksum', 'updatedAt', 'updatedAtFormatted'])
+        && data.dailyBudget is number
+        && data.transactions is list
+        && data.cards is list
+        && data.goals is list;
+    }
+
+    // Secure user isolation rules with schema validation
+    match /users/{userId}/backups/latest {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidBackupPayload();
+    }
+
+    // Default user document fallback
     match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
     }
   }
 }

@@ -50,6 +50,8 @@ export type QuickActionModal =
   | 'notifications' 
   | 'privacy-security' 
   | 'language-region'
+  | 'help-center'
+  | 'privacy-policy'
   | 'report'
   | null;
 export type AppTheme = 
@@ -60,7 +62,7 @@ export type AppTheme =
   | 'gradient-theme';
 
 export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
-export type LanguageCode = 'en' | 'te' | 'hi';
+export type LanguageCode = 'en' | 'te' | 'hi' | 'ar' | 'zh' | 'kw' | 'cs' | 'nl' | 'fr' | 'de' | 'el' | 'he' | 'it' | 'ja' | 'kk' | 'ko' | 'pl' | 'pt' | 'ru' | 'es' | 'tl' | 'vi';
 
 export const currencySymbols: Record<CurrencyCode, string> = {
   INR: '₹',
@@ -118,6 +120,14 @@ interface BudgetState {
   updateNotificationSettings: (settings: Partial<BudgetState['notificationSettings']>) => void;
   updateUserProfile: (profile: Partial<UserProfile>) => void;
   wipeAllData: () => void;
+  savedAccounts: UserProfile[];
+  addSavedAccount: (profile: UserProfile) => void;
+  switchAccount: (uid: string) => void;
+  removeSavedAccount: (uid: string) => void;
+  customCategories: string[];
+  addCustomCategory: (categoryName: string) => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (hydrated: boolean) => void;
 }
 
 export const useBudgetStore = create<BudgetState>()(
@@ -125,10 +135,14 @@ export const useBudgetStore = create<BudgetState>()(
     (set) => ({
       user: null,
       lastUserUid: null,
+      savedAccounts: [],
       isAuthenticated: false,
       authLoading: true,
+      _hasHydrated: false,
+      setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
       dailyBudget: 2000,
       transactions: [],
+      customCategories: [],
       cardsCount: 0,
       cards: [],
       goals: [],
@@ -172,6 +186,14 @@ export const useBudgetStore = create<BudgetState>()(
 
       setUser: (user) =>
         set((state) => {
+          const existingSaved = state.savedAccounts || [];
+          const updatedSavedAccounts = user
+            ? [
+                user,
+                ...existingSaved.filter((acc) => acc.uid !== user.uid),
+              ]
+            : existingSaved;
+
           if (user && state.lastUserUid && state.lastUserUid !== user.uid) {
             return {
               user,
@@ -186,6 +208,7 @@ export const useBudgetStore = create<BudgetState>()(
               activeModal: null,
               isCloudBackupEnabled: false,
               lastBackupTime: null,
+              savedAccounts: updatedSavedAccounts,
             };
           }
           return {
@@ -193,6 +216,47 @@ export const useBudgetStore = create<BudgetState>()(
             lastUserUid: user?.uid || state.lastUserUid || null,
             isAuthenticated: !!user,
             authLoading: false,
+            savedAccounts: updatedSavedAccounts,
+          };
+        }),
+
+      addSavedAccount: (profile) =>
+        set((state) => {
+          const existing = (state.savedAccounts || []).filter((acc) => acc.uid !== profile.uid);
+          const newAccounts = [profile, ...existing];
+          return {
+            savedAccounts: newAccounts,
+            user: profile,
+            lastUserUid: profile.uid,
+            isAuthenticated: true,
+          };
+        }),
+
+      switchAccount: (uid) =>
+        set((state) => {
+          const target = (state.savedAccounts || []).find((acc) => acc.uid === uid);
+          if (!target) return state;
+          return {
+            user: target,
+            lastUserUid: target.uid,
+            isAuthenticated: true,
+          };
+        }),
+
+      removeSavedAccount: (uid) =>
+        set((state) => {
+          const remaining = (state.savedAccounts || []).filter((acc) => acc.uid !== uid);
+          let newActiveUser = state.user;
+          let newIsAuthenticated = state.isAuthenticated;
+          if (state.user?.uid === uid) {
+            newActiveUser = remaining.length > 0 ? remaining[0] : null;
+            newIsAuthenticated = remaining.length > 0;
+          }
+          return {
+            savedAccounts: remaining,
+            user: newActiveUser,
+            lastUserUid: newActiveUser?.uid || null,
+            isAuthenticated: newIsAuthenticated,
           };
         }),
 
@@ -331,12 +395,27 @@ export const useBudgetStore = create<BudgetState>()(
           user: state.user ? { ...state.user, ...profile } : null,
         })),
 
+      addCustomCategory: (categoryName) => {
+        const trimmed = categoryName.trim();
+        if (!trimmed) return;
+        set((state) => {
+          const exists = state.customCategories.some(
+            (c) => c.toLowerCase() === trimmed.toLowerCase()
+          );
+          if (exists) return state;
+          return {
+            customCategories: [...state.customCategories, trimmed],
+          };
+        });
+      },
+
       wipeAllData: () => {
         set({
           user: null,
           isAuthenticated: false,
           dailyBudget: 2000,
           transactions: [],
+          customCategories: [],
           cardsCount: 0,
           cards: [],
           goals: [],
@@ -362,7 +441,7 @@ export const useBudgetStore = create<BudgetState>()(
         // ponytail: never persist isAuthenticated/user in localStorage; let Firebase Auth control session truth
         dailyBudget: state.dailyBudget,
         transactions: state.transactions,
-        cardsCount: state.cardsCount,
+        customCategories: state.customCategories,
         cards: state.cards,
         goals: state.goals,
         isCloudBackupEnabled: state.isCloudBackupEnabled,
@@ -382,6 +461,40 @@ export const useBudgetStore = create<BudgetState>()(
         }
         return persistedState;
       },
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      },
     }
   )
 );
+
+// Atomic Selectors for minimal subscription re-renders
+export const selectUserAuth = (state: BudgetState) => ({
+  user: state.user,
+  lastUserUid: state.lastUserUid,
+  savedAccounts: state.savedAccounts,
+  isAuthenticated: state.isAuthenticated,
+  authLoading: state.authLoading,
+  _hasHydrated: state._hasHydrated,
+});
+
+export const selectTransactions = (state: BudgetState) => state.transactions;
+export const selectDailyBudget = (state: BudgetState) => state.dailyBudget;
+export const selectCards = (state: BudgetState) => state.cards;
+export const selectCardsCount = (state: BudgetState) => state.cards.length;
+export const selectGoals = (state: BudgetState) => state.goals;
+
+export const selectThemeSettings = (state: BudgetState) => ({
+  theme: state.theme,
+  colorMode: state.colorMode,
+  currency: state.currency,
+  language: state.language,
+});
+
+export const selectBackupState = (state: BudgetState) => ({
+  isCloudBackupEnabled: state.isCloudBackupEnabled,
+  lastBackupTime: state.lastBackupTime,
+});
+

@@ -1,10 +1,11 @@
 {
   "appId": "com.coZify.com",
-  "appName": "BudTrack",
+  "appName": "coZify",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "android": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "zoomEnabled": false
   },
   "plugins": {
     "SplashScreen": {

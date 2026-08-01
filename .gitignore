@@ -10,4 +10,6 @@ android/app/build/
 dist/
 .codegraph/
 *.apk
+*.aab
+aab/
 *.mp4

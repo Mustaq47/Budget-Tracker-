@@ -17,6 +17,7 @@ import {
   sanitizeReturnUrl,
   sanitizeEmail,
 } from "../../../features/auth/hooks/useAuthSecurity";
+import { logger } from "../../../utils/logger";
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -118,7 +119,7 @@ export function LoginScreen() {
       const recaptcha = setupRecaptcha("recaptcha-container");
       await sendPhoneOTP(`${countryCode}${phone}`, recaptcha);
     } catch (err) {
-      console.warn("Phone OTP Error:", err);
+      logger.warn("Phone OTP Error:", err);
     }
   };
 
@@ -159,7 +160,7 @@ export function LoginScreen() {
 
       <div className="relative z-10">
         <UniversalLogin
-          companyName="ZENTRO Finance"
+          companyName="coZify"
           onEmailSignIn={handleEmailSignIn}
           onEmailSignUp={handleEmailSignUp}
           onGoogleSignIn={handleGoogleSignIn}

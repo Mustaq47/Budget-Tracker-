@@ -551,7 +551,12 @@ export default function UniversalLogin({
           /* ============ LOGIN & SIGNUP ============ */
           ) : (
             <div>
-              <div className="text-center mb-6">
+              <div className="text-center mb-6 flex flex-col items-center">
+                <img
+                  src="/cozify-logo.png"
+                  alt="coZify Brand Logo"
+                  className="h-10 w-auto mb-4 object-contain filter drop-shadow-sm"
+                />
                 <h1 className="text-2xl md:text-3xl font-bold text-[#051A3E] mb-2 tracking-tight">
                   {view === 'login' ? 'Sign-In' : 'Create your account'}
                 </h1>

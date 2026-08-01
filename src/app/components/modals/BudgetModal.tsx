@@ -21,7 +21,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
   const [activeTab, setActiveTab] = useState<"add" | "target">("add");
   const [spentInput, setSpentInput] = useState("");
-  const [spentTitle, setSpentTitle] = useState("");
+  const [budgetTitle, setBudgetTitle] = useState("");
   const [budgetInput, setBudgetInput] = useState(dailyBudget.toString());
 
   // Calculate spent today
@@ -39,16 +39,17 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
     if (!isNaN(val) && val > 0) {
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      setDailyBudget(dailyBudget + val);
       addTransaction({
-        title: spentTitle.trim() || "Daily Expense",
+        title: budgetTitle.trim() || "Budget Allowance Added",
         amount: val,
-        category: "General",
-        type: "expense",
+        category: "Income",
+        type: "income",
         time: timeStr,
-        glow: "pink",
+        glow: "blue",
       });
       setSpentInput("");
-      setSpentTitle("");
+      setBudgetTitle("");
       onClose();
     }
   };
@@ -114,7 +115,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 </div>
                 <div>
                   <h2 className={`${textColor} text-2xl font-black tracking-tight`}>Daily Budget</h2>
-                  <div className={`${subtextColor} text-xs tracking-tight`}>Manage Spent & Target Allowance</div>
+                  <div className={`${subtextColor} text-xs tracking-tight`}>Manage Current Budget & Target Allowance</div>
                 </div>
               </div>
 
@@ -182,7 +183,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       : "text-white/60 hover:text-white"
                   }`}
                 >
-                  <Plus size={14} /> Add Spent Amount
+                  <Plus size={14} /> Add to Budget
                 </button>
                 <button
                   type="button"
@@ -199,12 +200,12 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 </button>
               </div>
 
-              {/* TAB 1: Add Amount Directly to Current Spent */}
+              {/* TAB 1: Add Amount Directly to Current Budget */}
               {activeTab === "add" && (
                 <form onSubmit={handleAddDirectAmount} className="space-y-5">
                   <div>
                     <label className={`block text-xs font-bold mb-2 ${isLight ? "text-slate-700" : "text-white/80"}`}>
-                      Amount to Add Directly into Spent
+                      Amount to Add to Current Budget
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-[#FF4D8D] text-2xl font-black">{currencySymbols[currency]}</span>
@@ -249,13 +250,13 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
                   <div>
                     <label className={`block text-xs font-semibold mb-2 ${isLight ? "text-slate-700" : "text-white/70"}`}>
-                      Note / Description (Optional)
+                      Note / Source (Optional)
                     </label>
                     <input
                       type="text"
-                      value={spentTitle}
-                      onChange={(e) => setSpentTitle(e.target.value)}
-                      placeholder="e.g. Lunch, Taxi, Coffee"
+                      value={budgetTitle}
+                      onChange={(e) => setBudgetTitle(e.target.value)}
+                      placeholder="e.g. Salary, Bonus, Pocket Money"
                       className={`w-full border rounded-2xl px-4 py-3 text-sm focus:outline-none transition-all ${
                         isLight
                           ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#FF4D8D]"
@@ -277,7 +278,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                         : "bg-white/10 text-white/30 cursor-not-allowed border border-white/5"
                     }`}
                   >
-                    <Plus size={18} /> Add to Today's Spent Total
+                    <Plus size={18} /> Add to Today's Budget Limit
                   </motion.button>
                 </form>
               )}
