@@ -95,11 +95,11 @@ interface BudgetState {
   };
   currency: CurrencyCode;
   language: LanguageCode;
-  pendingTermsAcceptance: boolean;
+  hasAcceptedTerms: boolean;
   
   // Actions
+  setHasAcceptedTerms: (accepted: boolean) => void;
   setUser: (user: UserProfile | null) => void;
-  setPendingTermsAcceptance: (pending: boolean) => void;
   setCurrency: (currency: CurrencyCode) => void;
   setLanguage: (language: LanguageCode) => void;
   setAuthLoading: (loading: boolean) => void;
@@ -161,9 +161,10 @@ export const useBudgetStore = create<BudgetState>()(
       },
       currency: 'INR',
       language: 'en',
-      pendingTermsAcceptance: false,
+      hasAcceptedTerms: true,
 
-      setPendingTermsAcceptance: (pending) => set({ pendingTermsAcceptance: pending }),
+      setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
+
       setActiveModal: (modal) => set({ activeModal: modal }),
 
       setCurrency: (currency) => set({ currency }),

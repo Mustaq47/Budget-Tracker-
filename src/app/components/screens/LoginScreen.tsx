@@ -22,7 +22,7 @@ import { logger } from "../../../utils/logger";
 export function LoginScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setUser, setPendingTermsAcceptance, isAuthenticated, theme, colorMode } = useBudgetStore();
+  const { setUser, setHasAcceptedTerms, isAuthenticated, theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const { checkRateLimit, recordFailedAttempt } = useAuthRateLimit();
 
@@ -47,7 +47,12 @@ export function LoginScreen() {
     displayName?: string | null;
     photoURL?: string | null;
     phoneNumber?: string | null;
-  }) => {
+  }, isNewAccount: boolean = false) => {
+    if (isNewAccount) {
+      setHasAcceptedTerms(false);
+    } else {
+      setHasAcceptedTerms(true);
+    }
     setUser(userPayload);
     navigate(safeRedirectPath, { replace: true });
   };
@@ -65,7 +70,7 @@ export function LoginScreen() {
           email: res.user.email,
           displayName: res.user.displayName || cleanEmail.split("@")[0],
           photoURL: res.user.photoURL,
-        });
+        }, false);
       }
     } catch (err) {
       recordFailedAttempt();
@@ -81,13 +86,12 @@ export function LoginScreen() {
       const cleanEmail = sanitizeEmail(email);
       const res = await signUpWithEmail(cleanEmail, password, name);
       if (res?.user) {
-        setPendingTermsAcceptance(true);
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,
           displayName: name || res.user.displayName || cleanEmail.split("@")[0],
           photoURL: res.user.photoURL,
-        });
+        }, true);
       }
     } catch (err) {
       recordFailedAttempt();
@@ -102,15 +106,12 @@ export function LoginScreen() {
     try {
       const res = await signInWithGoogle(isSignUp);
       if (res?.user) {
-        if (isSignUp) {
-          setPendingTermsAcceptance(true);
-        }
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,
           displayName: res.user.displayName,
           photoURL: res.user.photoURL,
-        });
+        }, isSignUp);
       }
     } catch (err) {
       recordFailedAttempt();

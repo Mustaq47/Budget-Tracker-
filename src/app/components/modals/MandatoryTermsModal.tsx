@@ -1,252 +1,261 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   FileText,
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   Lock,
-  Mail,
-  UserCheck,
   Award,
+  UserCheck,
+  HelpCircle,
   LogOut,
-  AlertTriangle,
+  XCircle,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { App } from "@capacitor/app";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { logout } from "../../../services/firebase";
 
 export function MandatoryTermsModal() {
-  const { pendingTermsAcceptance, setPendingTermsAcceptance, logoutUser, theme, colorMode } = useBudgetStore();
+  const { isAuthenticated, hasAcceptedTerms, setHasAcceptedTerms, logoutUser, theme, colorMode } = useBudgetStore();
+  const [agreed, setAgreed] = useState(false);
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
 
-  if (!pendingTermsAcceptance) return null;
+  // Only show if user is authenticated AND has not accepted Terms & Conditions
+  if (!isAuthenticated || hasAcceptedTerms) return null;
 
   const sections = [
     {
       icon: CheckCircle2,
       title: "1. Acceptance of Terms",
       content:
-        "By accessing, downloading, installing, or using the coZify application, you agree to be bound by these Terms & Conditions. If you do not agree to these terms, you must decline and discontinue use of the application.",
+        "By accessing, downloading, or using coZify, you agree to be bound by these Terms & Conditions. If you do not agree to these terms, the application will close.",
     },
     {
       icon: Award,
       title: "2. Purpose & Self-Directed Use",
       content:
-        "coZify is a personal budgeting, expense tracking, and financial organization software tool. coZify is intended solely for personal informational use and does not provide financial, legal, tax, or investment advice.",
+        "coZify is a personal budgeting and financial tracking application intended solely for informational organization. It does not provide financial, legal, tax, or investment advice.",
     },
     {
       icon: AlertCircle,
-      title: "3. User Accuracy & Responsibilities",
+      title: "3. User Responsibilities & Accuracy",
       content:
-        "You are solely responsible for the accuracy of all financial data, transactions, custom categories, card balances, and budget goals entered into coZify. The application calculates insights and progress based strictly on the data you provide.",
+        "You are solely responsible for the accuracy of all transaction records, budgets, and card information entered into coZify.",
     },
     {
       icon: Lock,
       title: "4. Account Security & Cloud Backups",
       content:
-        "If you use optional Google Sign-In for encrypted cloud backups, you are responsible for maintaining the confidentiality and security of your Google account credentials. You retain full ownership of all data stored locally or backed up to Google Firebase Cloud Firestore.",
+        "If using Google Sign-In for encrypted cloud backups, you remain responsible for maintaining the confidentiality of your Google credentials. You retain full ownership of your data.",
     },
     {
       icon: ShieldCheck,
-      title: "5. Intellectual Property",
+      title: "5. Intellectual Property & Zero-Tracking",
       content:
-        "All visual designs, custom themes, logos, iconography, source code, and user interface layouts within coZify are the exclusive intellectual property of the coZify developer.",
+        "All application layouts, logos, themes, and code are the exclusive property of coZify. coZify never sells user data or shows advertisements.",
     },
     {
       icon: HelpCircle,
-      title: "6. Limitation of Liability & 'As-Is' Provision",
+      title: "6. Limitation of Liability",
       content:
-        "coZify is provided 'as is' and 'as available' without warranty of any kind, express or implied. In no event shall the developer be liable for any direct, indirect, incidental, or consequential damages or data loss resulting from the use or inability to use the application.",
+        "coZify is provided 'as is' without warranty of any kind. The developer is not liable for any direct or indirect damages or data loss.",
     },
     {
       icon: UserCheck,
-      title: "7. Modifications & Developer Contact",
+      title: "7. Developer Contact",
       content:
-        "We reserve the right to update these Terms & Conditions as the application evolves. For any legal inquiries, support requests, or questions regarding these terms, contact the developer via email at mustaqsk47@gmail.com.",
+        "For any inquiries regarding these Terms & Conditions, contact the developer at mustaqsk47@gmail.com.",
     },
   ];
 
-  const handleDecline = async () => {
-    logoutUser();
+  const handleAccept = () => {
+    if (!agreed) return;
+    setHasAcceptedTerms(true);
+  };
+
+  const handleDeclineAndExit = async () => {
     try {
+      // Exit native mobile app via Capacitor
       await App.exitApp();
-    } catch (e) {
-      // In web browser environment where App.exitApp() is unsupported
+    } catch (_) {
+      // Ignore if running in web browser
+    }
+    // Logout and close window if web
+    try {
+      await logout();
+    } catch (_) {}
+    logoutUser();
+    if (typeof window !== "undefined") {
+      try {
+        window.close();
+      } catch (_) {}
       window.location.href = "/login";
     }
   };
 
-  const handleAccept = () => {
-    setPendingTermsAcceptance(false);
-  };
-
   const modalContent = (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-        {/* Uncloseable Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/85 backdrop-blur-lg"
-        />
-
-        {/* Modal Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className={`relative w-full max-w-lg max-h-[88vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${
-            isLight
-              ? "bg-white/95 border-slate-200 text-slate-800"
-              : "bg-[#0f1123]/95 border-white/10 text-white"
-          } backdrop-blur-2xl`}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`relative w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${
+          isLight
+            ? "bg-white/95 border-slate-200 text-slate-800"
+            : "bg-[#0f1123]/95 border-white/15 text-white"
+        } backdrop-blur-2xl`}
+      >
+        {/* Header */}
+        <div
+          className={`flex items-center justify-between px-6 py-5 border-b shrink-0 ${
+            isLight ? "border-slate-200 bg-slate-50/80" : "border-white/10 bg-white/5"
+          }`}
         >
-          {/* Header */}
+          <div className="flex items-center gap-3">
+            <img
+              src="/cozify-logo.png"
+              alt="coZify Logo"
+              className={`h-12 w-auto object-contain transition-all duration-300 ${
+                isLight
+                  ? "drop-shadow-sm"
+                  : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+              }`}
+            />
+            <div>
+              <h2 className={`text-lg font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
+                Welcome to coZify
+              </h2>
+              <p className={`text-xs font-semibold ${isLight ? "text-blue-600" : "text-blue-400"}`}>
+                Mandatory Terms & Conditions Agreement
+              </p>
+            </div>
+          </div>
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/15 text-amber-500 border border-amber-500/30">
+            Action Required
+          </span>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div
-            className={`flex items-center justify-between px-6 py-5 border-b shrink-0 ${
-              isLight ? "border-slate-200 bg-slate-50/80" : "border-white/10 bg-white/5"
+            className={`p-4 rounded-2xl border flex items-start gap-3 ${
+              isLight
+                ? "bg-amber-50 border-amber-200 text-amber-900"
+                : "bg-amber-500/10 border-amber-500/20 text-amber-300"
             }`}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className={`text-lg font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
-                  Terms & Conditions
-                </h2>
-                <p className={`text-xs font-semibold ${isLight ? "text-slate-500" : "text-white/60"}`}>
-                  Mandatory Agreement for New Accounts
-                </p>
-              </div>
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
+            <div className="text-xs leading-relaxed font-medium">
+              <span className="font-bold">Required to continue:</span> After creating your account, you must accept our Terms & Conditions to use coZify. If you decline, the application will close.
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-500 text-[11px] font-extrabold uppercase tracking-wider">
-              Required
-            </span>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* Warning Alert */}
-            <div
-              className={`p-4 rounded-2xl border flex items-start gap-3 ${
-                isLight
-                  ? "bg-amber-50 border-amber-200 text-amber-900"
-                  : "bg-amber-500/10 border-amber-500/20 text-amber-300"
-              }`}
-            >
-              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
-              <div className="text-xs leading-relaxed font-medium">
-                <span className="font-bold">Welcome to coZify!</span> Before proceeding, you must read and accept our Terms & Conditions. If you decline, you will be logged out and the application will close.
-              </div>
-            </div>
-
-            {/* Policy Sections */}
-            <div className="space-y-3">
-              {sections.map((sec, idx) => {
-                const IconComp = sec.icon;
-                return (
-                  <div
-                    key={idx}
-                    className={`p-4 rounded-2xl border ${
-                      isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 mb-2">
-                      <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                          isLight ? "bg-slate-200 text-slate-700" : "bg-white/10 text-white/80"
-                        }`}
-                      >
-                        <IconComp className="w-4 h-4" />
-                      </div>
-                      <h4
-                        className={`text-xs font-bold ${
-                          isLight ? "text-slate-900" : "text-white"
-                        }`}
-                      >
-                        {sec.title}
-                      </h4>
-                    </div>
-                    <p
-                      className={`text-xs leading-relaxed ${
-                        isLight ? "text-slate-600 font-medium" : "text-white/70"
+          {/* Clauses list */}
+          <div className="space-y-3">
+            {sections.map((sec, idx) => {
+              const IconComp = sec.icon;
+              return (
+                <div
+                  key={idx}
+                  className={`p-4 rounded-2xl border ${
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                        isLight ? "bg-slate-200 text-slate-700" : "bg-white/10 text-white/80"
                       }`}
                     >
-                      {sec.content}
-                    </p>
+                      <IconComp className="w-3.5 h-3.5" />
+                    </div>
+                    <h4
+                      className={`text-xs font-bold ${
+                        isLight ? "text-slate-900" : "text-white"
+                      }`}
+                    >
+                      {sec.title}
+                    </h4>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Contact Developer Card */}
-            <div
-              className={`p-4 rounded-2xl border flex items-center justify-between ${
-                isLight
-                  ? "bg-slate-100 border-slate-200"
-                  : "bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-white/10"
-              }`}
-            >
-              <div>
-                <h4
-                  className={`text-xs font-bold ${
-                    isLight ? "text-slate-900" : "text-white"
-                  }`}
-                >
-                  Questions about our Terms?
-                </h4>
-                <p
-                  className={`text-[11px] ${
-                    isLight ? "text-slate-500" : "text-white/60"
-                  }`}
-                >
-                  Mustaq (mustaqsk47@gmail.com)
-                </p>
-              </div>
-              <a
-                href="mailto:mustaqsk47@gmail.com?subject=coZify%20Terms%20and%20Conditions%20Inquiry"
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <Mail className="w-3.5 h-3.5" /> Email Developer
-              </a>
-            </div>
+                  <p
+                    className={`text-xs leading-relaxed ${
+                      isLight ? "text-slate-600 font-medium" : "text-white/70"
+                    }`}
+                  >
+                    {sec.content}
+                  </p>
+                </div>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Footer Buttons */}
-          <div
-            className={`px-6 py-4 border-t flex items-center justify-between gap-3 shrink-0 ${
-              isLight
-                ? "bg-slate-100 border-slate-200"
-                : "bg-black/30 border-white/10"
-            }`}
+        {/* Agreement Checkbox Bar */}
+        <div
+          className={`px-6 py-4 border-t shrink-0 ${
+            isLight
+              ? "bg-slate-50 border-slate-200"
+              : "bg-black/30 border-white/10"
+          }`}
+        >
+          <label
+            onClick={() => setAgreed(!agreed)}
+            className="flex items-center gap-3 cursor-pointer select-none mb-4"
           >
-            <button
-              onClick={handleDecline}
-              className={`flex-1 py-3 px-4 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                isLight
-                  ? "border-red-200 bg-red-50 hover:bg-red-100 text-red-600"
-                  : "border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-400"
+            <div
+              className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-all ${
+                agreed
+                  ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/30"
+                  : isLight
+                  ? "border-slate-300 bg-white"
+                  : "border-white/20 bg-white/5"
               }`}
             >
-              <LogOut className="w-4 h-4" /> Decline & Exit
+              {agreed && <CheckCircle2 className="w-3.5 h-3.5" />}
+            </div>
+            <span
+              className={`text-xs font-bold ${
+                isLight ? "text-slate-800" : "text-white"
+              }`}
+            >
+              I have read, understand, and agree to the coZify Terms & Conditions.
+            </span>
+          </label>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDeclineAndExit}
+              className={`flex-1 py-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                isLight
+                  ? "bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-700"
+                  : "bg-white/5 hover:bg-white/10 border-white/10 text-white/70"
+              }`}
+            >
+              <XCircle className="w-4 h-4 text-red-500" />
+              Decline & Exit App
             </button>
 
             <button
               onClick={handleAccept}
-              className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs font-black tracking-wide shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              disabled={!agreed}
+              className={`flex-1 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg ${
+                agreed
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-600/30 hover:opacity-95"
+                  : isLight
+                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  : "bg-white/10 text-white/40 cursor-not-allowed"
+              }`}
             >
-              <CheckCircle2 className="w-4 h-4" /> I Agree & Continue
+              <ShieldCheck className="w-4 h-4" />
+              Accept & Continue
             </button>
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </div>
+      </motion.div>
+    </div>
   );
 
   return typeof document !== "undefined" ? createPortal(modalContent, document.body) : modalContent;

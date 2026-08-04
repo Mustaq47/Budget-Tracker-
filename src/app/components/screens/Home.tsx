@@ -83,16 +83,20 @@ export function Home() {
             <h1 className={`${textColor} ${pageTitleClass}`}>{userName}</h1>
           </div>
         </div>
-        <img
-          src="/cozify-logo.png"
-          alt="coZify"
+        <div
           onClick={() => navigate("/profile")}
-          className={`h-7 w-auto object-contain cursor-pointer transition-all duration-300 ${
-            isLight
-              ? "opacity-90 drop-shadow-sm hover:scale-105"
-              : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_12px_rgba(34,197,94,0.3)] hover:scale-105"
-          }`}
-        />
+          className="cursor-pointer transition-all duration-300 hover:scale-105"
+        >
+          <img
+            src="/cozify-logo.png"
+            alt="coZify"
+            className={`h-12 w-auto object-contain transition-all duration-300 ${
+              isLight
+                ? "drop-shadow-sm"
+                : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+            }`}
+          />
+        </div>
       </motion.div>
 
       <div className="flex justify-center mb-12">

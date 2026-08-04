@@ -386,14 +386,17 @@ export function Profile() {
       ))}
 
       <div className="flex flex-col items-center justify-center mb-8">
-        <div className="relative group cursor-pointer" onClick={() => navigate("/")}>
+        <div
+          className="relative group cursor-pointer mb-3 transition-all duration-300 group-hover:scale-105"
+          onClick={() => navigate("/")}
+        >
           <img
             src="/cozify-logo.png"
             alt="coZify Brand Logo"
-            className={`h-10 w-auto mb-3 object-contain transition-all duration-300 ${
+            className={`h-16 w-auto object-contain transition-all duration-300 ${
               isLight
-                ? "opacity-95 drop-shadow-sm group-hover:scale-105"
-                : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)] group-hover:scale-105"
+                ? "drop-shadow-sm"
+                : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"
             }`}
           />
         </div>
