@@ -4,11 +4,35 @@ import { GlassIcon } from "./GlassIcon";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { AddExpenseModal } from "./AddExpenseModal";
+import { useBudgetStore } from "../../store/useBudgetStore";
+import { getActiveThemeConfig } from "../../utils/themePresets";
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showAddModal, setShowAddModal] = useState(false);
+  const { activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
+
+  if (location.pathname === "/login") {
+    return null;
+  }
+
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const isLight = !activeTheme.isDark;
+
+  const isModalOpen = activeModal !== null || showAddModal;
+
+  const handleOpenAddModal = () => {
+    setShowAddModal(true);
+    setActiveModal("expense");
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    if (activeModal === "expense") {
+      setActiveModal(null);
+    }
+  };
 
   const tabs = [
     { icon: Home, path: "/", label: "Home" },
@@ -17,29 +41,33 @@ export function BottomNav() {
     { icon: User, path: "/profile", label: "Profile" },
   ];
 
+  const navContainerBg = isLight
+    ? "bg-white/90 border border-slate-200/90 shadow-xl text-slate-900"
+    : `${activeTheme.cardBg}`;
+
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 pb-6 px-6 pointer-events-none z-50">
+      <div className="fixed bottom-0 left-0 right-0 pb-6 px-6 pointer-events-none z-50 overflow-hidden">
         <motion.div
           initial={{ y: 100 }}
-          animate={{ y: 0 }}
-          className="
+          animate={{ y: isModalOpen ? 180 : 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 280 }}
+          className={`
             max-w-md mx-auto
             backdrop-blur-[40px]
-            bg-white/5
-            border border-white/10
             rounded-[32px]
             px-6 py-4
-            shadow-[0_0_40px_rgba(123,97,255,0.2),0_8px_32px_rgba(0,0,0,0.6)]
+            transition-all duration-300
+            ${navContainerBg}
             pointer-events-auto
-          "
+          `}
         >
           <div className="flex items-center justify-between relative">
             {tabs.slice(0, 2).map((tab) => (
               <button
                 key={tab.path}
                 onClick={() => navigate(tab.path)}
-                className="flex flex-col items-center gap-1 relative"
+                className="flex flex-col items-center gap-1 relative cursor-pointer"
               >
                 <GlassIcon
                   icon={tab.icon}
@@ -49,10 +77,10 @@ export function BottomNav() {
                   asChild
                 />
                 <span
-                  className={`text-[10px] tracking-tight transition-all ${
+                  className={`text-[10px] tracking-tight font-bold transition-all ${
                     location.pathname === tab.path
-                      ? "text-white"
-                      : "text-white/50"
+                      ? isLight ? "text-slate-900" : "text-white"
+                      : isLight ? "text-slate-500" : "text-white/50"
                   }`}
                 >
                   {tab.label}
@@ -61,32 +89,21 @@ export function BottomNav() {
             ))}
 
             <motion.button
-              onClick={() => setShowAddModal(true)}
+              onClick={handleOpenAddModal}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="
+              className={`
                 relative
                 -mt-8
                 w-16 h-16
                 rounded-full
-                bg-gradient-to-br from-[#7B61FF] to-[#FF4D8D]
+                bg-gradient-to-br from-[#16A34A] to-[#3B82F6]
                 flex items-center justify-center
-                shadow-[0_0_40px_rgba(123,97,255,0.8),0_8px_24px_rgba(0,0,0,0.4)]
-                border-4 border-[#0a0a1f]
-              "
+                shadow-xl
+                border-4 ${isLight ? "border-slate-100" : "border-[#0a0a1f]"}
+                cursor-pointer
+              `}
             >
-              <motion.div
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 0.8, 0.5],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute inset-0 rounded-full bg-gradient-to-br from-[#7B61FF] to-[#FF4D8D] blur-xl"
-              />
               <Plus size={28} className="text-white relative z-10" strokeWidth={2.5} />
             </motion.button>
 
@@ -94,7 +111,7 @@ export function BottomNav() {
               <button
                 key={tab.path}
                 onClick={() => navigate(tab.path)}
-                className="flex flex-col items-center gap-1 relative"
+                className="flex flex-col items-center gap-1 relative cursor-pointer"
               >
                 <GlassIcon
                   icon={tab.icon}
@@ -104,10 +121,10 @@ export function BottomNav() {
                   asChild
                 />
                 <span
-                  className={`text-[10px] tracking-tight transition-all ${
+                  className={`text-[10px] tracking-tight font-bold transition-all ${
                     location.pathname === tab.path
-                      ? "text-white"
-                      : "text-white/50"
+                      ? isLight ? "text-slate-900" : "text-white"
+                      : isLight ? "text-slate-500" : "text-white/50"
                   }`}
                 >
                   {tab.label}
@@ -118,7 +135,7 @@ export function BottomNav() {
         </motion.div>
       </div>
 
-      <AddExpenseModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
+      <AddExpenseModal isOpen={showAddModal} onClose={handleCloseAddModal} />
     </>
   );
 }

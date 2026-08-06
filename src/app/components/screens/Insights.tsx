@@ -2,29 +2,71 @@ import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
 import { useState } from "react";
+import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
 
-const weeklyData = [
-  { day: "Mon", amount: 1200 },
-  { day: "Tue", amount: 890 },
-  { day: "Wed", amount: 1450 },
-  { day: "Thu", amount: 2100 },
-  { day: "Fri", amount: 1680 },
-  { day: "Sat", amount: 3200 },
-  { day: "Sun", amount: 980 },
-];
-
-const categoryData = [
-  { name: "Food", value: 4500, color: "#7B61FF" },
-  { name: "Transport", value: 1200, color: "#00E5FF" },
-  { name: "Shopping", value: 3800, color: "#FF4D8D" },
-  { name: "Bills", value: 2200, color: "#FFD166" },
-];
+const categoryColors: Record<string, string> = {
+  Income: "#22C55E",
+  Expense: "#EF4444",
+  Savings: "#F59E0B",
+  Investments: "#6366F1",
+  Bills: "#F97316",
+  Shopping: "#EC4899",
+  Transport: "#06B6D4",
+  Food: "#8B5CF6",
+  Utilities: "#06B6D4",
+  Health: "#EC4899",
+  Other: "#64748B",
+};
 
 export function Insights() {
   const [period, setPeriod] = useState<"week" | "month" | "year">("week");
+  const { transactions, theme, colorMode, currency } = useBudgetStore();
 
-  const totalSpent = weeklyData.reduce((sum, item) => sum + item.amount, 0);
-  const avgPerDay = Math.round(totalSpent / weeklyData.length);
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const textColor = activeTheme.textColor;
+  const subtextColor = activeTheme.subtextColor;
+  const isLight = !activeTheme.isDark;
+
+  const expenseTransactions = transactions.filter((t) => t.type === "expense");
+
+  // Dynamic Weekly Data
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weeklyDataMap: Record<string, number> = {
+    Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0,
+  };
+
+  expenseTransactions.forEach((t) => {
+    if (t.date) {
+      const d = new Date(t.date);
+      const dayName = daysOfWeek[(d.getDay() + 6) % 7];
+      if (weeklyDataMap[dayName] !== undefined) {
+        weeklyDataMap[dayName] += t.amount;
+      }
+    }
+  });
+
+  const weeklyData = daysOfWeek.map((day) => ({
+    day,
+    amount: weeklyDataMap[day],
+  }));
+
+  // Dynamic Category Data
+  const categoryMap: Record<string, number> = {};
+  expenseTransactions.forEach((t) => {
+    const cat = t.category || "Other";
+    categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
+  });
+
+  const categoryData = Object.entries(categoryMap).map(([name, value]) => ({
+    name,
+    value,
+    color: categoryColors[name] || "#16A34A",
+  }));
+
+  const totalSpent = expenseTransactions.reduce((sum, item) => sum + item.amount, 0);
+  const activeDays = weeklyData.filter((d) => d.amount > 0).length || 1;
+  const avgPerDay = Math.round(totalSpent / activeDays);
 
   return (
     <div className="min-h-screen px-6 pt-12">
@@ -33,8 +75,8 @@ export function Insights() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-white text-3xl tracking-tighter mb-2">Insights</h1>
-        <div className="text-white/60 tracking-tight">Your spending analytics</div>
+        <h1 className={`${textColor} text-3xl tracking-tighter mb-2 font-black`}>Insights</h1>
+        <div className={`${subtextColor} tracking-tight`}>Your spending analytics</div>
       </motion.div>
 
       <div className="flex gap-2 mb-6">
@@ -43,10 +85,13 @@ export function Insights() {
             key={p}
             onClick={() => setPeriod(p)}
             className={`
-              px-6 py-2 rounded-full tracking-tight transition-all duration-300
-              ${period === p
-                ? "bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white shadow-[0_0_20px_rgba(123,97,255,0.5)]"
-                : "bg-white/5 text-white/60 border border-white/10 backdrop-blur-xl"
+              px-6 py-2 rounded-full tracking-tight font-bold text-xs transition-all duration-300 cursor-pointer
+              ${
+                period === p
+                  ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white shadow-md"
+                  : isLight
+                  ? "bg-slate-200/80 text-slate-700 hover:bg-slate-300 border border-slate-300"
+                  : "bg-white/5 text-white/60 border border-white/10 backdrop-blur-xl"
               }
             `}
           >
@@ -58,24 +103,24 @@ export function Insights() {
       <GlassCard className="mb-6" glow glowColor="purple">
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <div className="text-white/60 mb-1 tracking-tight">Total Spent</div>
+            <div className={`${subtextColor} mb-1 tracking-tight font-semibold text-xs`}>Total Spent</div>
             <motion.div
-              className="text-white text-3xl tracking-tighter"
+              className={`${textColor} text-3xl tracking-tighter font-black`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              ₹{totalSpent.toLocaleString()}
+              {currencySymbols[currency]}{totalSpent.toLocaleString()}
             </motion.div>
           </div>
           <div>
-            <div className="text-white/60 mb-1 tracking-tight">Daily Average</div>
+            <div className={`${subtextColor} mb-1 tracking-tight font-semibold text-xs`}>Daily Average</div>
             <motion.div
-              className="text-white text-3xl tracking-tighter"
+              className={`${textColor} text-3xl tracking-tighter font-black`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
             >
-              ₹{avgPerDay.toLocaleString()}
+              {currencySymbols[currency]}{avgPerDay.toLocaleString()}
             </motion.div>
           </div>
         </div>
@@ -87,21 +132,18 @@ export function Insights() {
                 dataKey="day"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
+                tick={{ fill: isLight ? "#475569" : "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 600 }}
               />
               <YAxis hide />
               <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
-                {weeklyData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill="url(#barGradient)"
-                  />
+                {weeklyData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill="url(#barGradient)" />
                 ))}
               </Bar>
               <defs>
                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#7B61FF" />
-                  <stop offset="100%" stopColor="#FF4D8D" />
+                  <stop offset="0%" stopColor={activeTheme.ringGradient[0]} />
+                  <stop offset="100%" stopColor={activeTheme.ringGradient[1]} />
                 </linearGradient>
               </defs>
             </BarChart>
@@ -110,56 +152,69 @@ export function Insights() {
       </GlassCard>
 
       <GlassCard glow glowColor="blue">
-        <div className="text-white/60 mb-6 tracking-tight">Spending by Category</div>
+        <div className={`${subtextColor} mb-6 tracking-tight font-semibold`}>Spending by Category</div>
 
-        <div className="flex items-center justify-center mb-6">
-          <div className="relative w-48 h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-white/60 text-xs tracking-tight">Total</div>
-              <div className="text-white text-2xl tracking-tighter">
-                ₹{categoryData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+        {categoryData.length === 0 ? (
+          <div className={`py-12 text-center ${subtextColor} text-sm tracking-tight`}>
+            No category spending recorded yet.
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative w-48 h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      dataKey="value"
+                      strokeWidth={0}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className={`${subtextColor} text-xs tracking-tight font-semibold`}>Total</div>
+                  <div className={`${textColor} text-2xl tracking-tighter font-black`}>
+                    {currencySymbols[currency]}{totalSpent.toLocaleString()}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="space-y-3">
-          {categoryData.map((category, index) => (
-            <motion.div
-              key={category.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: category.color, boxShadow: `0 0 10px ${category.color}` }}
-                />
-                <span className="text-white tracking-tight">{category.name}</span>
-              </div>
-              <div className="text-white/60 tracking-tight">₹{category.value.toLocaleString()}</div>
-            </motion.div>
-          ))}
-        </div>
+            <div className="space-y-3">
+              {categoryData.map((category, index) => (
+                <motion.div
+                  key={category.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{
+                        backgroundColor: category.color,
+                        boxShadow: `0 0 10px ${category.color}`,
+                      }}
+                    />
+                    <span className={`${textColor} tracking-tight font-bold text-sm`}>{category.name}</span>
+                  </div>
+                  <div className={`${subtextColor} tracking-tight font-extrabold text-sm`}>
+                    {currencySymbols[currency]}{category.value.toLocaleString()}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </>
+        )}
       </GlassCard>
     </div>
   );
