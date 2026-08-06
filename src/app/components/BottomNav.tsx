@@ -15,7 +15,7 @@ export function BottomNav() {
   const { activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
   const isReducedMotion = useAccessibleAnimation();
 
-  if (location.pathname === "/login") {
+  if (location.pathname === "/login" || location.pathname.startsWith("/admin")) {
     return null;
   }
 

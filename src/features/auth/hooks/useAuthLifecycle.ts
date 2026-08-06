@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { onAuthStateChanged, auth, logout, isOAuthValidating } from "../../../services/firebase";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { secureLogout } from "../utils/secureLogout";
+import { syncUserProfileToFirestore } from "../../../services/adminMonitoringService";
 
 const TOKEN_REFRESH_INTERVAL_MS = 45 * 60 * 1000; // 45 minutes
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -41,6 +42,11 @@ export function useAuthLifecycle() {
           photoURL: firebaseUser.photoURL,
           phoneNumber: firebaseUser.phoneNumber,
         });
+
+        // Sync user profile to Cloud Firestore users collection
+        try {
+          syncUserProfileToFirestore(firebaseUser);
+        } catch (_) {}
 
         // Set up proactive ID Token refresh before 1-hour expiration
         tokenRefreshTimer = setInterval(async () => {

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { secureLogout } from "../utils/secureLogout";
+import cozifyLogo from "../../../assets/cozify-logo.png";
 
 /**
  * UniversalLogin — Security-Hardened Authentication Component
@@ -112,6 +114,9 @@ export default function UniversalLogin({
   onVerifyOTP,
   onLogout = () => {},
   onAuthSuccess,
+  onOpenPrivacyPolicy,
+  onOpenTerms,
+  onOpenHelp,
   allowPhoneAuth = true,
   countryCodes = [
     { code: "+1", label: "+1 (US)" },
@@ -553,7 +558,7 @@ export default function UniversalLogin({
             <div>
               <div className="text-center mb-6 flex flex-col items-center">
                 <img
-                  src="/cozify-logo.png"
+                  src={cozifyLogo}
                   alt="coZify Brand Logo"
                   className="h-16 w-auto mb-5 object-contain drop-shadow-sm"
                 />
@@ -844,9 +849,27 @@ export default function UniversalLogin({
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 w-full max-w-7xl mx-auto px-4 sm:px-8 text-xs text-[#535F73]">
           <div>© {new Date().getFullYear()} {companyName}. All rights reserved.</div>
           <div className="flex gap-4 sm:gap-6">
-            <a href="#privacy" rel="noopener noreferrer" className="hover:text-[#003D9B] underline transition-colors">Privacy Policy</a>
-            <a href="#terms" rel="noopener noreferrer" className="hover:text-[#003D9B] underline transition-colors">Terms of Service</a>
-            <a href="#help" rel="noopener noreferrer" className="hover:text-[#003D9B] underline transition-colors">Help Center</a>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); onOpenPrivacyPolicy?.(); }}
+              className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); onOpenTerms?.(); }}
+              className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
+            >
+              Terms of Service
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); onOpenHelp?.(); }}
+              className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
+            >
+              Help Center
+            </button>
           </div>
         </div>
       </footer>

@@ -18,10 +18,14 @@ import {
   sanitizeEmail,
 } from "../../../features/auth/hooks/useAuthSecurity";
 import { logger } from "../../../utils/logger";
+import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
+import { TermsConditionsModal } from "../modals/TermsConditionsModal";
+import { HelpCenterModal } from "../modals/HelpCenterModal";
 
 export function LoginScreen() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [activeModal, setActiveModal] = React.useState<"privacy" | "terms" | "help" | null>(null);
   const { setUser, setHasAcceptedTerms, isAuthenticated, theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const { checkRateLimit, recordFailedAttempt } = useAuthRateLimit();
@@ -173,8 +177,24 @@ export function LoginScreen() {
           onVerifyOTP={handleVerifyOTP}
           onPasswordReset={handlePasswordReset}
           onAuthSuccess={() => navigate("/")}
+          onOpenPrivacyPolicy={() => setActiveModal("privacy")}
+          onOpenTerms={() => setActiveModal("terms")}
+          onOpenHelp={() => setActiveModal("help")}
         />
       </div>
+
+      <PrivacyPolicyModal
+        isOpen={activeModal === "privacy"}
+        onClose={() => setActiveModal(null)}
+      />
+      <TermsConditionsModal
+        isOpen={activeModal === "terms"}
+        onClose={() => setActiveModal(null)}
+      />
+      <HelpCenterModal
+        isOpen={activeModal === "help"}
+        onClose={() => setActiveModal(null)}
+      />
     </div>
   );
 }

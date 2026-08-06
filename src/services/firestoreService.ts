@@ -126,6 +126,57 @@ export async function uploadBackupToFirestore(
     timestampFormatted: nowIso,
   };
 
+  // Update parent user profile document in Firestore so admin monitoring & analytics reflect latest data
+  try {
+    const userDocRef = doc(db, "users", uid);
+    const txCount = Array.isArray(payload.transactions) ? payload.transactions.length : 0;
+    const cardsCount = Array.isArray(payload.cards) ? payload.cards.length : 0;
+    const goalsCount = Array.isArray(payload.goals) ? payload.goals.length : 0;
+    const sizeKb = Math.round(JSON.stringify(payload).length / 1024);
+
+    let totalExp = 0, expCount = 0;
+    let totalInc = 0, incCount = 0;
+    if (Array.isArray(payload.transactions)) {
+      payload.transactions.forEach((tx: any) => {
+        const amt = Math.abs(Number(tx.amount) || 0);
+        if (tx.type === "expense") {
+          totalExp += amt;
+          expCount++;
+        } else if (tx.type === "income") {
+          totalInc += amt;
+          incCount++;
+        }
+      });
+    }
+
+    await setDoc(
+      userDocRef,
+      {
+        lastBackupAt: nowIso,
+        updatedAt: serverTimestamp(),
+        syncState: "SYNCED",
+        stats: {
+          transactionCount: txCount,
+          cardsCount: cardsCount,
+          goalsCount: goalsCount,
+          localStorageSizeKb: sizeKb,
+        },
+        transactionCount: txCount,
+        cardsCount: cardsCount,
+        goalsCount: goalsCount,
+        localStorageSizeKb: sizeKb,
+        avgExpensePerTransaction: expCount > 0 ? Math.round(totalExp / expCount) : 0,
+        avgIncomePerTransaction: incCount > 0 ? Math.round(totalInc / incCount) : 0,
+        hasCustomCategories: Boolean(payload.customCategories?.length),
+      },
+      { merge: true }
+    );
+  } catch (userDocErr) {
+    if (import.meta.env.DEV) {
+      console.warn("[Firestore] Could not update parent user doc:", userDocErr);
+    }
+  }
+
   return nowIso;
 }
 

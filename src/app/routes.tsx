@@ -6,11 +6,18 @@ import { Insights } from "./components/screens/Insights";
 import { Profile } from "./components/screens/Profile";
 import { LoginScreen } from "./components/screens/LoginScreen";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
+import { AdminShell } from "../admin";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     Component: LoginScreen,
+  },
+  {
+    path: "/admin",
+    element: <AdminProtectedRoute />,
+    children: [{ index: true, Component: AdminShell }],
   },
   {
     path: "/",

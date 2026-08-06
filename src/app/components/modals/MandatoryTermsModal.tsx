@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import cozifyLogo from "../../../assets/cozify-logo.png";
 import { motion, AnimatePresence } from "motion/react";
 import {
   FileText,
@@ -116,7 +117,7 @@ export function MandatoryTermsModal() {
         >
           <div className="flex items-center gap-3">
             <img
-              src="/cozify-logo.png"
+              src={cozifyLogo}
               alt="coZify Logo"
               className={`h-12 w-auto object-contain transition-all duration-300 ${
                 isLight

@@ -130,49 +130,63 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {/* Highlight Banner */}
+              {/* Executive Document Status Bar */}
+              <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] font-extrabold text-blue-400">
+                <span>DOC ID: CZ-TOS-2026</span>
+                <span>STATUS: ACTIVE AGREEMENT</span>
+                <span>v1.0.0</span>
+              </div>
+
+              {/* Highlight Banner / Amber Legal Disclaimer */}
               <div
                 className={`p-4 rounded-2xl border flex items-start gap-3 ${
                   isLight
-                    ? "bg-blue-50 border-blue-200 text-blue-900"
-                    : "bg-blue-500/10 border-blue-500/20 text-blue-300"
+                    ? "bg-amber-50 border-amber-200 text-amber-900"
+                    : "bg-amber-500/10 border-amber-500/20 text-amber-300"
                 }`}
               >
-                <FileText className="w-5 h-5 shrink-0 mt-0.5 text-blue-500" />
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
                 <div className="text-xs leading-relaxed font-medium">
-                  <span className="font-bold">Transparent Agreement:</span> Please read these terms carefully. Using coZify signifies your consent to our local-first application rules.
+                  <span className="font-bold">Important Legal Notice:</span> coZify is a self-directed personal budgeting software tool. It does not provide financial, legal, tax, or investment advice.
                 </div>
               </div>
 
-              {/* Policy Sections */}
+              {/* Policy Sections with Numbered Badges & Left Accent Bar */}
               <div className="space-y-3">
                 {sections.map((sec, idx) => {
                   const IconComp = sec.icon;
+                  const sectionNum = `0${idx + 1}`;
                   return (
                     <div
                       key={idx}
-                      className={`p-4 rounded-2xl border ${
-                        isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                      className={`p-4 rounded-2xl border transition-all relative overflow-hidden ${
+                        isLight ? "bg-slate-50 border-slate-200 hover:border-slate-300" : "bg-white/5 border-white/10 hover:border-white/20"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                            isLight ? "bg-slate-200 text-slate-700" : "bg-white/10 text-white/80"
-                          }`}
-                        >
-                          <IconComp className="w-4 h-4" />
+                      <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 opacity-80" />
+                      <div className="flex items-center justify-between mb-2 pl-2">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                              isLight ? "bg-slate-200 text-slate-700" : "bg-white/10 text-white/80"
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 text-blue-500" />
+                          </div>
+                          <h4
+                            className={`text-xs font-black tracking-tight ${
+                              isLight ? "text-slate-900" : "text-white"
+                            }`}
+                          >
+                            {sec.title}
+                          </h4>
                         </div>
-                        <h4
-                          className={`text-xs font-bold ${
-                            isLight ? "text-slate-900" : "text-white"
-                          }`}
-                        >
-                          {sec.title}
-                        </h4>
+                        <span className="text-[10px] font-black tracking-widest px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          {sectionNum}
+                        </span>
                       </div>
                       <p
-                        className={`text-xs leading-relaxed ${
+                        className={`text-xs leading-relaxed pl-2 ${
                           isLight ? "text-slate-600 font-medium" : "text-white/70"
                         }`}
                       >
@@ -183,7 +197,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                 })}
               </div>
 
-              {/* Contact Developer Card */}
+              {/* Contact Developer Card with SLA Badge */}
               <div
                 className={`p-4 rounded-2xl border flex items-center justify-between ${
                   isLight
@@ -192,26 +206,31 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                 }`}
               >
                 <div>
-                  <h4
-                    className={`text-xs font-bold ${
-                      isLight ? "text-slate-900" : "text-white"
-                    }`}
-                  >
-                    Legal or Support Inquiry?
-                  </h4>
+                  <div className="flex items-center gap-2">
+                    <h4
+                      className={`text-xs font-black ${
+                        isLight ? "text-slate-900" : "text-white"
+                      }`}
+                    >
+                      Legal & Compliance Contact
+                    </h4>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                      ⚡ Verified
+                    </span>
+                  </div>
                   <p
                     className={`text-[11px] ${
                       isLight ? "text-slate-500" : "text-white/60"
                     }`}
                   >
-                    Mustaq (mustaqsk47@gmail.com)
+                    Mustaq • mustaqsk47@gmail.com
                   </p>
                 </div>
                 <a
                   href="mailto:mustaqsk47@gmail.com?subject=coZify%20Terms%20and%20Conditions%20Inquiry"
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <Mail className="w-3.5 h-3.5" /> Email Developer
+                  <Mail className="w-3.5 h-3.5" /> Direct Legal Inquiry
                 </a>
               </div>
             </div>
@@ -226,16 +245,17 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
             >
               <div className="flex items-center gap-1.5 text-[11px] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-                <span>coZify v1.0.0 • Local-First Protection</span>
+                <span>coZify v1.0.0 • Verified Legal Charter</span>
               </div>
-              <button
-                onClick={onClose}
-                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                  isLight ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-white/10 hover:bg-white/15 text-white"
-                }`}
-              >
-                I Agree
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={onClose}
+                  className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20 hover:opacity-90 flex items-center gap-1.5`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  I Agree & Accept Terms
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
