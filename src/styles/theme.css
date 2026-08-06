@@ -201,3 +201,42 @@
     line-height: 1.5;
   }
 }
+
+@keyframes promptBounceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-prompt-bounce {
+  animation: promptBounceIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── PHASE 5: 60 FPS GPU ACCELERATION UTILITIES ─── */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ─── PHASE 5: PREFERS-REDUCED-MOTION ACCESSIBILITY GUARD ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

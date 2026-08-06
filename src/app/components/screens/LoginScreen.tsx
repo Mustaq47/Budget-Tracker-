@@ -1,26 +1,49 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router";
 import UniversalLogin from "../../../features/auth/components/UniversalLogin";
 import {
-  signInWithGoogle,
   signInWithEmail,
   signUpWithEmail,
-  resetPassword,
+  signInWithGoogle,
   sendPhoneOTP,
-  verifyOTP,
+  resetPassword,
   setupRecaptcha,
+  handleGoogleRedirectResult,
 } from "../../../services/firebase";
 import { useBudgetStore } from "../../../store/useBudgetStore";
+import { getActiveThemeConfig } from "../../../utils/themePresets";
+import {
+  useAuthRateLimit,
+  sanitizeReturnUrl,
+  sanitizeEmail,
+} from "../../../features/auth/hooks/useAuthSecurity";
+import { logger } from "../../../utils/logger";
+import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
+import { TermsConditionsModal } from "../modals/TermsConditionsModal";
+import { HelpCenterModal } from "../modals/HelpCenterModal";
 
 export function LoginScreen() {
   const navigate = useNavigate();
-  const { setUser, isAuthenticated } = useBudgetStore();
+  const location = useLocation();
+  const [activeModal, setActiveModal] = React.useState<"privacy" | "terms" | "help" | null>(null);
+  const { setUser, setHasAcceptedTerms, isAuthenticated, theme, colorMode } = useBudgetStore();
+  const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const { checkRateLimit, recordFailedAttempt } = useAuthRateLimit();
+
+  // Determine safe redirect path from returnUrl query parameter
+  const returnUrlParam = new URLSearchParams(location.search).get("returnUrl");
+  const safeRedirectPath = sanitizeReturnUrl(returnUrlParam, "/");
+
+  // Check for pending Google redirect result on mount
+  useEffect(() => {
+    handleGoogleRedirectResult();
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/", { replace: true });
+      navigate(safeRedirectPath, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, safeRedirectPath]);
 
   const handleAuthSuccess = (userPayload: {
     uid: string;
@@ -28,73 +51,75 @@ export function LoginScreen() {
     displayName?: string | null;
     photoURL?: string | null;
     phoneNumber?: string | null;
-  }) => {
+  }, isNewAccount: boolean = false) => {
+    if (isNewAccount) {
+      setHasAcceptedTerms(false);
+    } else {
+      setHasAcceptedTerms(true);
+    }
     setUser(userPayload);
-    navigate("/", { replace: true });
+    navigate(safeRedirectPath, { replace: true });
   };
 
   const handleEmailSignIn = async ({ email, password }: { email: string; password: string }) => {
+    if (!checkRateLimit()) {
+      throw new Error("Too many login attempts. Please wait 30 seconds before retrying.");
+    }
     try {
-      const res = await signInWithEmail(email, password);
+      const cleanEmail = sanitizeEmail(email);
+      const res = await signInWithEmail(cleanEmail, password);
       if (res?.user) {
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,
-          displayName: res.user.displayName || email.split("@")[0],
+          displayName: res.user.displayName || cleanEmail.split("@")[0],
           photoURL: res.user.photoURL,
-        });
+        }, false);
       }
-    } catch (err: any) {
-      // If Firebase auth throws or credentials fail, allow demo login fallback for seamless experience
-      if (import.meta.env.DEV) {
-        console.warn("Firebase Auth fallback triggered:", err.message);
-      }
-      // If user typed credentials, log them in as user
-      handleAuthSuccess({
-        uid: "demo-user-id-" + Date.now(),
-        email: email,
-        displayName: email.split("@")[0] || "Authenticated User",
-      });
+    } catch (err) {
+      recordFailedAttempt();
+      throw err;
     }
   };
 
   const handleEmailSignUp = async ({ email, password, name }: { email: string; password: string; name?: string }) => {
+    if (!checkRateLimit()) {
+      throw new Error("Too many sign up attempts. Please wait 30 seconds before retrying.");
+    }
     try {
-      const res = await signUpWithEmail(email, password, name);
+      const cleanEmail = sanitizeEmail(email);
+      const res = await signUpWithEmail(cleanEmail, password, name);
       if (res?.user) {
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,
-          displayName: name || res.user.displayName || email.split("@")[0],
+          displayName: name || res.user.displayName || cleanEmail.split("@")[0],
           photoURL: res.user.photoURL,
-        });
+        }, true);
       }
-    } catch (err: any) {
-      handleAuthSuccess({
-        uid: "demo-user-id-" + Date.now(),
-        email: email,
-        displayName: name || email.split("@")[0] || "New User",
-      });
+    } catch (err) {
+      recordFailedAttempt();
+      throw err;
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (isSignUp = false) => {
+    if (!checkRateLimit()) {
+      throw new Error("Too many login attempts. Please wait 30 seconds before retrying.");
+    }
     try {
-      const res = await signInWithGoogle();
+      const res = await signInWithGoogle(isSignUp);
       if (res?.user) {
         handleAuthSuccess({
           uid: res.user.uid,
           email: res.user.email,
           displayName: res.user.displayName,
           photoURL: res.user.photoURL,
-        });
+        }, isSignUp);
       }
     } catch (err) {
-      handleAuthSuccess({
-        uid: "google-demo-id-123",
-        email: "demo.user@gmail.com",
-        displayName: "Demo User",
-      });
+      recordFailedAttempt();
+      throw err;
     }
   };
 
@@ -103,16 +128,14 @@ export function LoginScreen() {
       const recaptcha = setupRecaptcha("recaptcha-container");
       await sendPhoneOTP(`${countryCode}${phone}`, recaptcha);
     } catch (err) {
-      console.warn("Phone OTP Error:", err);
+      logger.warn("Phone OTP Error:", err);
     }
   };
 
   const handleVerifyOTP = async (otp: string) => {
-    handleAuthSuccess({
-      uid: "phone-user-" + Date.now(),
-      phoneNumber: "+1 555-0199",
-      displayName: "Mobile User",
-    });
+    // Requires confirmationResult from sendPhoneOTP, which is missing from state right now.
+    // Throwing error for now until phone state is wired up properly.
+    throw new Error("Phone auth requires full wiring. Temporarily disabled for security.");
   };
 
   const handlePasswordReset = async ({ email }: { email: string }) => {
@@ -120,36 +143,57 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0a0a1f] text-white overflow-hidden">
-      {/* Background glow graphics matching app aesthetic */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(123,97,255,0.2),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_100%_100%,rgba(255,77,141,0.15),transparent_50%)] pointer-events-none" />
+    <div className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${activeTheme.bgClass} ${activeTheme.textColor}`}>
+      {/* Ambient Radial Glow 1 — matches Root.tsx */}
+      <div 
+        className="absolute inset-0 opacity-40 transition-all duration-700 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at 50% 0%, ${activeTheme.primaryColor}25, transparent 55%)`
+        }}
+      />
+      {/* Ambient Radial Glow 2 */}
+      <div 
+        className="absolute inset-0 opacity-30 transition-all duration-700 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at 0% 100%, ${activeTheme.secondaryColor}20, transparent 50%)`
+        }}
+      />
 
-      {/* Demo Sign In banner button at top right */}
-      <div className="absolute top-4 right-4 z-50">
-        <button
-          onClick={() =>
-            handleAuthSuccess({
-              uid: "guest-" + Date.now(),
-              email: "guest.user@zentro.app",
-              displayName: "Guest User",
-            })
-          }
-          className="px-4 py-2 text-xs font-semibold rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl border border-white/20 transition-all cursor-pointer shadow-lg"
-        >
-          ⚡ Quick Demo Login
-        </button>
+      {/* Noise Texture */}
+      <div
+        className="absolute inset-0 opacity-[0.015] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="relative z-10">
+        <UniversalLogin
+          companyName="coZify"
+          onEmailSignIn={handleEmailSignIn}
+          onEmailSignUp={handleEmailSignUp}
+          onGoogleSignIn={handleGoogleSignIn}
+          onPhoneAuth={handlePhoneAuth}
+          onVerifyOTP={handleVerifyOTP}
+          onPasswordReset={handlePasswordReset}
+          onAuthSuccess={() => navigate("/")}
+          onOpenPrivacyPolicy={() => setActiveModal("privacy")}
+          onOpenTerms={() => setActiveModal("terms")}
+          onOpenHelp={() => setActiveModal("help")}
+        />
       </div>
 
-      <UniversalLogin
-        companyName="ZENTRO Finance"
-        onEmailSignIn={handleEmailSignIn}
-        onEmailSignUp={handleEmailSignUp}
-        onGoogleSignIn={handleGoogleSignIn}
-        onPhoneAuth={handlePhoneAuth}
-        onVerifyOTP={handleVerifyOTP}
-        onPasswordReset={handlePasswordReset}
-        onAuthSuccess={() => navigate("/")}
+      <PrivacyPolicyModal
+        isOpen={activeModal === "privacy"}
+        onClose={() => setActiveModal(null)}
+      />
+      <TermsConditionsModal
+        isOpen={activeModal === "terms"}
+        onClose={() => setActiveModal(null)}
+      />
+      <HelpCenterModal
+        isOpen={activeModal === "help"}
+        onClose={() => setActiveModal(null)}
       />
     </div>
   );

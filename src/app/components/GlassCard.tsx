@@ -1,9 +1,10 @@
-import { motion } from "motion/react";
+import { motion, HTMLMotionProps } from "motion/react";
 import { ReactNode } from "react";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
+import { useAccessibleAnimation, SMOOTH_EASE } from "../utils/motionConfig";
 
-interface GlassCardProps {
+export interface GlassCardProps extends HTMLMotionProps<"div"> {
   children: ReactNode;
   className?: string;
   glow?: boolean;
@@ -17,24 +18,33 @@ const glowColors = {
   gold: "shadow-[0_0_30px_rgba(255,209,102,0.3)]",
 };
 
-export function GlassCard({ children, className = "", glow = false, glowColor = "purple" }: GlassCardProps) {
+export function GlassCard({
+  children,
+  className = "",
+  glow = false,
+  glowColor = "purple",
+  onClick,
+  ...props
+}: GlassCardProps) {
   const { theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const isReducedMotion = useAccessibleAnimation();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: isReducedMotion ? 0 : 8 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={SMOOTH_EASE}
+      onClick={onClick}
       className={`
         backdrop-blur-[40px]
         rounded-[28px]
         p-6
-        transition-all
-        duration-300
         ${activeTheme.cardBg}
         ${glow ? glowColors[glowColor] : ""}
         ${className}
       `}
+      {...props}
     >
       {children}
     </motion.div>

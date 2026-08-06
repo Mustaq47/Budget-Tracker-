@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "322273012281",
+    "firebase_url": "https://aisys-10fc5-default-rtdb.firebaseio.com",
+    "project_id": "aisys-10fc5",
+    "storage_bucket": "aisys-10fc5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:322273012281:android:bcf1e88511d32b39903be8",
+        "android_client_info": {
+          "package_name": "com.coZify.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "322273012281-lra5kfqmuoa7db1964kfkc0o2sjlilf9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.coZify.com",
+            "certificate_hash": "5e80b0293e7e6bf5b09542ee03f2b8c4fabf10e1"
+          }
+        },
+        {
+          "client_id": "322273012281-5n61kne9n68unsmi9u8gqciushfardga.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKnkacla0p761TZ90G8KBaUUA3NGC4Plo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "322273012281-5n61kne9n68unsmi9u8gqciushfardga.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

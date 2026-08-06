@@ -6,14 +6,16 @@ import { useState } from "react";
 import { AddExpenseModal } from "./AddExpenseModal";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
+import { useAccessibleAnimation, SPRING_PHYSICS, FAST_SPRING } from "../utils/motionConfig";
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showAddModal, setShowAddModal] = useState(false);
   const { activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
+  const isReducedMotion = useAccessibleAnimation();
 
-  if (location.pathname === "/login") {
+  if (location.pathname === "/login" || location.pathname.startsWith("/admin")) {
     return null;
   }
 
@@ -49,15 +51,14 @@ export function BottomNav() {
     <>
       <div className="fixed bottom-0 left-0 right-0 pb-6 px-6 pointer-events-none z-50 overflow-hidden">
         <motion.div
-          initial={{ y: 100 }}
+          initial={{ y: isReducedMotion ? 0 : 100 }}
           animate={{ y: isModalOpen ? 180 : 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 280 }}
+          transition={SPRING_PHYSICS}
           className={`
             max-w-md mx-auto
             backdrop-blur-[40px]
             rounded-[32px]
             px-6 py-4
-            transition-all duration-300
             ${navContainerBg}
             pointer-events-auto
           `}
@@ -90,8 +91,9 @@ export function BottomNav() {
 
             <motion.button
               onClick={handleOpenAddModal}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: isReducedMotion ? 1 : 1.05 }}
+              whileTap={{ scale: isReducedMotion ? 1 : 0.95 }}
+              transition={FAST_SPRING}
               className={`
                 relative
                 -mt-8
@@ -135,7 +137,10 @@ export function BottomNav() {
         </motion.div>
       </div>
 
-      <AddExpenseModal isOpen={showAddModal} onClose={handleCloseAddModal} />
+      <AddExpenseModal
+        isOpen={showAddModal || activeModal === "expense"}
+        onClose={handleCloseAddModal}
+      />
     </>
   );
 }

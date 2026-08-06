@@ -3,6 +3,7 @@ import { X, Lock, Download, Trash2, ShieldCheck, AlertTriangle } from "lucide-re
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useState } from "react";
+import { logger } from "../../../utils/logger";
 
 interface PrivacyModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   const handleExportData = () => {
     try {
       const backupData = {
-        version: "1.2.0",
+        version: "1.0.0",
         exportDate: new Date().toISOString(),
         dailyBudget,
         transactions,
@@ -34,7 +35,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `zentro_backup_${Date.now()}.json`);
+      downloadAnchor.setAttribute("download", `cozify_backup_${Date.now()}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -42,7 +43,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
       setSuccessMsg("Backup downloaded successfully!");
       setTimeout(() => setSuccessMsg(""), 2000);
     } catch (err) {
-      console.error("Export data error:", err);
+      logger.error("Export data error:", err);
     }
   };
 
@@ -122,7 +123,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
                   <div>
                     <div className="text-white text-sm font-bold">Encrypted Vault</div>
                     <div className="text-white/50 text-[11px] leading-relaxed">
-                      Zentro works local-first. All credit card tokens, balance states, and transaction histories reside on device storage.
+                      coZify works local-first. All credit card tokens, balance states, and transaction histories reside on device storage.
                     </div>
                   </div>
                 </div>

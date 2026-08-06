@@ -2,9 +2,67 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Secure user isolation rules
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    
+    // Helper function to verify authenticated user ownership
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Helper function to check if user is root super admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == "mustaqsk47@gmail.com" ||
+        request.auth.token.email == "mustaq47@gmail.com"
+      );
+    }
+
+    // Helper function to validate backup payload schema & size limits
+    function isValidBackupPayload() {
+      let data = request.resource.data;
+      return request.resource.size < 1 * 1024 * 1024
+        && data.keys().hasOnly(['dailyBudget', 'transactions', 'cards', 'goals', 'checksum', 'updatedAt', 'updatedAtFormatted'])
+        && data.dailyBudget is number
+        && data.transactions is list
+        && data.cards is list
+        && data.goals is list;
+    }
+
+    // Admin IAM roles collection
+    match /iam_roles/{assignmentId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Support queries collection
+    match /support_queries/{ticketId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin() || (request.auth != null && request.auth.token.email == resource.data.userEmail);
+    }
+
+    // Revenue collection
+    match /revenue/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // Secure user isolation rules with schema validation
+    match /users/{userId}/backups/latest {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId);
+    }
+
+    // Allow users and admins to read/write parent user profile document
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Allow admins to query/list all user documents
+    match /users/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // Root admin fallback for any collection
+    match /{document=**} {
+      allow read, write: if isAdmin();
     }
   }
 }

@@ -10,11 +10,14 @@
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { 
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
+  signInWithCredential,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail,
@@ -22,8 +25,27 @@ import {
   signInWithPhoneNumber,
   updateProfile,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  getAdditionalUserInfo
 } from "firebase/auth";
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
+// Detect Capacitor native (mobile) environment
+const isCapacitorNative = typeof window !== 'undefined' && Boolean(window.Capacitor?.isNativePlatform?.());
+
+if (isCapacitorNative) {
+  try {
+    GoogleAuth.initialize({
+      clientId: import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID || '322273012281-5n61kne9n68unsmi9u8gqciushfardga.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
+      grantOfflineAccess: false,
+    });
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn('[GoogleAuth Init]', e);
+    }
+  }
+}
 
 // ─── C-01 FIX: Config from environment variables ───
 const firebaseConfig = {
@@ -53,6 +75,17 @@ export const app = initializeApp(firebaseConfig);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// ─── PHASE 8 FIX: Offline Firestore Persistence ───
+if (typeof window !== 'undefined') {
+  enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn('[Firestore] Multiple tabs open, offline persistence can only be enabled in one tab at a time.');
+    } else if (err.code === 'unimplemented') {
+      console.warn('[Firestore] The current browser does not support all of the features required to enable persistence.');
+    }
+  });
+}
 
 // ─── H-06 FIX: Firebase App Check (uncomment when reCAPTCHA v3 site key is set) ───
 // import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
@@ -96,21 +129,112 @@ const AUTH_ERROR_MAP = {
 
 function safeAuthError(error) {
   const code = error?.code || '';
-  const safeMessage = AUTH_ERROR_MAP[code] || 'An unexpected error occurred. Please try again.';
-  // In development, log the real error for debugging
-  if (import.meta.env.DEV) {
-    console.warn('[Auth Debug]', code, error?.message);
+  const rawMsg = error?.message || error?.toString() || 'Unknown error';
+  
+  // Pass through custom user-friendly guidance messages without prefix
+  if (rawMsg.includes("You haven't created an account") || rawMsg.includes("An account with this email already exists")) {
+    return new Error(rawMsg);
   }
-  return new Error(safeMessage);
+
+  if (AUTH_ERROR_MAP[code]) {
+    return new Error(AUTH_ERROR_MAP[code]);
+  }
+
+  // Handle Google Play Services DEVELOPER_ERROR 10 (missing SHA-1 in Firebase Console)
+  if (rawMsg.includes('10') || rawMsg.includes('DEVELOPER_ERROR') || rawMsg.includes('12500')) {
+    return new Error('Google Auth Error (SHA-1 missing): Add SHA-1 5E:80:B0:29:3E:7E:6B:F5:B0:95:42:EE:03:F2:B8:C4:FA:BF:10:E1 to Firebase Console under Project Settings -> Android Apps.');
+  }
+
+  // Show descriptive error message instead of generic fallback
+  return new Error(`Sign-In Error: ${rawMsg} (${code})`);
 }
 
 // ─── Auth Helpers (all throw sanitized errors) ───
 
-export const signInWithGoogle = async () => {
+export let isOAuthValidating = false;
+
+export const signInWithGoogle = async (isSignUp = false, allowAny = false) => {
+  isOAuthValidating = true;
   try {
-    return await signInWithPopup(auth, googleProvider);
+    let result;
+    if (isCapacitorNative) {
+      // Use Capacitor Native Google Sign-In overlay (Google Play Services)
+      // This prevents web redirect back to localhost (ERR_CONNECTION_REFUSED)
+      const googleUser = await GoogleAuth.signIn();
+      const idToken = googleUser?.authentication?.idToken || googleUser?.idToken || googleUser?.token;
+      if (!idToken) {
+        throw new Error('No ID token returned from Google Sign-In. Check SHA-1 in Firebase Console.');
+      }
+      const credential = GoogleAuthProvider.credential(idToken);
+      result = await signInWithCredential(auth, credential);
+    } else {
+      result = await signInWithPopup(auth, googleProvider);
+    }
+
+    const additionalInfo = getAdditionalUserInfo(result);
+    const isNewUser = additionalInfo?.isNewUser || 
+      (result?.user?.metadata?.creationTime && result?.user?.metadata?.creationTime === result?.user?.metadata?.lastSignInTime);
+
+    // Prevent new users from logging in via Sign-In tab
+    if (!allowAny && !isSignUp && isNewUser) {
+      // Clean up accidentally created Google account and sign out
+      try { await result.user.delete(); } catch (_) { await signOut(auth); }
+      if (isCapacitorNative) {
+        try { await GoogleAuth.signOut(); } catch (_) {}
+      }
+      throw new Error("You haven't created an account, so sign-up to create an account");
+    }
+
+    // Prevent existing users from registering again on Create Account tab
+    if (!allowAny && isSignUp && !isNewUser) {
+      await signOut(auth);
+      if (isCapacitorNative) {
+        try { await GoogleAuth.signOut(); } catch (_) {}
+      }
+      throw new Error("An account with this email already exists. Please switch to 'Sign-In'.");
+    }
+
+    return result;
   } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[Google Auth Error]', error);
+    }
+    // Handle user cancellation gracefully
+    if (
+      error?.code === 'auth/popup-closed-by-user' ||
+      error?.message?.includes('12501') ||
+      error?.message?.toLowerCase()?.includes('cancel')
+    ) {
+      return null;
+    }
+    if (
+      error?.code === 'auth/popup-blocked' ||
+      error?.code === 'auth/operation-not-supported-in-this-environment'
+    ) {
+      await signInWithRedirect(auth, googleProvider);
+      return null;
+    }
     throw safeAuthError(error);
+  } finally {
+    isOAuthValidating = false;
+  }
+};
+
+export const signInWithGoogleDirect = async () => {
+  return signInWithGoogle(false, true);
+};
+
+// Handle redirect result on app init (for Web browsers only)
+export const handleGoogleRedirectResult = async () => {
+  try {
+    if (isCapacitorNative) return null;
+    const result = await getRedirectResult(auth);
+    return result;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[Auth] Redirect result error:', error?.code);
+    }
+    return null;
   }
 };
 
@@ -182,7 +306,16 @@ export const verifyOTP = async (confirmationResult, otpCode) => {
 };
 
 // ─── L-02 FIX: Logout mechanism ───
-export const logout = () => signOut(auth);
+export const logout = async () => {
+  if (isCapacitorNative) {
+    try {
+      await GoogleAuth.signOut();
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('[logout] GoogleAuth.signOut warning:', e);
+    }
+  }
+  return signOut(auth);
+};
 
 // ─── C-03 FIX: Auth state observer ───
-export { onAuthStateChanged };
+export { onAuthStateChanged, isCapacitorNative };

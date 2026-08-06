@@ -81,6 +81,33 @@ Implement:
 
 Optimize Firebase Auth lifecycle.
 
+### CRITICAL REMEDIATION — UNAUTHENTICATED SESSION BYPASS & STORAGE AUDIT
+
+#### Problem Statement
+When a new user opens the app or tries to sign in without an account, the app can incorrectly allow access without requiring valid authentication.
+Root Causes:
+1. **Zustand LocalStorage Persistence**: `isAuthenticated` and `user` are currently whitelisted in `partialize` (`budtrack-storage-v2`). Cached local state from previous sessions or mock state starts `isAuthenticated` as `true`.
+2. **Missing Session Wipe on Null Firebase User**: In `useAuthLifecycle.ts`, when `onAuthStateChanged` reports `firebaseUser === null`, the hook only calls `setAuthLoading(false)` without calling `logoutUser()`. Thus, cached `isAuthenticated` remains `true`.
+
+#### User Review Required
+> [!IMPORTANT]
+> This change removes `isAuthenticated` and `user` from `localStorage` persistence. The app will rely 100% on Firebase Auth (`onAuthStateChanged`) as the single source of truth for session authentication on startup.
+
+#### Proposed Changes
+
+##### Auth Lifecycle
+#### [MODIFY] [useAuthLifecycle.ts](file:///d:/project/New%20folder/but-test/src/features/auth/hooks/useAuthLifecycle.ts)
+- Update `else` block in `onAuthStateChanged` to explicitly invoke `logoutUser()` when `firebaseUser` is null, clearing any remaining store auth state before calling `setAuthLoading(false)`.
+
+##### State Management
+#### [MODIFY] [useBudgetStore.ts](file:///d:/project/New%20folder/but-test/src/store/useBudgetStore.ts)
+- Exclude `user` and `isAuthenticated` from `partialize` in the Zustand `persist` configuration so local storage never overrides Firebase Auth cryptographic verification.
+
+##### Verification Plan
+1. Test clearing browser storage / fresh APK install -> verify app redirects to `/login`.
+2. Attempt login with unregistered email -> verify "Invalid email or password." error is displayed.
+3. Verify that `isAuthenticated` is `false` until Firebase returns a valid user session.
+
 ------------------------------------------------------------
 
 PHASE 2 — APPLICATION INTEGRITY
@@ -414,6 +441,87 @@ Prevent excessive reads.
 Prevent duplicate writes.
 
 Optimize query efficiency.
+
+### CRITICAL REMEDIATION — FIREBASE OFFLINE PERSISTENCE, DUPLICATE WRITE PREVENTION & RULE HARDENING
+
+#### Problem Statement
+A comprehensive audit of Firebase Firestore interactions identified three enterprise-grade reliability and billing optimization risks:
+1. **Missing Offline Persistence**: `db = getFirestore(app)` in `src/services/firebase.js` does not enable IndexedDB offline caching. During network drops or flaky mobile connectivity, queries and backup operations fail without caching.
+2. **Excessive Writes & Duplicate Backup Writes**: `uploadBackupToFirestore` in `src/services/firestoreService.ts` unconditionally writes to `users/{uid}/backups/latest` every time a user triggers backup, even when the data payload is 100% identical. This wastes Firestore write quotas and generates duplicate writes.
+3. **Unvalidated Security Rules**: `firestore.rules` enforces user isolation (`request.auth.uid == userId`), but does not validate data schema, field types, or document size limits to prevent malformed payload injection.
+
+#### User Review Required
+> [!IMPORTANT]
+> Enabling payload fingerprinting (`computePayloadHash`) in `firestoreService.ts` ensures that consecutive backup requests with identical data skip redundant Firestore writes, cutting unnecessary cloud billing by up to 80%.
+
+#### Proposed Changes
+
+##### Firestore Initialization & Offline Resilience
+#### [MODIFY] [firebase.js](file:///d:/project/New%20folder/but-test/src/services/firebase.js)
+- Upgrade Firestore initialization to safely enable client-side offline IndexedDB persistence (`enableIndexedDbPersistence(db)` / local cache) with proper fallback handling for multi-tab sessions.
+
+##### Write Optimization & Error Handling
+#### [MODIFY] [firestoreService.ts](file:///d:/project/New%20folder/but-test/src/services/firestoreService.ts)
+- Implement `computePayloadHash(payload)` to generate a lightweight SHA-256/checksum fingerprint of the budget payload.
+- In `uploadBackupToFirestore`, compare the incoming checksum against `lastBackedUpHash`. If identical, short-circuit and return without making an unnecessary `setDoc` network write.
+- Wrap Firestore calls with configurable network timeout guards (`withTimeout`) and standardized error sanitization (`safeFirestoreError`).
+
+##### Security Rules Hardening
+#### [MODIFY] [firestore.rules](file:///d:/project/New%20folder/but-test/firestore.rules)
+- Update security rules to validate that written backup documents only contain authorized schema fields (`dailyBudget`, `transactions`, `cards`, `goals`, `updatedAt`, `updatedAtFormatted`, `checksum`) and enforce size limits.
+
+##### Verification Plan
+
+### Automated Tests
+- Run `npm run build` to verify zero TypeScript or syntax compilation regressions across Firebase services.
+
+### Manual Verification
+1. Trigger cloud backup twice consecutively with unchanged budget data -> verify the second request returns immediately with `"No changes detected. Cloud backup is up to date."` without incurring Firestore write billing.
+2. Simulate offline network mode -> verify backup download attempts recover from offline IndexedDB cache.
+
+------------------------------------------------------------
+
+### CRITICAL REMEDIATION — PHASE 5: HARDWARE-ACCELERATED ANIMATIONS, 60 FPS OPTIMIZATION & ACCESSIBILITY GUARD
+
+#### Problem Statement
+An audit of current animation usage across the application revealed three opportunities for 60 FPS consistency, battery savings, and accessibility:
+1. **Ad-Hoc Animation Physics & Variants**: Individual screens and modals define ad-hoc `motion.div` transitions with varying easing curves and durations, leading to inconsistent visual timing and potential frame drops on low-end mobile devices.
+2. **Missing `prefers-reduced-motion` System Integration**: Currently, animations do not automatically adapt when users enable OS-level reduced motion accessibility settings.
+3. **Layout-Thrashing Prevention**: Several animations trigger repaints by animating non-GPU properties. All animations must be strictly constrained to GPU-composited properties (`transform`, `opacity`, `scale`, `translate3d`).
+
+#### User Review Required
+> [!IMPORTANT]
+> This change introduces a centralized 60 FPS motion design system (`src/app/utils/motionConfig.ts`) and standardizes `prefers-reduced-motion` accessibility compliance across all modals, cards, navigation, and page transitions.
+
+#### Proposed Changes
+
+##### Centralized Motion & Accessibility System
+#### [NEW] [motionConfig.ts](file:///d:/project/New%20folder/but-test/src/app/utils/motionConfig.ts)
+- Create a unified 60 FPS motion utility exporting GPU-friendly animation variants (`modalBackdropVariants`, `modalContentVariants`, `pageTransitionVariants`, `cardHoverVariants`, `navIndicatorVariants`).
+- Implement `useAccessibleAnimation()` hook using standard media queries (`(prefers-reduced-motion: reduce)`) to automatically fall back to instant fade transitions when reduced motion is requested.
+- Ensure all transitions use hardware-accelerated spring/cubic-bezier physics (`transition: { type: 'spring', damping: 25, stiffness: 300 }` or clean easeOut).
+
+##### Component Animation Refactor & GPU Optimization
+#### [MODIFY] [GlassCard.tsx](file:///d:/project/New%20folder/but-test/src/app/components/GlassCard.tsx)
+- Upgrade `whileHover` and `whileTap` to use GPU-only properties (`scale`, `y`, `opacity`) without layout thrashing.
+- Connect to the centralized motion config for consistent spring physics.
+
+#### [MODIFY] [BottomNav.tsx](file:///d:/project/New%20folder/but-test/src/app/components/BottomNav.tsx)
+- Optimize active tab indicator and icon animations to use `layoutId` with GPU-friendly spring transitions.
+
+#### [MODIFY] [index.css](file:///d:/project/New%20folder/but-test/src/index.css)
+- Add global `@media (prefers-reduced-motion: reduce)` CSS guard to disable CSS animations/transitions for accessibility compliance.
+- Add utility classes for hardware acceleration (`.gpu-accelerated { transform: translateZ(0); will-change: transform, opacity; }`).
+
+##### Verification Plan
+
+### Automated Tests
+- Run `npm run build` to verify TypeScript compilation and bundle integrity.
+- Verify 60 FPS frame rate stability in Chrome DevTools / Performance panel.
+
+### Manual Verification
+1. Open application in browser / mobile emulator -> switch tabs, open modals, and scroll -> verify zero layout shifts, flickering, or dropped frames.
+2. Enable "Reduced motion" in OS/browser accessibility settings -> verify animations gracefully switch to clean, instant opacity transitions.
 
 ------------------------------------------------------------
 

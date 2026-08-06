@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { secureLogout } from "../utils/secureLogout";
+import cozifyLogo from "../../../assets/cozify-logo.png";
 
 /**
  * UniversalLogin — Security-Hardened Authentication Component
@@ -110,8 +112,11 @@ export default function UniversalLogin({
   onPhoneAuth,
   onPasswordReset,
   onVerifyOTP,
-  onLogout,
+  onLogout = () => {},
   onAuthSuccess,
+  onOpenPrivacyPolicy,
+  onOpenTerms,
+  onOpenHelp,
   allowPhoneAuth = true,
   countryCodes = [
     { code: "+1", label: "+1 (US)" },
@@ -207,7 +212,6 @@ export default function UniversalLogin({
           await onEmailSignIn?.({ email: normalizeEmail(email), password });
           clearSensitiveState();
           loginLimiter.reset();
-          onAuthSuccess?.();
         } else {
           await onPhoneAuth?.({ countryCode, phone: phone.replace(/\D/g, ''), isSignUp: false });
           otpResendCooldown.start();
@@ -218,7 +222,6 @@ export default function UniversalLogin({
           await onEmailSignUp?.({ email: normalizeEmail(email), name: fullName.trim(), password });
           clearSensitiveState();
           loginLimiter.reset();
-          onAuthSuccess?.();
         } else {
           await onPhoneAuth?.({ countryCode, phone: phone.replace(/\D/g, ''), isSignUp: true });
           otpResendCooldown.start();
@@ -239,7 +242,6 @@ export default function UniversalLogin({
           await onVerifyOTP?.(otpCode);
           clearSensitiveState();
           setOtpAttempts(0);
-          onAuthSuccess?.();
         } catch (otpErr) {
           setOtpAttempts(prev => prev + 1);
           setOtpError(
@@ -273,35 +275,79 @@ export default function UniversalLogin({
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#FAF9FF] text-[#051A3E] font-sans antialiased">
-      {/* Header */}
-      <header className="w-full border-b border-[#C3C6D6] bg-white sticky top-0 z-30 shadow-xs">
-        <div className="flex justify-between items-center h-16 sm:h-20 px-4 sm:px-8 max-w-7xl mx-auto">
-          <div className="font-bold text-xl sm:text-2xl text-[#003D9B] cursor-pointer hover:opacity-90 tracking-tight">
-            {companyName}
-          </div>
-          <button 
-            type="button"
-            className="text-[#434654] hover:bg-[#F1F3FF] transition-colors p-2.5 rounded-full flex items-center justify-center cursor-pointer"
-            aria-label="Help"
+    <div className="min-h-screen flex flex-col justify-between bg-[#FAF9FF] text-[#051A3E] font-sans antialiased relative">
+
+      {/* Centered Modal Overlay with Blurred Background for Account Not Found */}
+      {statusMessage && (
+        statusMessage.toLowerCase().includes("haven't created") ||
+        statusMessage.toLowerCase().includes("sign-up to create")
+      ) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#051A3E]/45 backdrop-blur-md animate-fadeIn">
+          <div 
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            className="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-8 border border-[#DFE1E6] shadow-2xl text-center animate-prompt-bounce relative overflow-hidden"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+            {/* Ambient Background Glow inside modal */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#2563EB]/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-[#7B61FF]/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Icon */}
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#EFF6FF] to-[#EEF2FF] border border-[#BFDBFE] flex items-center justify-center mx-auto mb-4 shadow-sm text-[#2563EB]">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+
+            {/* Title & Message */}
+            <h3 id="modal-title" className="text-xl font-bold text-[#051A3E] mb-2">
+              Account Not Found
+            </h3>
+            <p className="text-sm text-[#434654] leading-relaxed mb-6">
+              You haven't created an account, so sign-up to create an account.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusMessage('');
+                  setView('signup');
+                }}
+                className="w-full py-3 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-98 text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Sign Up to Create Account</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusMessage('')}
+                className="w-full py-2.5 px-4 bg-transparent hover:bg-gray-100 text-[#434654] font-medium text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
-      </header>
+      )}
 
       {/* Main Container — Screen Optimized & Mobile Responsive */}
       <main className="flex-grow flex items-center justify-center px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12 w-full">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl bg-white border border-[#DFE1E6] shadow-xl sm:shadow-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 relative transition-all">
 
-          {/* L-04: Status Message with aria-live */}
-          {statusMessage && (
+          {/* L-04: Status Message with aria-live — Standard Alerts */}
+          {statusMessage && !(
+            statusMessage.toLowerCase().includes("haven't created") ||
+            statusMessage.toLowerCase().includes("sign-up to create")
+          ) && (
             <div 
               role="alert"
               aria-live="polite"
-              className={`mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+              className={`mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2 animate-prompt-bounce ${
                 statusType === 'error' 
                   ? 'bg-red-50 border border-red-200 text-red-700' 
                   : 'bg-green-50 border border-green-200 text-green-700'
@@ -510,7 +556,12 @@ export default function UniversalLogin({
           /* ============ LOGIN & SIGNUP ============ */
           ) : (
             <div>
-              <div className="text-center mb-6">
+              <div className="text-center mb-6 flex flex-col items-center">
+                <img
+                  src={cozifyLogo}
+                  alt="coZify Brand Logo"
+                  className="h-16 w-auto mb-5 object-contain drop-shadow-sm"
+                />
                 <h1 className="text-2xl md:text-3xl font-bold text-[#051A3E] mb-2 tracking-tight">
                   {view === 'login' ? 'Sign-In' : 'Create your account'}
                 </h1>
@@ -530,9 +581,8 @@ export default function UniversalLogin({
                     setIsLoading(true);
                     setStatusMessage('');
                     try {
-                      await onGoogleSignIn?.();
+                      await onGoogleSignIn?.(view === 'signup');
                       clearSensitiveState();
-                      onAuthSuccess?.();
                     } catch (err) {
                       setError(err?.message || 'Google sign-in failed.');
                     } finally {
@@ -799,9 +849,27 @@ export default function UniversalLogin({
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 w-full max-w-7xl mx-auto px-4 sm:px-8 text-xs text-[#535F73]">
           <div>© {new Date().getFullYear()} {companyName}. All rights reserved.</div>
           <div className="flex gap-4 sm:gap-6">
-            <a href="#privacy" rel="noopener noreferrer" className="hover:text-[#003D9B] underline transition-colors">Privacy Policy</a>
-            <a href="#terms" rel="noopener noreferrer" className="hover:text-[#003D9B] underline transition-colors">Terms of Service</a>
-            <a href="#help" rel="noopener noreferrer" className="hover:text-[#003D9B] underline transition-colors">Help Center</a>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); onOpenPrivacyPolicy?.(); }}
+              className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); onOpenTerms?.(); }}
+              className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
+            >
+              Terms of Service
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); onOpenHelp?.(); }}
+              className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
+            >
+              Help Center
+            </button>
           </div>
         </div>
       </footer>
