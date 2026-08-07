@@ -152,7 +152,7 @@ export const useBudgetStore = create<BudgetState>()(
       activeModal: null,
       isCloudBackupEnabled: false,
       lastBackupTime: null,
-      theme: 'neumorphism',
+      theme: 'material-design',
       colorMode: 'light',
       notificationSettings: {
         dailyReminder: false,
@@ -428,7 +428,7 @@ export const useBudgetStore = create<BudgetState>()(
           activeModal: null,
           isCloudBackupEnabled: false,
           lastBackupTime: null,
-          theme: 'neumorphism',
+          theme: 'material-design',
           colorMode: 'light',
           notificationSettings: {
             dailyReminder: false,
@@ -462,7 +462,7 @@ export const useBudgetStore = create<BudgetState>()(
         if (persistedState && persistedState.theme) {
           const legacyThemes = ['cyber-neon', 'dark-theme', 'light-theme'];
           if (legacyThemes.includes(persistedState.theme)) {
-            persistedState.theme = 'neumorphism';
+            persistedState.theme = 'material-design';
           }
         }
         return persistedState;

@@ -62,7 +62,7 @@ export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: Dashbo
             isDark={isDark}
           />
           <MetricCard
-            label="Active Today"
+            label="Logged In Today"
             value={metrics?.activeToday ?? 0}
             color="blue"
             icon="⚡"
@@ -88,7 +88,7 @@ export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: Dashbo
         </div>
       </div>
 
-      {/* KPI Row 2 — Cloud + Adoption */}
+      {/* KPI Row 2 — Sync Status */}
       <div className="grid grid-cols-2 gap-3">
         <MetricCard
           label="Cloud Synced"
@@ -99,7 +99,7 @@ export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: Dashbo
           isDark={isDark}
         />
         <MetricCard
-          label="Offline Local"
+          label="Offline Devices"
           value={metrics?.offlineLocal ?? 0}
           color="amber"
           icon="📱"

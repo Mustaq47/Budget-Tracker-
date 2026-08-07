@@ -4,6 +4,7 @@
 
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { db } from "../../services/firebase";
+import { APP_VERSION, DEFAULT_SESSION_MINUTES, DEFAULT_THEME } from "../../utils/constants";
 import type {
   AnalyticsSummary,
   ActiveUsersMetrics,
@@ -49,7 +50,7 @@ export async function getActiveUsersMetrics(docs?: any[]): Promise<ActiveUsersMe
         totalSessionMinutes += data.avgSessionMinutes;
         sessionCount++;
       } else {
-        totalSessionMinutes += 15;
+        totalSessionMinutes += DEFAULT_SESSION_MINUTES;
         sessionCount++;
       }
     });
@@ -77,7 +78,7 @@ export async function getThemeBreakdown(docs?: any[]): Promise<ThemeAnalyticsEnt
     let total = 0;
 
     userDocs.forEach((data) => {
-      const theme = data.theme || "dark";
+      const theme = data.theme || DEFAULT_THEME;
       themeMap[theme] = (themeMap[theme] || 0) + 1;
       total++;
     });

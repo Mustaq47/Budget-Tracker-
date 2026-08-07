@@ -1,6 +1,7 @@
 import { collection, getDocs, doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth, isCapacitorNative } from "./firebase";
 import { Capacitor } from "@capacitor/core";
+import { APP_VERSION, DEFAULT_SESSION_MINUTES, DEFAULT_THEME } from "../utils/constants";
 
 export type UserSyncState = 'SYNCED' | 'OFFLINE_LOCAL' | 'PENDING' | 'FLAGGED';
 
@@ -50,7 +51,7 @@ export async function syncUserProfileToFirestore(user: {
   photoURL?: string | null;
   phoneNumber?: string | null;
   providerId?: string;
-}) {
+}, currentTheme?: string) {
   if (!user?.uid) return;
   try {
     const userRef = doc(db, "users", user.uid);
@@ -84,15 +85,17 @@ export async function syncUserProfileToFirestore(user: {
       photoURL: user.photoURL || null,
       platform,
       authMethod,
-      appVersion: "v1.0.0",
+      appVersion: APP_VERSION,
       lastLoginAt: nowIso,
       updatedAt: serverTimestamp(),
       syncState: "SYNCED",
+      // Always write theme so Analytics stays accurate
+      ...(currentTheme ? { theme: currentTheme } : {}),
     };
 
     if (!existingSnap.exists()) {
       payload.createdAt = nowIso;
-      payload.theme = "dark";
+      payload.theme = currentTheme || DEFAULT_THEME;
       payload.stats = {
         transactionCount: 0,
         cardsCount: 0,
@@ -103,7 +106,7 @@ export async function syncUserProfileToFirestore(user: {
       payload.cardsCount = 0;
       payload.goalsCount = 0;
       payload.localStorageSizeKb = 0;
-      payload.avgSessionMinutes = 15;
+      payload.avgSessionMinutes = DEFAULT_SESSION_MINUTES;
       payload.hasCustomCategories = false;
       payload.avgExpensePerTransaction = 0;
       payload.avgIncomePerTransaction = 0;

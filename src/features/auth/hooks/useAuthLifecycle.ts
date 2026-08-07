@@ -17,7 +17,7 @@ const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
  * 4. Graceful session recovery without race conditions
  */
 export function useAuthLifecycle() {
-  const { setUser, setAuthLoading, logoutUser } = useBudgetStore();
+  const { setUser, setAuthLoading, logoutUser, theme } = useBudgetStore();
 
   // 1. Auth State Observer & Token Refresh
   useEffect(() => {
@@ -43,9 +43,9 @@ export function useAuthLifecycle() {
           phoneNumber: firebaseUser.phoneNumber,
         });
 
-        // Sync user profile to Cloud Firestore users collection
+        // Sync user profile to Cloud Firestore users collection (with current theme)
         try {
-          syncUserProfileToFirestore(firebaseUser);
+          syncUserProfileToFirestore(firebaseUser, theme);
         } catch (_) {}
 
         // Set up proactive ID Token refresh before 1-hour expiration

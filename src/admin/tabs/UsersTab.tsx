@@ -149,7 +149,7 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
     <div className="space-y-4">
       <SectionHeader
         title="User Directory"
-        subtitle={`${users.length} registered users`}
+        subtitle={`${filtered.length} ${filtered.length === 1 ? 'user' : 'users'} ${syncFilter !== 'ALL' ? `(${syncFilter.toLowerCase()})` : `(Total: ${users.length})`}`}
         isDark={isDark}
       />
 

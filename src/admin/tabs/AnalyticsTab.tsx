@@ -20,11 +20,18 @@ interface AnalyticsTabProps {
 }
 
 const THEME_COLORS: Record<string, string> = {
+  // Full IDs stored in Firestore
+  "material-design": "bg-emerald-500",
+  "glassmorphism": "bg-sky-400",
+  "neumorphism": "bg-purple-400",
+  "minimalist-theme": "bg-slate-400",
+  "gradient-theme": "bg-blue-500",
+  // Short aliases (legacy)
   dark: "bg-slate-800",
   light: "bg-amber-400",
   material: "bg-emerald-500",
   glass: "bg-sky-400",
-  neumorphism: "bg-purple-400",
+  neumorphism_short: "bg-purple-400",
   gradient: "bg-blue-500",
   minimal: "bg-slate-400",
   unknown: "bg-slate-300",
