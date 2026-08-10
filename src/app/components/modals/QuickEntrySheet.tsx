@@ -28,7 +28,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
     if (!amount || Number(amount) <= 0) return;
     
     addTransaction({
-      title: "Quick add",
+      title: category,
       amount: Number(amount),
       category: category,
       type: "expense",
