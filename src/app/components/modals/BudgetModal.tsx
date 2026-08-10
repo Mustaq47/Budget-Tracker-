@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, DollarSign, Check, Plus, Sliders, TrendingUp, Sparkles } from "lucide-react";
+import { X, DollarSign, Check, Plus, Sliders, TrendingUp, Sparkles, Target } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { useTranslation } from "../../../utils/translations";
 
 interface BudgetModalProps {
   isOpen: boolean;
@@ -13,7 +14,8 @@ const presetBudgets = [1500, 2500, 5000, 10000];
 const quickAddPresets = [50, 100, 200, 500, 1000];
 
 export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
-  const { dailyBudget, setDailyBudget, transactions, addTransaction, currency, theme, colorMode } = useBudgetStore();
+  const { dailyBudget, setDailyBudget, transactions, addTransaction, currency, theme, colorMode, setLastBudgetSetMonth } = useBudgetStore();
+  const { t } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
   const textColor = activeTheme.textColor;
@@ -23,6 +25,12 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
   const [spentInput, setSpentInput] = useState("");
   const [budgetTitle, setBudgetTitle] = useState("");
   const [budgetInput, setBudgetInput] = useState(dailyBudget.toString());
+
+  useEffect(() => {
+    if (isOpen) {
+      setBudgetInput(dailyBudget.toString());
+    }
+  }, [isOpen, dailyBudget]);
 
   // Calculate spent today
   const todayIso = new Date().toISOString().split("T")[0];
@@ -64,6 +72,8 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
     const val = parseFloat(budgetInput);
     if (!isNaN(val) && val > 0) {
       setDailyBudget(val);
+      const currentMonth = new Date().toISOString().substring(0, 7);
+      useBudgetStore.getState().setLastBudgetSetMonth(currentMonth);
       onClose();
     }
   };

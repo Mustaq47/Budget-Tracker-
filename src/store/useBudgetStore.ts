@@ -96,9 +96,16 @@ interface BudgetState {
   currency: CurrencyCode;
   language: LanguageCode;
   hasAcceptedTerms: boolean;
+  currentStreak: number;
+  bestStreak: number;
+  hasCompletedOnboarding: boolean;
+  lastBudgetSetMonth: string | null;
   
   // Actions
   setHasAcceptedTerms: (accepted: boolean) => void;
+  setHasCompletedOnboarding: (completed: boolean) => void;
+  setLastBudgetSetMonth: (month: string) => void;
+  setStreaks: (current: number, best: number) => void;
   setUser: (user: UserProfile | null) => void;
   setCurrency: (currency: CurrencyCode) => void;
   setLanguage: (language: LanguageCode) => void;
@@ -162,8 +169,15 @@ export const useBudgetStore = create<BudgetState>()(
       currency: 'INR',
       language: 'en',
       hasAcceptedTerms: true,
+      currentStreak: 0,
+      bestStreak: 0,
+      hasCompletedOnboarding: false,
+      lastBudgetSetMonth: null,
 
       setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
+      setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
+      setLastBudgetSetMonth: (lastBudgetSetMonth) => set({ lastBudgetSetMonth }),
+      setStreaks: (currentStreak, bestStreak) => set({ currentStreak, bestStreak }),
 
       setActiveModal: (modal) => set({ activeModal: modal }),
 
@@ -457,6 +471,8 @@ export const useBudgetStore = create<BudgetState>()(
         notificationSettings: state.notificationSettings,
         currency: state.currency,
         language: state.language,
+        hasCompletedOnboarding: state.hasCompletedOnboarding,
+        lastBudgetSetMonth: state.lastBudgetSetMonth,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {

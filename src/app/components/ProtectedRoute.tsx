@@ -11,7 +11,7 @@ import { sanitizeReturnUrl } from "../../features/auth/hooks/useAuthSecurity";
  * 3. Sanitizes returnUrl to prevent Open Redirect vulnerabilities.
  */
 export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
-  const { isAuthenticated, authLoading } = useBudgetStore();
+  const { isAuthenticated, authLoading, hasCompletedOnboarding } = useBudgetStore();
   const location = useLocation();
 
   if (authLoading) {
@@ -28,6 +28,14 @@ export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
     const safeReturnPath = sanitizeReturnUrl(location.pathname);
     const returnParam = safeReturnPath !== "/" ? `?returnUrl=${encodeURIComponent(safeReturnPath)}` : "";
     return <Navigate to={`/login${returnParam}`} replace />;
+  }
+
+  if (!hasCompletedOnboarding && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  if (hasCompletedOnboarding && location.pathname === "/onboarding") {
+    return <Navigate to="/" replace />;
   }
 
   return children ? <>{children}</> : <Outlet />;

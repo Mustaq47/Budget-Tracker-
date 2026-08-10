@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Zap, Plus, Coins, Target, Trash2, Sparkles, Trophy } from "lucide-react";
 import { useBudgetStore, SavingsGoal, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import confetti from "canvas-confetti";
 
 interface GoalsModalProps {
   isOpen: boolean;
@@ -62,7 +63,17 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
     const amount = parseFloat(contributionAmount);
     if (isNaN(amount) || amount <= 0) return;
 
+    const goal = goals.find(g => g.id === selectedGoalForContribution);
     contributeToGoal(selectedGoalForContribution, amount);
+    
+    if (goal && (goal.currentAmount + amount) >= goal.targetAmount && goal.currentAmount < goal.targetAmount) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
     setContributionAmount("");
     setSelectedGoalForContribution(null);
   };

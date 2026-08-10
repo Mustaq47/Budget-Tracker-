@@ -36,6 +36,7 @@ import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
 import { categoryColors, monthsOfYear, getCategoryMeta } from "../../../utils/categoryConfig";
 import { parseLocalDate } from "../../../utils/formatters";
+import { InsightsWidget } from "./InsightsWidget";
 
 
 // Custom Glassmorphic Tooltip for Recharts
@@ -504,6 +505,8 @@ export function Insights() {
           </div>
         </div>
       </motion.div>
+
+      <InsightsWidget />
 
       {/* Period Selection Tabs */}
       <div className="flex gap-2 mb-6 p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">

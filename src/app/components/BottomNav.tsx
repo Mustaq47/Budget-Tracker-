@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import { GlassIcon } from "./GlassIcon";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { AddExpenseModal } from "./AddExpenseModal";
+import { QuickEntrySheet } from "./modals/QuickEntrySheet";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAccessibleAnimation, SPRING_PHYSICS, FAST_SPRING } from "../utils/motionConfig";
@@ -15,7 +15,7 @@ export function BottomNav() {
   const { activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
   const isReducedMotion = useAccessibleAnimation();
 
-  if (location.pathname === "/login" || location.pathname.startsWith("/admin")) {
+  if (location.pathname === "/login" || location.pathname === "/onboarding" || location.pathname.startsWith("/admin")) {
     return null;
   }
 
@@ -137,7 +137,7 @@ export function BottomNav() {
         </motion.div>
       </div>
 
-      <AddExpenseModal
+      <QuickEntrySheet
         isOpen={showAddModal || activeModal === "expense"}
         onClose={handleCloseAddModal}
       />
