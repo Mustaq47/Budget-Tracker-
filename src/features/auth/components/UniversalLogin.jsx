@@ -280,7 +280,9 @@ export default function UniversalLogin({
       {/* Centered Modal Overlay with Blurred Background for Account Not Found */}
       {statusMessage && (
         statusMessage.toLowerCase().includes("haven't created") ||
-        statusMessage.toLowerCase().includes("sign-up to create")
+        statusMessage.toLowerCase().includes("sign-up to create") ||
+        statusMessage.toLowerCase().includes("don't have an account") ||
+        statusMessage.toLowerCase().includes("dont have a account")
       ) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#051A3E]/45 backdrop-blur-md animate-fadeIn">
           <div 
@@ -305,7 +307,7 @@ export default function UniversalLogin({
               Account Not Found
             </h3>
             <p className="text-sm text-[#434654] leading-relaxed mb-6">
-              You haven't created an account, so sign-up to create an account.
+              You don't have an account so kindly create an account.
             </p>
 
             {/* Action Buttons */}
@@ -342,7 +344,9 @@ export default function UniversalLogin({
           {/* L-04: Status Message with aria-live — Standard Alerts */}
           {statusMessage && !(
             statusMessage.toLowerCase().includes("haven't created") ||
-            statusMessage.toLowerCase().includes("sign-up to create")
+            statusMessage.toLowerCase().includes("sign-up to create") ||
+            statusMessage.toLowerCase().includes("don't have an account") ||
+            statusMessage.toLowerCase().includes("dont have a account")
           ) && (
             <div 
               role="alert"
