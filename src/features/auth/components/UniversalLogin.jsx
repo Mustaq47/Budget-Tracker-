@@ -112,7 +112,7 @@ export default function UniversalLogin({
   onPhoneAuth,
   onPasswordReset,
   onVerifyOTP,
-  onLogout = () => {},
+  onLogout = () => { },
   onAuthSuccess,
   onOpenPrivacyPolicy,
   onOpenTerms,
@@ -127,24 +127,24 @@ export default function UniversalLogin({
 }) {
   const [view, setView] = useState(initialView);
   const [activeTab, setActiveTab] = useState('email');
-  
+
   // Form States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
-  
+
   const [countryCode, setCountryCode] = useState(countryCodes[0]?.code || '+1');
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
-  
+
   // OTP State
   const [otpCode, setOtpCode] = useState('');
   const [otpError, setOtpError] = useState('');
   const [otpAttempts, setOtpAttempts] = useState(0); // H-04
   const OTP_MAX_ATTEMPTS = 5;
-  
+
   // General
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -152,7 +152,7 @@ export default function UniversalLogin({
 
   // ─── C-04: Rate limiter for login ───
   const loginLimiter = useRateLimiter(5, 30000);
-  
+
   // ─── H-03 + H-05: Cooldown timers ───
   const resetCooldown = useCooldown(60);
   const otpResendCooldown = useCooldown(60);
@@ -180,7 +180,7 @@ export default function UniversalLogin({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage('');
-    
+
     // ─── C-04: Check lockout ───
     if (loginLimiter.isLocked()) {
       setError(`Too many attempts. Try again in ${loginLimiter.getRemainingLockout()} seconds.`);
@@ -205,7 +205,7 @@ export default function UniversalLogin({
     }
 
     setIsLoading(true);
-    
+
     try {
       if (view === 'login') {
         if (activeTab === 'email') {
@@ -284,58 +284,58 @@ export default function UniversalLogin({
         statusMessage.toLowerCase().includes("don't have an account") ||
         statusMessage.toLowerCase().includes("dont have a account")
       ) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#051A3E]/45 backdrop-blur-md animate-fadeIn">
-          <div 
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-            className="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-8 border border-[#DFE1E6] shadow-2xl text-center animate-prompt-bounce relative overflow-hidden"
-          >
-            {/* Ambient Background Glow inside modal */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#2563EB]/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-[#7B61FF]/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#051A3E]/45 backdrop-blur-md animate-fadeIn">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
+              className="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-8 border border-[#DFE1E6] shadow-2xl text-center animate-prompt-bounce relative overflow-hidden"
+            >
+              {/* Ambient Background Glow inside modal */}
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#2563EB]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-[#7B61FF]/10 rounded-full blur-2xl pointer-events-none" />
 
-            {/* Icon */}
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#EFF6FF] to-[#EEF2FF] border border-[#BFDBFE] flex items-center justify-center mx-auto mb-4 shadow-sm text-[#2563EB]">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-            </div>
-
-            {/* Title & Message */}
-            <h3 id="modal-title" className="text-xl font-bold text-[#051A3E] mb-2">
-              Account Not Found
-            </h3>
-            <p className="text-sm text-[#434654] leading-relaxed mb-6">
-              You don't have an account so kindly create an account.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusMessage('');
-                  setView('signup');
-                }}
-                className="w-full py-3 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-98 text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Sign Up to Create Account</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#EFF6FF] to-[#EEF2FF] border border-[#BFDBFE] flex items-center justify-center mx-auto mb-4 shadow-sm text-[#2563EB]">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusMessage('')}
-                className="w-full py-2.5 px-4 bg-transparent hover:bg-gray-100 text-[#434654] font-medium text-xs rounded-xl transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
+              </div>
+
+              {/* Title & Message */}
+              <h3 id="modal-title" className="text-xl font-bold text-[#051A3E] mb-2">
+                Account Not Found
+              </h3>
+              <p className="text-sm text-[#434654] leading-relaxed mb-6">
+                You don't have an account so kindly create an account.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStatusMessage('');
+                    setView('signup');
+                  }}
+                  className="w-full py-3 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-98 text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Sign Up to Create Account</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusMessage('')}
+                  className="w-full py-2.5 px-4 bg-transparent hover:bg-gray-100 text-[#434654] font-medium text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Main Container — Screen Optimized & Mobile Responsive */}
       <main className="flex-grow flex items-center justify-center px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12 w-full">
@@ -348,25 +348,24 @@ export default function UniversalLogin({
             statusMessage.toLowerCase().includes("don't have an account") ||
             statusMessage.toLowerCase().includes("dont have a account")
           ) && (
-            <div 
-              role="alert"
-              aria-live="polite"
-              className={`mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2 animate-prompt-bounce ${
-                statusType === 'error' 
-                  ? 'bg-red-50 border border-red-200 text-red-700' 
-                  : 'bg-green-50 border border-green-200 text-green-700'
-              }`}
-            >
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {statusType === 'error' ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                )}
-              </svg>
-              <span>{statusMessage}</span>
-            </div>
-          )}
+              <div
+                role="alert"
+                aria-live="polite"
+                className={`mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2 animate-prompt-bounce ${statusType === 'error'
+                    ? 'bg-red-50 border border-red-200 text-red-700'
+                    : 'bg-green-50 border border-green-200 text-green-700'
+                  }`}
+              >
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {statusType === 'error' ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  )}
+                </svg>
+                <span>{statusMessage}</span>
+              </div>
+            )}
 
           {/* ============ RESET SENT CONFIRMATION ============ */}
           {view === 'reset-sent' ? (
@@ -394,14 +393,14 @@ export default function UniversalLogin({
                 onClick={() => { setView('forgot'); setStatusMessage(''); }}
                 className="mt-3 text-xs text-[#0052CC] font-medium hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {resetCooldown.isActive 
-                  ? `Resend available in ${resetCooldown.remaining}s` 
+                {resetCooldown.isActive
+                  ? `Resend available in ${resetCooldown.remaining}s`
                   : "Didn't receive it? Try again"
                 }
               </button>
             </div>
 
-          /* ============ OTP VERIFICATION ============ */
+            /* ============ OTP VERIFICATION ============ */
           ) : view === 'otp' ? (
             <div>
               <div className="text-center mb-6 flex flex-col items-center">
@@ -439,9 +438,8 @@ export default function UniversalLogin({
                     pattern="[0-9]{6}"
                     value={otpCode}
                     onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, '')); setOtpError(''); }}
-                    className={`w-full bg-[#FAFBFC] border rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold text-[#051A3E] placeholder-[#737685] focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent transition-all ${
-                      otpError ? 'border-red-400' : 'border-[#DFE1E6]'
-                    }`}
+                    className={`w-full bg-[#FAFBFC] border rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold text-[#051A3E] placeholder-[#737685] focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent transition-all ${otpError ? 'border-red-400' : 'border-[#DFE1E6]'
+                      }`}
                     placeholder="000000"
                     autoComplete="one-time-code"
                   />
@@ -467,8 +465,8 @@ export default function UniversalLogin({
                   onClick={handleResendOTP}
                   className="text-xs font-medium text-[#0052CC] hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {otpResendCooldown.isActive 
-                    ? `Resend in ${otpResendCooldown.remaining}s` 
+                  {otpResendCooldown.isActive
+                    ? `Resend in ${otpResendCooldown.remaining}s`
                     : 'Resend code'
                   }
                 </button>
@@ -485,7 +483,7 @@ export default function UniversalLogin({
               </div>
             </div>
 
-          /* ============ FORGOT PASSWORD ============ */
+            /* ============ FORGOT PASSWORD ============ */
           ) : view === 'forgot' ? (
             <div>
               <div className="text-center mb-6 flex flex-col items-center">
@@ -525,10 +523,10 @@ export default function UniversalLogin({
                   disabled={isLoading || resetCooldown.isActive}
                   className="w-full bg-[#0052CC] text-white rounded-xl py-3 text-xs font-semibold hover:bg-[#003D9B] active:scale-[0.99] transition-all shadow-md cursor-pointer disabled:opacity-50 mt-2"
                 >
-                  {isLoading 
-                    ? 'Sending...' 
-                    : resetCooldown.isActive 
-                      ? `Wait ${resetCooldown.remaining}s` 
+                  {isLoading
+                    ? 'Sending...'
+                    : resetCooldown.isActive
+                      ? `Wait ${resetCooldown.remaining}s`
                       : 'Reset Password'
                   }
                 </button>
@@ -557,7 +555,7 @@ export default function UniversalLogin({
               </div>
             </div>
 
-          /* ============ LOGIN & SIGNUP ============ */
+            /* ============ LOGIN & SIGNUP ============ */
           ) : (
             <div>
               <div className="text-center mb-6 flex flex-col items-center">
@@ -570,8 +568,8 @@ export default function UniversalLogin({
                   {view === 'login' ? 'Sign-In' : 'Create your account'}
                 </h1>
                 <p className="text-sm text-[#434654]">
-                  {view === 'login' 
-                    ? 'Welcome back. Please enter your details.' 
+                  {view === 'login'
+                    ? 'Welcome back. Please enter your details.'
                     : `Join ${companyName.split(' ')[0]} for seamless access.`
                   }
                 </p>
@@ -597,10 +595,10 @@ export default function UniversalLogin({
                   className="w-full flex items-center justify-center gap-3 bg-white border border-[#DFE1E6] rounded-xl py-3 px-4 hover:bg-[#F1F3FF] active:scale-[0.99] transition-all cursor-pointer font-medium text-sm text-[#051A3E] disabled:opacity-50"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
                   <span>Continue with Google</span>
                 </button>
@@ -621,11 +619,10 @@ export default function UniversalLogin({
                     role="tab"
                     aria-selected={activeTab === 'email'}
                     onClick={() => { setActiveTab('email'); setStatusMessage(''); setPhoneError(''); }}
-                    className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${
-                      activeTab === 'email'
+                    className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${activeTab === 'email'
                         ? 'bg-white text-[#003D9B] shadow-sm'
                         : 'text-[#434654] hover:text-[#051A3E]'
-                    }`}
+                      }`}
                   >
                     Email
                   </button>
@@ -634,11 +631,10 @@ export default function UniversalLogin({
                     role="tab"
                     aria-selected={activeTab === 'phone'}
                     onClick={() => { setActiveTab('phone'); setStatusMessage(''); setPasswordErrors([]); }}
-                    className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${
-                      activeTab === 'phone'
+                    className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${activeTab === 'phone'
                         ? 'bg-white text-[#003D9B] shadow-sm'
                         : 'text-[#434654] hover:text-[#051A3E]'
-                    }`}
+                      }`}
                   >
                     Phone
                   </button>
@@ -705,13 +701,12 @@ export default function UniversalLogin({
                           id="password"
                           required
                           value={password}
-                          onChange={(e) => { 
-                            setPassword(e.target.value); 
+                          onChange={(e) => {
+                            setPassword(e.target.value);
                             if (view === 'signup') setPasswordErrors(validatePassword(e.target.value));
                           }}
-                          className={`w-full bg-[#FAFBFC] border rounded-xl pl-4 pr-10 py-2.5 text-sm text-[#051A3E] placeholder-[#737685] focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent transition-all ${
-                            passwordErrors.length > 0 && view === 'signup' ? 'border-red-400' : 'border-[#DFE1E6]'
-                          }`}
+                          className={`w-full bg-[#FAFBFC] border rounded-xl pl-4 pr-10 py-2.5 text-sm text-[#051A3E] placeholder-[#737685] focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent transition-all ${passwordErrors.length > 0 && view === 'signup' ? 'border-red-400' : 'border-[#DFE1E6]'
+                            }`}
                           placeholder="••••••••"
                           autoComplete={view === 'login' ? 'current-password' : 'new-password'}
                           minLength={view === 'signup' ? PASSWORD_POLICY.minLength : undefined}
@@ -763,9 +758,8 @@ export default function UniversalLogin({
                       <label htmlFor="phone" className="block text-xs font-semibold text-[#051A3E] mb-1.5">
                         Phone Number
                       </label>
-                      <div className={`flex bg-[#FAFBFC] border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#0052CC] focus-within:border-transparent transition-all ${
-                        phoneError ? 'border-red-400' : 'border-[#DFE1E6]'
-                      }`}>
+                      <div className={`flex bg-[#FAFBFC] border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#0052CC] focus-within:border-transparent transition-all ${phoneError ? 'border-red-400' : 'border-[#DFE1E6]'
+                        }`}>
                         <select
                           value={countryCode}
                           onChange={(e) => setCountryCode(e.target.value)}
@@ -803,8 +797,8 @@ export default function UniversalLogin({
                     disabled={isLoading || loginLimiter.isLocked()}
                     className="w-full bg-[#0052CC] text-white rounded-xl py-3 text-xs font-semibold hover:bg-[#003D9B] active:scale-[0.99] transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
-                    {isLoading 
-                      ? (activeTab === 'phone' ? 'Sending code...' : 'Please wait...') 
+                    {isLoading
+                      ? (activeTab === 'phone' ? 'Sending code...' : 'Please wait...')
                       : loginLimiter.isLocked()
                         ? `Locked (${loginLimiter.getRemainingLockout()}s)`
                         : (view === 'login' ? 'Sign In' : 'Create Account')
@@ -819,9 +813,9 @@ export default function UniversalLogin({
                   {view === 'login' ? "Don't have an account?" : "Already have an account?"}{' '}
                   <button
                     type="button"
-                    onClick={() => { 
-                      setView(view === 'login' ? 'signup' : 'login'); 
-                      setStatusMessage(''); 
+                    onClick={() => {
+                      setView(view === 'login' ? 'signup' : 'login');
+                      setStatusMessage('');
                       setPasswordErrors([]);
                       clearSensitiveState();
                     }}

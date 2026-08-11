@@ -76,21 +76,19 @@ export function UserProfileModal({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className={`relative w-full max-w-md ${
-              isLight
+            className={`relative w-full max-w-md ${isLight
                 ? "bg-[#F8FAFC] border-slate-200 text-slate-800"
                 : "bg-[#0B0914] border-white/10 text-white"
-            } border-t sm:border rounded-t-[36px] sm:rounded-[36px] p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-[111]`}
+              } border-t sm:border rounded-t-[36px] sm:rounded-[36px] p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-[111]`}
           >
             <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/20"} mx-auto mb-5`} />
 
             <button
               onClick={onClose}
-              className={`absolute top-6 right-6 w-9 h-9 rounded-full ${
-                isLight
+              className={`absolute top-6 right-6 w-9 h-9 rounded-full ${isLight
                   ? "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
                   : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
-              } flex items-center justify-center border transition-colors`}
+                } flex items-center justify-center border transition-colors`}
             >
               <X size={16} />
             </button>
@@ -121,9 +119,8 @@ export function UserProfileModal({
                   <ShieldCheck size={12} />
                   Verified Member
                 </span>
-                <span className={`px-2.5 py-1 rounded-full ${
-                  isLight ? "bg-slate-100 border-slate-200 text-slate-600" : "bg-white/5 border-white/10 text-white/70"
-                } text-[10px] font-medium flex items-center gap-1 border`}>
+                <span className={`px-2.5 py-1 rounded-full ${isLight ? "bg-slate-100 border-slate-200 text-slate-600" : "bg-white/5 border-white/10 text-white/70"
+                  } text-[10px] font-medium flex items-center gap-1 border`}>
                   <Calendar size={12} />
                   Member since 2026
                 </span>
@@ -137,9 +134,8 @@ export function UserProfileModal({
                 return (
                   <div
                     key={idx}
-                    className={`p-3.5 rounded-2xl ${
-                      isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/5 border-white/10"
-                    } border flex items-center gap-3`}
+                    className={`p-3.5 rounded-2xl ${isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/5 border-white/10"
+                      } border flex items-center gap-3`}
                   >
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shrink-0 shadow-md`}>
                       <IconComponent size={18} className="text-white" />
@@ -158,9 +154,8 @@ export function UserProfileModal({
             </div>
 
             {/* Account Details */}
-            <div className={`p-4 rounded-2xl ${
-              isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/5 border-white/10"
-            } border mb-6 space-y-2.5 text-xs`}>
+            <div className={`p-4 rounded-2xl ${isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/5 border-white/10"
+              } border mb-6 space-y-2.5 text-xs`}>
               <div className={`flex items-center justify-between ${isLight ? "text-slate-600" : "text-white/70"}`}>
                 <span>Account Currency</span>
                 <span className={`font-bold ${isLight ? "text-slate-900" : "text-white"} uppercase`}>{currency}</span>
@@ -186,11 +181,10 @@ export function UserProfileModal({
                   onClose();
                   onEditProfile();
                 }}
-                className={`py-3 rounded-2xl ${
-                  isLight
+                className={`py-3 rounded-2xl ${isLight
                     ? "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800"
                     : "bg-white/10 hover:bg-white/15 border-white/15 text-white"
-                } border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer`}
+                  } border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer`}
               >
                 <Edit3 size={15} className="text-purple-500" />
                 Edit Profile
