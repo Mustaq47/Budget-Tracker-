@@ -12,7 +12,7 @@ interface PrivacyModalProps {
 
 export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   const { 
-    transactions, cards, goals, dailyBudget, wipeAllData,
+    transactions, trips, goals, dailyBudget, wipeAllData,
     theme, colorMode 
   } = useBudgetStore();
   
@@ -28,7 +28,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
         exportDate: new Date().toISOString(),
         dailyBudget,
         transactions,
-        cards,
+        trips,
         goals,
       };
 
@@ -139,7 +139,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
                     </div>
                     <div>
                       <div className="text-white text-sm font-bold">Export Backup Vault</div>
-                      <div className="text-white/40 text-[10px]">Download all transactions & cards as JSON</div>
+                      <div className="text-white/40 text-[10px]">Download all transactions & trips as JSON</div>
                     </div>
                   </div>
                 </button>

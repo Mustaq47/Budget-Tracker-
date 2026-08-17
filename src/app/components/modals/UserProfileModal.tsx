@@ -18,7 +18,7 @@ export function UserProfileModal({
   onEditProfile,
   onSwitchUser,
 }: UserProfileModalProps) {
-  const { user, isAuthenticated, transactions, cards, goals, currency, isCloudBackupEnabled, theme, colorMode } = useBudgetStore();
+  const { user, isAuthenticated, transactions, trips, goals, currency, isCloudBackupEnabled, theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
 
@@ -47,8 +47,8 @@ export function UserProfileModal({
     },
     {
       icon: CreditCard,
-      label: "Cards",
-      value: cards.length.toString(),
+      label: "Trips",
+      value: trips.length.toString(),
       color: "from-blue-500 to-cyan-500",
     },
     {

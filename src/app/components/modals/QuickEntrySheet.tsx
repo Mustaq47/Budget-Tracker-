@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Check } from "lucide-react";
 import { useState } from "react";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
-import { v4 as uuidv4 } from "uuid";
+
 
 interface QuickEntrySheetProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ const QUICK_AMOUNTS = [100, 500, 1000, 2000];
 const QUICK_CATEGORIES = ["Food", "Transport", "Shopping", "Entertainment"];
 
 export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
-  const { addTransaction, theme, colorMode, currency } = useBudgetStore();
+  const { addTransaction, trips, updateTripSpent, theme, colorMode, currency } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   
   const textColor = activeTheme.textColor;
@@ -23,6 +23,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
 
   const [amount, setAmount] = useState<number | "">("");
   const [category, setCategory] = useState<string>("Food");
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
   const handleQuickAdd = () => {
     if (!amount || Number(amount) <= 0) return;
@@ -33,9 +34,15 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
       category: category,
       type: "expense",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      tripId: selectedTripId || undefined,
     });
     
+    if (selectedTripId) {
+      updateTripSpent(selectedTripId, Number(amount));
+    }
+    
     setAmount("");
+    setSelectedTripId(null);
     onClose();
   };
 
@@ -107,6 +114,39 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                   </button>
                 ))}
               </div>
+
+              {/* Trip Selector (Optional) */}
+              {(trips && trips.length > 0) && (
+                <div className="space-y-2 pt-2 mb-2">
+                  <div className={`text-xs font-bold uppercase tracking-wider px-2 ${isLight ? "text-gray-500" : "text-gray-400"}`}>
+                    Link to Trip (Optional)
+                  </div>
+                  <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 px-2">
+                    {trips.map(trip => (
+                      <button
+                        key={trip.id}
+                        type="button"
+                        onClick={() => setSelectedTripId(selectedTripId === trip.id ? null : trip.id)}
+                        className={`shrink-0 w-32 p-3 rounded-2xl text-left border relative transition-all ${
+                          selectedTripId === trip.id
+                            ? (isLight ? "border-gray-800 ring-2 ring-gray-800" : "border-white ring-2 ring-white")
+                            : (isLight ? "border-gray-200 opacity-60 hover:opacity-100" : "border-gray-700 opacity-60 hover:opacity-100")
+                        }`}
+                        style={selectedTripId === trip.id ? { background: trip.gradient } : {}}
+                      >
+                        {selectedTripId === trip.id && (
+                          <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-black flex items-center justify-center shadow-md">
+                            <Check size={12} strokeWidth={3} />
+                          </div>
+                        )}
+                        <div className={`font-bold text-sm truncate ${selectedTripId === trip.id ? "text-white" : textColor}`}>
+                          {trip.title}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <button

@@ -1,13 +1,14 @@
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
-import { Transaction, PaymentCard, SavingsGoal } from "../store/useBudgetStore";
+import { Transaction, Trip, SavingsGoal } from "../store/useBudgetStore";
 import { retryWithBackoff } from "../utils/asyncHandler";
 
 export interface BackupPayload {
   dailyBudget: number;
   transactions: Transaction[];
-  cards: PaymentCard[];
+  trips: Trip[];
   goals: SavingsGoal[];
+  customCategories: string[];
 }
 
 export interface CloudBackupData extends BackupPayload {
@@ -32,9 +33,10 @@ export function computePayloadHash(payload: BackupPayload): string {
         category: t.category,
         date: t.date,
       })),
-      cards: (payload.cards || []).map((c) => ({
-        id: c.id,
-        cardNumber: c.cardNumber,
+      trips: (payload.trips || []).map((t) => ({
+        id: t.id,
+        budget: t.budget,
+        spent: t.spent,
       })),
       goals: (payload.goals || []).map((g) => ({
         id: g.id,
@@ -108,8 +110,9 @@ export async function uploadBackupToFirestore(
         {
           dailyBudget: payload.dailyBudget,
           transactions: payload.transactions,
-          cards: payload.cards,
+          trips: payload.trips,
           goals: payload.goals,
+          customCategories: payload.customCategories,
           checksum: currentHash,
           updatedAt: serverTimestamp(),
           updatedAtFormatted: nowIso,
@@ -130,7 +133,7 @@ export async function uploadBackupToFirestore(
   try {
     const userDocRef = doc(db, "users", uid);
     const txCount = Array.isArray(payload.transactions) ? payload.transactions.length : 0;
-    const cardsCount = Array.isArray(payload.cards) ? payload.cards.length : 0;
+    const tripsCount = Array.isArray(payload.trips) ? payload.trips.length : 0;
     const goalsCount = Array.isArray(payload.goals) ? payload.goals.length : 0;
     const sizeKb = Math.round(JSON.stringify(payload).length / 1024);
 
@@ -157,12 +160,12 @@ export async function uploadBackupToFirestore(
         syncState: "SYNCED",
         stats: {
           transactionCount: txCount,
-          cardsCount: cardsCount,
+          tripsCount: tripsCount,
           goalsCount: goalsCount,
           localStorageSizeKb: sizeKb,
         },
         transactionCount: txCount,
-        cardsCount: cardsCount,
+        tripsCount: tripsCount,
         goalsCount: goalsCount,
         localStorageSizeKb: sizeKb,
         avgExpensePerTransaction: expCount > 0 ? Math.round(totalExp / expCount) : 0,
@@ -206,8 +209,9 @@ export async function downloadBackupFromFirestore(
   const backupPayload: BackupPayload = {
     dailyBudget: typeof data.dailyBudget === "number" ? data.dailyBudget : 2000,
     transactions: Array.isArray(data.transactions) ? data.transactions : [],
-    cards: Array.isArray(data.cards) ? data.cards : [],
+    trips: Array.isArray(data.trips) ? data.trips : [],
     goals: Array.isArray(data.goals) ? data.goals : [],
+    customCategories: Array.isArray(data.customCategories) ? data.customCategories : [],
   };
 
   lastUploadedHashes[uid] = {

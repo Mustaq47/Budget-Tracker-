@@ -10,6 +10,7 @@ export interface Transaction {
   date: string; // YYYY-MM-DD
   type: 'expense' | 'income';
   glow?: 'purple' | 'blue' | 'pink' | 'gold';
+  tripId?: string;
 }
 
 export interface UserProfile {
@@ -22,12 +23,13 @@ export interface UserProfile {
   gender?: string | null;
 }
 
-export interface PaymentCard {
+export interface Trip {
   id: string;
-  cardHolder: string;
-  cardNumber: string;
-  expiry: string;
-  cardType: 'Visa' | 'Mastercard' | 'Amex';
+  title: string;
+  budget: number;
+  spent: number;
+  startDate: string;
+  endDate: string;
   gradient: string;
 }
 
@@ -40,26 +42,27 @@ export interface SavingsGoal {
   glow: 'purple' | 'blue' | 'pink' | 'gold';
 }
 
-export type QuickActionModal = 
-  | 'wallet' 
-  | 'cards' 
-  | 'budget' 
-  | 'goals' 
-  | 'expense' 
-  | 'profile-settings' 
-  | 'notifications' 
-  | 'privacy-security' 
+export type QuickActionModal =
+  | 'wallet'
+  | 'trips'
+  | 'budget'
+  | 'goals'
+  | 'expense'
+  | 'safe-to-spend'
+  | 'profile-settings'
+  | 'notifications'
+  | 'privacy-security'
   | 'language-region'
   | 'help-center'
   | 'privacy-policy'
   | 'terms-conditions'
   | 'report'
   | null;
-export type AppTheme = 
-  | 'material-design' 
-  | 'glassmorphism' 
-  | 'neumorphism' 
-  | 'minimalist-theme' 
+export type AppTheme =
+  | 'material-design'
+  | 'glassmorphism'
+  | 'neumorphism'
+  | 'minimalist-theme'
   | 'gradient-theme';
 
 export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
@@ -80,8 +83,8 @@ interface BudgetState {
   authLoading: boolean;
   dailyBudget: number;
   transactions: Transaction[];
-  cardsCount: number;
-  cards: PaymentCard[];
+  tripsCount: number;
+  trips: Trip[];
   goals: SavingsGoal[];
   activeModal: QuickActionModal;
   isCloudBackupEnabled: boolean;
@@ -100,7 +103,7 @@ interface BudgetState {
   bestStreak: number;
   hasCompletedOnboarding: boolean;
   lastBudgetSetMonth: string | null;
-  
+
   // Actions
   setHasAcceptedTerms: (accepted: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
@@ -117,13 +120,14 @@ interface BudgetState {
   toggleColorMode: () => void;
   setCloudBackupEnabled: (enabled: boolean) => void;
   setLastBackupTime: (time: string | null) => void;
-  restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; cards: PaymentCard[]; goals: SavingsGoal[] }) => void;
+  restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; trips: Trip[]; goals: SavingsGoal[] }) => void;
   addTransaction: (tx: Omit<Transaction, 'id' | 'date'>) => void;
   deleteTransaction: (id: string) => void;
   updateTransactionCategory: (id: string, category: string) => void;
   setDailyBudget: (budget: number) => void;
-  addCard: (card: Omit<PaymentCard, 'id'>) => void;
-  deleteCard: (id: string) => void;
+  addTrip: (trip: Omit<Trip, 'id' | 'spent'>) => void;
+  removeTrip: (id: string) => void;
+  updateTripSpent: (id: string, amount: number) => void;
   addGoal: (goal: Omit<SavingsGoal, 'id' | 'currentAmount'>) => void;
   deleteGoal: (id: string) => void;
   contributeToGoal: (goalId: string, amount: number) => void;
@@ -153,8 +157,8 @@ export const useBudgetStore = create<BudgetState>()(
       dailyBudget: 2000,
       transactions: [],
       customCategories: [],
-      cardsCount: 0,
-      cards: [],
+      tripsCount: 0,
+      trips: [],
       goals: [],
       activeModal: null,
       isCloudBackupEnabled: false,
@@ -199,8 +203,8 @@ export const useBudgetStore = create<BudgetState>()(
         set({
           dailyBudget: payload.dailyBudget ?? 2000,
           transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
-          cards: Array.isArray(payload.cards) ? payload.cards : [],
-          cardsCount: Array.isArray(payload.cards) ? payload.cards.length : 0,
+          trips: Array.isArray(payload.trips) ? payload.trips : [],
+          tripsCount: Array.isArray(payload.trips) ? payload.trips.length : 0,
           goals: Array.isArray(payload.goals) ? payload.goals : [],
         }),
 
@@ -209,9 +213,9 @@ export const useBudgetStore = create<BudgetState>()(
           const existingSaved = state.savedAccounts || [];
           const updatedSavedAccounts = user
             ? [
-                user,
-                ...existingSaved.filter((acc) => acc.uid !== user.uid),
-              ]
+              user,
+              ...existingSaved.filter((acc) => acc.uid !== user.uid),
+            ]
             : existingSaved;
 
           if (user && state.lastUserUid && state.lastUserUid !== user.uid) {
@@ -222,8 +226,8 @@ export const useBudgetStore = create<BudgetState>()(
               authLoading: false,
               dailyBudget: 2000,
               transactions: [],
-              cardsCount: 0,
-              cards: [],
+              tripsCount: 0,
+              trips: [],
               goals: [],
               activeModal: null,
               isCloudBackupEnabled: false,
@@ -290,8 +294,8 @@ export const useBudgetStore = create<BudgetState>()(
           authLoading: false,
           dailyBudget: 2000,
           transactions: [],
-          cardsCount: 0,
-          cards: [],
+          tripsCount: 0,
+          trips: [],
           goals: [],
           activeModal: null,
           isCloudBackupEnabled: false,
@@ -300,7 +304,7 @@ export const useBudgetStore = create<BudgetState>()(
         if (typeof window !== 'undefined' && window.localStorage) {
           try {
             window.localStorage.removeItem('budtrack-storage-v2');
-          } catch (_) {}
+          } catch (_) { }
         }
       },
 
@@ -327,35 +331,44 @@ export const useBudgetStore = create<BudgetState>()(
           transactions: state.transactions.map((t) =>
             t.id === id
               ? {
-                  ...t,
-                  category,
-                  title: `${category} ${t.type === "income" ? "Income" : "Expense"}`,
-                }
+                ...t,
+                category,
+                title: `${category} ${t.type === "income" ? "Income" : "Expense"}`,
+              }
               : t
           ),
         })),
 
       setDailyBudget: (dailyBudget) => set({ dailyBudget }),
 
-      addCard: (card) => {
-        const newCard: PaymentCard = {
-          ...card,
-          id: 'card-' + Date.now(),
+      addTrip: (trip) => {
+        const newTrip: Trip = {
+          ...trip,
+          id: 'trip-' + Date.now(),
+          spent: 0,
         };
         set((state) => ({
-          cards: [...state.cards, newCard],
-          cardsCount: state.cards.length + 1,
+          trips: [...state.trips, newTrip],
+          tripsCount: state.trips.length + 1,
         }));
       },
 
-      deleteCard: (id) => {
+      removeTrip: (id) => {
         set((state) => {
-          const updatedCards = state.cards.filter((c) => c.id !== id);
+          const updatedTrips = state.trips.filter((c) => c.id !== id);
           return {
-            cards: updatedCards,
-            cardsCount: updatedCards.length,
+            trips: updatedTrips,
+            tripsCount: updatedTrips.length,
           };
         });
+      },
+
+      updateTripSpent: (id, amount) => {
+        set((state) => ({
+          trips: state.trips.map((trip) => 
+            trip.id === id ? { ...trip, spent: trip.spent + amount } : trip
+          )
+        }));
       },
 
       addGoal: (goal) => {
@@ -436,8 +449,8 @@ export const useBudgetStore = create<BudgetState>()(
           dailyBudget: 2000,
           transactions: [],
           customCategories: [],
-          cardsCount: 0,
-          cards: [],
+          tripsCount: 0,
+          trips: [],
           goals: [],
           activeModal: null,
           isCloudBackupEnabled: false,
@@ -462,7 +475,7 @@ export const useBudgetStore = create<BudgetState>()(
         dailyBudget: state.dailyBudget,
         transactions: state.transactions,
         customCategories: state.customCategories,
-        cards: state.cards,
+        trips: state.trips,
         goals: state.goals,
         isCloudBackupEnabled: state.isCloudBackupEnabled,
         lastBackupTime: state.lastBackupTime,
@@ -471,7 +484,6 @@ export const useBudgetStore = create<BudgetState>()(
         notificationSettings: state.notificationSettings,
         currency: state.currency,
         language: state.language,
-        hasCompletedOnboarding: state.hasCompletedOnboarding,
         lastBudgetSetMonth: state.lastBudgetSetMonth,
       }),
       migrate: (persistedState: any) => {
@@ -504,8 +516,8 @@ export const selectUserAuth = (state: BudgetState) => ({
 
 export const selectTransactions = (state: BudgetState) => state.transactions;
 export const selectDailyBudget = (state: BudgetState) => state.dailyBudget;
-export const selectCards = (state: BudgetState) => state.cards;
-export const selectCardsCount = (state: BudgetState) => state.cards.length;
+export const selectTrips = (state: BudgetState) => state.trips;
+export const selectTripsCount = (state: BudgetState) => state.trips.length;
 export const selectGoals = (state: BudgetState) => state.goals;
 
 export const selectThemeSettings = (state: BudgetState) => ({
@@ -519,4 +531,3 @@ export const selectBackupState = (state: BudgetState) => ({
   isCloudBackupEnabled: state.isCloudBackupEnabled,
   lastBackupTime: state.lastBackupTime,
 });
-
