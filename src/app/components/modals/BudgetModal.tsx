@@ -4,17 +4,28 @@ import { X, DollarSign, Check, Plus, Sliders, TrendingUp, Sparkles, Target } fro
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
+import { dinero, add, toDecimal } from 'dinero.js';
+import * as currencies from 'dinero.js/currencies';
 
 interface BudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const presetBudgets = [1500, 2500, 5000, 10000];
-const quickAddPresets = [50, 100, 200, 500, 1000];
+const presetBudgets = [15000, 25000, 50000, 100000];
+const quickAddPresets = [500, 1000, 2000, 5000, 10000];
+
+const getCurrencyObj = (cCode: string) => {
+  return (currencies as any)[cCode] || (currencies as any).USD;
+};
+
+const toSubunits = (amount: number, currencyObj: any) => {
+  const factor = currencyObj.base ** currencyObj.exponent;
+  return Math.round(amount * factor);
+};
 
 export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
-  const { dailyBudget, setDailyBudget, transactions, addTransaction, currency, theme, colorMode, setLastBudgetSetMonth } = useBudgetStore();
+  const { dailyBudget, setDailyBudget, transactions, addTransaction, currency, theme, colorMode } = useBudgetStore();
   const { t } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
@@ -32,22 +43,29 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
     }
   }, [isOpen, dailyBudget]);
 
-  // Calculate spent today
-  const todayIso = new Date().toISOString().split("T")[0];
-  const spentToday = transactions
-    .filter((t) => t.type === "expense" && t.date === todayIso)
+  // Calculate spent this month for rendering (Optional context, but kept simple to avoid heavy logic)
+  const currentMonthPrefix = new Date().toISOString().substring(0, 7);
+  const spentThisMonth = transactions
+    .filter((t) => t.type === "expense" && t.date.startsWith(currentMonthPrefix))
     .reduce((s, t) => s + t.amount, 0);
 
-  const remaining = Math.max(0, dailyBudget - spentToday);
-  const spentPercent = Math.min(100, Math.round((spentToday / (dailyBudget || 1)) * 100));
+  const remaining = Math.max(0, dailyBudget - spentThisMonth);
+  const spentPercent = Math.min(100, Math.round((spentThisMonth / (dailyBudget || 1)) * 100));
 
   const handleAddDirectAmount = (e: React.FormEvent) => {
     e.preventDefault();
     const val = parseFloat(spentInput);
     if (!isNaN(val) && val > 0) {
+      const cObj = getCurrencyObj(currency);
+      const currentDinero = dinero({ amount: toSubunits(dailyBudget, cObj), currency: cObj });
+      const addDinero = dinero({ amount: toSubunits(val, cObj), currency: cObj });
+      const newTotal = add(currentDinero, addDinero);
+      const newBudget = Number(toDecimal(newTotal));
+
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      setDailyBudget(dailyBudget + val);
+      
+      setDailyBudget(newBudget);
       addTransaction({
         title: budgetTitle.trim() || "Budget Allowance Added",
         amount: val,
@@ -124,7 +142,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                   <DollarSign size={24} className="text-white" />
                 </div>
                 <div>
-                  <h2 className={`${textColor} text-2xl font-black tracking-tight`}>Daily Budget</h2>
+                  <h2 className={`${textColor} text-2xl font-black tracking-tight`}>Monthly Budget</h2>
                   <div className={`${subtextColor} text-xs tracking-tight`}>Manage Current Budget & Target Allowance</div>
                 </div>
               </div>
@@ -138,11 +156,11 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 <div className="flex justify-between items-end mb-3">
                   <div>
                     <div className={`${subtextColor} text-xs tracking-tight mb-1 flex items-center gap-1`}>
-                      <TrendingUp size={12} className="text-[#FF4D8D]" /> Spent Today
+                      <TrendingUp size={12} className="text-[#FF4D8D]" /> Spent This Month
                     </div>
                     <div className={`${textColor} text-3xl font-black tracking-tighter`}>
                       {currencySymbols[currency]}
-                      {spentToday.toLocaleString()}
+                      {spentThisMonth.toLocaleString()}
                     </div>
                   </div>
                   <div className="text-right">
@@ -288,7 +306,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                         : "bg-white/10 text-white/30 cursor-not-allowed border border-white/5"
                     }`}
                   >
-                    <Plus size={18} /> Add to Today's Budget Limit
+                    <Plus size={18} /> Add to Monthly Budget Limit
                   </motion.button>
                 </form>
               )}

@@ -314,7 +314,7 @@ export function Insights() {
   }, [expenseTransactions]);
 
   // Monthly Budget Burn Rate Metrics
-  const monthlyBudgetLimit = (dailyBudget || 2000) * 30;
+  const monthlyBudgetLimit = dailyBudget || 2000;
   const budgetUsedPercent = Math.min(
     Math.round((statValue1 / monthlyBudgetLimit) * 100),
     100
@@ -506,7 +506,6 @@ export function Insights() {
         </div>
       </motion.div>
 
-      <InsightsWidget />
 
       {/* Period Selection Tabs */}
       <div className="flex gap-2 mb-6 p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
@@ -544,7 +543,7 @@ export function Insights() {
               className="select-none cursor-pointer"
               onClick={() => {
                 setIsEditingBudget(true);
-                setTempBudgetInput(Math.round((dailyBudget || 2000) * 30).toString());
+                setTempBudgetInput((dailyBudget || 2000).toString());
               }}
               title="Click or hold to edit monthly budget limit"
             >
@@ -572,7 +571,7 @@ export function Insights() {
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsEditingBudget(true);
-                        setTempBudgetInput(Math.round((dailyBudget || 2000) * 30).toString());
+                        setTempBudgetInput((dailyBudget || 2000).toString());
                       }}
                       className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 transition-colors"
                       title="Edit monthly budget"
@@ -781,7 +780,7 @@ export function Insights() {
           </GlassCard>
 
           {/* Category Pie Chart Card */}
-          <GlassCard glow glowColor="blue">
+          <GlassCard className="mb-6" glow glowColor="blue">
             <div className="flex items-center justify-between mb-6">
               <span className={`${subtextColor} tracking-tight font-semibold`}>
                 Spending by Category
@@ -895,6 +894,8 @@ export function Insights() {
               </>
             )}
           </GlassCard>
+
+          <InsightsWidget />
         </motion.div>
       </AnimatePresence>
 
@@ -971,7 +972,7 @@ export function Insights() {
                   onClick={() => {
                     const monthlyVal = Number(tempBudgetInput);
                     if (!isNaN(monthlyVal) && monthlyVal > 0) {
-                      setDailyBudget(Math.round(monthlyVal / 30));
+                      setDailyBudget(monthlyVal);
                       setIsEditingBudget(false);
                       setActiveModal(null);
                       if (typeof navigator !== "undefined" && navigator.vibrate) {

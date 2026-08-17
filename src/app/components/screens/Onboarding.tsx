@@ -56,17 +56,17 @@ export function Onboarding() {
   };
 
   return (
-    <div className={`min-h-screen px-6 py-12 flex flex-col justify-center ${activeTheme.bgClass}`}>
-      <div className="mb-8 flex justify-center space-x-2">
+    <div className={`h-[100dvh] overflow-hidden px-6 py-8 flex flex-col ${activeTheme.bgClass}`}>
+      <div className="mb-6 mt-2 flex justify-center space-x-2 shrink-0">
         {[1, 2, 3].map(i => (
           <div key={i} className={`h-2 w-12 rounded-full transition-all ${step >= i ? 'bg-[#16A34A]' : 'bg-gray-300 dark:bg-gray-700'}`} />
         ))}
       </div>
       
-      <div className="flex-1 relative">
+      <div className="flex-1 relative flex flex-col justify-center min-h-0">
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div key="step1" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="absolute inset-0 flex flex-col">
+            <motion.div key="step1" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center">
                   <Coins className="text-emerald-500 w-8 h-8" />
@@ -95,7 +95,7 @@ export function Onboarding() {
           )}
 
           {step === 2 && (
-            <motion.div key="step2" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="absolute inset-0 flex flex-col">
+            <motion.div key="step2" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
                   <Target className="text-amber-500 w-8 h-8" />
@@ -128,7 +128,7 @@ export function Onboarding() {
           )}
 
           {step === 3 && (
-            <motion.div key="step3" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="absolute inset-0 flex flex-col">
+            <motion.div key="step3" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col">
               <div className="flex justify-center mb-6">
                 <div className="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center">
                   <CheckCircle2 className="text-blue-500 w-10 h-10" />
@@ -154,7 +154,7 @@ export function Onboarding() {
         </AnimatePresence>
       </div>
 
-      <div className="mt-auto pt-8 flex justify-between relative z-10">
+      <div className="mt-auto pt-4 pb-4 flex justify-between relative z-10 shrink-0">
         {step > 1 ? (
           <button onClick={handlePrev} className={`p-4 rounded-full ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-gray-800 text-white'}`}>
             <ChevronLeft size={24} />

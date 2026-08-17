@@ -3,6 +3,17 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Wallet, ArrowDownRight, ArrowUpRight, PlusCircle, MinusCircle, Sparkles, CreditCard, ChevronRight, Check } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { dinero, add, toDecimal } from 'dinero.js';
+import * as currencies from 'dinero.js/currencies';
+
+const getCurrencyObj = (cCode: string) => {
+  return (currencies as any)[cCode] || (currencies as any).USD;
+};
+
+const toSubunits = (amount: number, currencyObj: any) => {
+  const factor = currencyObj.base ** currencyObj.exponent;
+  return Math.round(amount * factor);
+};
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -114,7 +125,7 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
 };
 
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
-  const { transactions, trips, addTransaction, updateTripSpent, currency, theme, colorMode, setActiveModal } = useBudgetStore();
+  const { transactions, trips, addTransaction, updateTripSpent, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
   
@@ -175,6 +186,14 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
       glow: activeAction === "deposit" ? "purple" : "pink",
       tripId: selectedTripId || undefined,
     });
+
+    if (activeAction === "deposit") {
+      const cObj = getCurrencyObj(currency);
+      const currentDinero = dinero({ amount: toSubunits(dailyBudget, cObj), currency: cObj });
+      const addDinero = dinero({ amount: toSubunits(val, cObj), currency: cObj });
+      const newTotal = add(currentDinero, addDinero);
+      setDailyBudget(Number(toDecimal(newTotal)));
+    }
 
     if (activeAction === "withdraw" && selectedTripId) {
       updateTripSpent(selectedTripId, val);

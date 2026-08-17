@@ -16,7 +16,8 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
   const navigate = useNavigate();
 
   const {
-    dailyBudget,
+    dailyAllowance,
+    monthlyLimit,
     spentToday,
     remainingToday,
     overspent,
@@ -92,7 +93,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
               <div className="mb-8">
                 <div className="flex justify-between text-xs font-bold mb-2">
                   <span className={subtextColor}>Spent: {currencySymbols[currency]}{spentToday.toLocaleString()}</span>
-                  <span className={subtextColor}>Limit: {currencySymbols[currency]}{dailyBudget.toLocaleString()}</span>
+                  <span className={subtextColor}>Limit: {currencySymbols[currency]}{dailyAllowance.toLocaleString()}</span>
                 </div>
                 <div className={`w-full h-3 rounded-full overflow-hidden ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
                   <motion.div

@@ -1,6 +1,17 @@
 import { useMemo, useEffect, useRef } from "react";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { NotificationEngine } from "../../services/notificationEngine";
+import { dinero, allocate, toDecimal } from 'dinero.js';
+import * as currencies from 'dinero.js/currencies';
+
+const getCurrencyObj = (cCode: string) => {
+  return (currencies as any)[cCode] || (currencies as any).USD;
+};
+
+const toSubunits = (amount: number, currencyObj: any) => {
+  const factor = currencyObj.base ** currencyObj.exponent;
+  return Math.round(amount * factor);
+};
 
 export function useDailyBudget() {
   const { dailyBudget, transactions, currency } = useBudgetStore();
@@ -8,13 +19,24 @@ export function useDailyBudget() {
   const todayLocal = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
 
   const metrics = useMemo(() => {
-    // Compute today's allowance from monthly budget
-    const daysInMonth = new Date(_d.getFullYear(), _d.getMonth() + 1, 0).getDate();
-    const dailyAllowance = dailyBudget > 0 ? Math.round(dailyBudget / daysInMonth) : 0;
+    const cObj = getCurrencyObj(currency);
+    const monthlyAmountSubunits = toSubunits(dailyBudget, cObj);
+    const monthlyDinero = dinero({ amount: monthlyAmountSubunits, currency: cObj });
 
-    const spentToday = transactions
+    // Compute today's allowance using Dinero allocate
+    const daysInMonth = new Date(_d.getFullYear(), _d.getMonth() + 1, 0).getDate();
+    
+    // allocate returns an array of Dinero objects split by the ratios provided
+    const allocations = allocate(monthlyDinero, Array(daysInMonth).fill(1));
+    const dailyDinero = allocations[0]; // Safely allocated daily limit
+    const dailyAllowance = Number(toDecimal(dailyDinero)); 
+
+    // Calculate spent today safely using integer subunits
+    const spentTodaySubunits = transactions
       .filter((t) => t.type === "expense" && t.date === todayLocal)
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + toSubunits(t.amount, cObj), 0);
+    const spentDinero = dinero({ amount: spentTodaySubunits, currency: cObj });
+    const spentToday = Number(toDecimal(spentDinero));
 
     const remainingToday = Math.max(0, dailyAllowance - spentToday);
     const overspent = Math.max(0, spentToday - dailyAllowance);
@@ -39,8 +61,8 @@ export function useDailyBudget() {
     }
 
     return {
-      dailyBudget: dailyAllowance,   // expose daily allowance as the budget for UI
-      monthlyBudget: dailyBudget,    // original monthly total for reference
+      dailyAllowance,   
+      monthlyLimit: dailyBudget,    
       spentToday,
       remainingToday,
       overspent,

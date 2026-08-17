@@ -19,7 +19,7 @@ import { useDailyBudget } from "../../hooks/useDailyBudget";
 
 export function Home() {
   const navigate = useNavigate();
-  const { user, transactions, activeModal, setActiveModal, theme, colorMode, currency, lastBudgetSetMonth, hasCompletedOnboarding } = useBudgetStore();
+  const { user, transactions, activeModal, setActiveModal, theme, colorMode, currency, lastBudgetSetMonth, setLastBudgetSetMonth, hasCompletedOnboarding } = useBudgetStore();
   const { t } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
@@ -31,13 +31,18 @@ export function Home() {
     if (hasCompletedOnboarding) {
       const currentMonth = new Date().toISOString().substring(0, 7);
       if (lastBudgetSetMonth !== currentMonth) {
-        setActiveModal("budget");
+        if (!lastBudgetSetMonth) {
+          setActiveModal("budget");
+        } else {
+          setLastBudgetSetMonth(currentMonth);
+        }
       }
     }
-  }, [hasCompletedOnboarding, lastBudgetSetMonth, setActiveModal]);
+  }, [hasCompletedOnboarding, lastBudgetSetMonth, setActiveModal, setLastBudgetSetMonth]);
 
     const {
-    dailyBudget,
+    dailyAllowance,
+    monthlyLimit,
     spentToday,
     remainingToday,
     percentage,
@@ -64,7 +69,7 @@ export function Home() {
                 {currencySymbols[currency]}{remainingToday.toLocaleString()}
               </motion.div>
               <div className={`${subtextColor} tracking-tight text-sm font-medium`}>
-                Spent: {currencySymbols[currency]}{spentToday.toLocaleString()} / {currencySymbols[currency]}{dailyBudget.toLocaleString()}
+                Spent: {currencySymbols[currency]}{spentToday.toLocaleString()} / {currencySymbols[currency]}{dailyAllowance.toLocaleString()}
               </div>
               <motion.div
                 className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
