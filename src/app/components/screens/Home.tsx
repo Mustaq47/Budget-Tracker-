@@ -31,14 +31,10 @@ export function Home() {
     if (hasCompletedOnboarding) {
       const currentMonth = new Date().toISOString().substring(0, 7);
       if (lastBudgetSetMonth !== currentMonth) {
-        if (!lastBudgetSetMonth) {
-          setActiveModal("budget");
-        } else {
-          setLastBudgetSetMonth(currentMonth);
-        }
+        setLastBudgetSetMonth(currentMonth);
       }
     }
-  }, [hasCompletedOnboarding, lastBudgetSetMonth, setActiveModal, setLastBudgetSetMonth]);
+  }, [hasCompletedOnboarding, lastBudgetSetMonth, setLastBudgetSetMonth]);
 
     const {
     dailyAllowance,

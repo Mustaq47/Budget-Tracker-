@@ -14,7 +14,7 @@ export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
   const { isAuthenticated, authLoading, hasCompletedOnboarding } = useBudgetStore();
   const location = useLocation();
 
-  if (authLoading) {
+  if (authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#0a0a1f] flex flex-col items-center justify-center text-white">
         <div className="w-12 h-12 rounded-full border-4 border-[#7B61FF] border-t-transparent animate-spin mb-4" />

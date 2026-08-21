@@ -16,7 +16,7 @@ export function Onboarding() {
   const [step, setStep] = useState(1);
   const [budget, setBudget] = useState(2000);
   const [goalName, setGoalName] = useState("Emergency Fund");
-  const [goalAmount, setGoalAmount] = useState(10000);
+  const [goalAmount, setGoalAmount] = useState<number | string>(10000);
   
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
@@ -35,7 +35,7 @@ export function Onboarding() {
     setDailyBudget(budget);
     addGoal({
       title: goalName,
-      targetAmount: goalAmount,
+      targetAmount: Number(goalAmount) || 0,
       category: "Savings",
       glow: "gold"
     });
@@ -119,7 +119,7 @@ export function Onboarding() {
                   <input 
                     type="number" 
                     value={goalAmount}
-                    onChange={(e) => setGoalAmount(Number(e.target.value))}
+                    onChange={(e) => setGoalAmount(e.target.value === '' ? '' : Number(e.target.value))}
                     className={`w-full p-4 rounded-2xl bg-transparent border ${isLight ? 'border-gray-200' : 'border-gray-700'} ${textColor} outline-none focus:border-amber-500 transition-colors`}
                   />
                 </div>

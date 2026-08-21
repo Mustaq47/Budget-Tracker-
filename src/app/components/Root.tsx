@@ -5,6 +5,7 @@ import { MandatoryTermsModal } from "./modals/MandatoryTermsModal";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAndroidBackNavigation } from "../hooks/useAndroidBackNavigation";
+import { useCloudSync } from "../../features/sync/hooks/useCloudSync";
 
 export function Root() {
   const { theme, colorMode } = useBudgetStore();
@@ -13,6 +14,9 @@ export function Root() {
 
   // Initialize Android native back button listener
   useAndroidBackNavigation();
+  
+  // Initialize Cloud Sync daemon
+  useCloudSync();
 
   return (
     <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${activeTheme.bgClass}`}>

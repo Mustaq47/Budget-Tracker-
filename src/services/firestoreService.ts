@@ -9,6 +9,12 @@ export interface BackupPayload {
   trips: Trip[];
   goals: SavingsGoal[];
   customCategories: string[];
+  preferences?: {
+    theme?: any;
+    colorMode?: any;
+    currency?: any;
+    language?: any;
+  };
 }
 
 export interface CloudBackupData extends BackupPayload {
@@ -113,6 +119,7 @@ export async function uploadBackupToFirestore(
           trips: payload.trips,
           goals: payload.goals,
           customCategories: payload.customCategories,
+          preferences: payload.preferences || {},
           checksum: currentHash,
           updatedAt: serverTimestamp(),
           updatedAtFormatted: nowIso,
@@ -212,6 +219,7 @@ export async function downloadBackupFromFirestore(
     trips: Array.isArray(data.trips) ? data.trips : [],
     goals: Array.isArray(data.goals) ? data.goals : [],
     customCategories: Array.isArray(data.customCategories) ? data.customCategories : [],
+    preferences: data.preferences || {},
   };
 
   lastUploadedHashes[uid] = {

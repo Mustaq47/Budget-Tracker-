@@ -1,0 +1,1662 @@
+{
+  "Futuristic Finance App UI/package.json": {
+    "mtime": 1785584798.1283,
+    "ast_hash": "0f56d827204b8e9f8e5cadc9d649cf08",
+    "semantic_hash": "0f56d827204b8e9f8e5cadc9d649cf08"
+  },
+  "Futuristic Finance App UI/postcss.config.mjs": {
+    "mtime": 1785584798.1293783,
+    "ast_hash": "ed236affd433122e965a27640d696d98",
+    "semantic_hash": "ed236affd433122e965a27640d696d98"
+  },
+  "Futuristic Finance App UI/src/app/App.tsx": {
+    "mtime": 1785584798.131385,
+    "ast_hash": "a1310ca5560c1e8b92c00865ba5ffab4",
+    "semantic_hash": "a1310ca5560c1e8b92c00865ba5ffab4"
+  },
+  "Futuristic Finance App UI/src/app/components/AddExpenseModal.tsx": {
+    "mtime": 1785584798.1326072,
+    "ast_hash": "6ccf6bbdad1c7ba69b656bbede0ef6db",
+    "semantic_hash": "6ccf6bbdad1c7ba69b656bbede0ef6db"
+  },
+  "Futuristic Finance App UI/src/app/components/BottomNav.tsx": {
+    "mtime": 1785584798.133609,
+    "ast_hash": "d1332b9c807ff44eac129bc11dcbcfff",
+    "semantic_hash": "d1332b9c807ff44eac129bc11dcbcfff"
+  },
+  "Futuristic Finance App UI/src/app/components/GlassCard.tsx": {
+    "mtime": 1785584798.133609,
+    "ast_hash": "88367d05d3d2f016c44a164db92048b3",
+    "semantic_hash": "88367d05d3d2f016c44a164db92048b3"
+  },
+  "Futuristic Finance App UI/src/app/components/GlassIcon.tsx": {
+    "mtime": 1785584798.1347296,
+    "ast_hash": "baee0401d4137a63b6d284d1ce130122",
+    "semantic_hash": "baee0401d4137a63b6d284d1ce130122"
+  },
+  "Futuristic Finance App UI/src/app/components/Root.tsx": {
+    "mtime": 1785584798.1347296,
+    "ast_hash": "5f30a39498bad993991db1c4cfde1940",
+    "semantic_hash": "5f30a39498bad993991db1c4cfde1940"
+  },
+  "Futuristic Finance App UI/src/app/components/figma/ImageWithFallback.tsx": {
+    "mtime": 1785584798.1357288,
+    "ast_hash": "9e3d50241dd9ce80b8b780eba8cd2af0",
+    "semantic_hash": "9e3d50241dd9ce80b8b780eba8cd2af0"
+  },
+  "Futuristic Finance App UI/src/app/components/screens/Flow.tsx": {
+    "mtime": 1785584798.1368287,
+    "ast_hash": "39d8da2ee0681d3f468b2854e37d7dfb",
+    "semantic_hash": "39d8da2ee0681d3f468b2854e37d7dfb"
+  },
+  "Futuristic Finance App UI/src/app/components/screens/Home.tsx": {
+    "mtime": 1785584798.1378274,
+    "ast_hash": "740e756210b28a7f101d315b5fe2e523",
+    "semantic_hash": "740e756210b28a7f101d315b5fe2e523"
+  },
+  "Futuristic Finance App UI/src/app/components/screens/Insights.tsx": {
+    "mtime": 1785584798.1378274,
+    "ast_hash": "20c52a90d18b3da4a2db48b744a2c2d0",
+    "semantic_hash": "20c52a90d18b3da4a2db48b744a2c2d0"
+  },
+  "Futuristic Finance App UI/src/app/components/screens/Profile.tsx": {
+    "mtime": 1785584798.1393056,
+    "ast_hash": "9dc449508fc498a2814d3b33ff40ab79",
+    "semantic_hash": "9dc449508fc498a2814d3b33ff40ab79"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/accordion.tsx": {
+    "mtime": 1785584798.1404767,
+    "ast_hash": "6ac8972bea8c72ef4531e7e939caffde",
+    "semantic_hash": "6ac8972bea8c72ef4531e7e939caffde"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/alert-dialog.tsx": {
+    "mtime": 1785584798.1404767,
+    "ast_hash": "bae17108fe0e26ee8ee04b6b499523f9",
+    "semantic_hash": "bae17108fe0e26ee8ee04b6b499523f9"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/alert.tsx": {
+    "mtime": 1785584798.1419108,
+    "ast_hash": "77dc96be09723e553d2096f30d6b5205",
+    "semantic_hash": "77dc96be09723e553d2096f30d6b5205"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/aspect-ratio.tsx": {
+    "mtime": 1785584798.1419108,
+    "ast_hash": "a9620dcbb14796aa5a3aeddab16e82ee",
+    "semantic_hash": "a9620dcbb14796aa5a3aeddab16e82ee"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/avatar.tsx": {
+    "mtime": 1785584798.143268,
+    "ast_hash": "386ab38e62b7ce72f4581c80d529a664",
+    "semantic_hash": "386ab38e62b7ce72f4581c80d529a664"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/badge.tsx": {
+    "mtime": 1785584798.143268,
+    "ast_hash": "55f636d5ddf4274d9fea3502e5a9c022",
+    "semantic_hash": "55f636d5ddf4274d9fea3502e5a9c022"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/breadcrumb.tsx": {
+    "mtime": 1785584798.144268,
+    "ast_hash": "4570611e1d93766ec30603117802f6de",
+    "semantic_hash": "4570611e1d93766ec30603117802f6de"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/button.tsx": {
+    "mtime": 1785584798.1457167,
+    "ast_hash": "e41e66deb18e99f0c6adad0833b9bda3",
+    "semantic_hash": "e41e66deb18e99f0c6adad0833b9bda3"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/calendar.tsx": {
+    "mtime": 1785584798.1457167,
+    "ast_hash": "077793c68a5f734718c7bcd58dda66fa",
+    "semantic_hash": "077793c68a5f734718c7bcd58dda66fa"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/card.tsx": {
+    "mtime": 1785584798.1470423,
+    "ast_hash": "3636f7385a18e766d8e9703ade2f3c3a",
+    "semantic_hash": "3636f7385a18e766d8e9703ade2f3c3a"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/carousel.tsx": {
+    "mtime": 1785584798.1482463,
+    "ast_hash": "bef00edc73965b6879f05e02a16b7200",
+    "semantic_hash": "bef00edc73965b6879f05e02a16b7200"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/chart.tsx": {
+    "mtime": 1785584798.1482463,
+    "ast_hash": "c94a6e8f6ad29f8333c6edaa16d32f3f",
+    "semantic_hash": "c94a6e8f6ad29f8333c6edaa16d32f3f"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/checkbox.tsx": {
+    "mtime": 1785584798.1493747,
+    "ast_hash": "354612a01e307a2da96d684c55745365",
+    "semantic_hash": "354612a01e307a2da96d684c55745365"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/collapsible.tsx": {
+    "mtime": 1785584798.1493747,
+    "ast_hash": "a17e8aaee3747e28c4524f4114cf738b",
+    "semantic_hash": "a17e8aaee3747e28c4524f4114cf738b"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/command.tsx": {
+    "mtime": 1785584798.1507099,
+    "ast_hash": "c38148668ea03a2f8392e198d0c9ecce",
+    "semantic_hash": "c38148668ea03a2f8392e198d0c9ecce"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/context-menu.tsx": {
+    "mtime": 1785584798.1507099,
+    "ast_hash": "b36802510ef941608474813323320c92",
+    "semantic_hash": "b36802510ef941608474813323320c92"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/dialog.tsx": {
+    "mtime": 1785584798.1520765,
+    "ast_hash": "6d4ff3d2e3fabf0f08e1b7c9faef9579",
+    "semantic_hash": "6d4ff3d2e3fabf0f08e1b7c9faef9579"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/drawer.tsx": {
+    "mtime": 1785584798.1520765,
+    "ast_hash": "6ac1c53b510c868a3d515f3191c5bee0",
+    "semantic_hash": "6ac1c53b510c868a3d515f3191c5bee0"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/dropdown-menu.tsx": {
+    "mtime": 1785584798.1532822,
+    "ast_hash": "8e31a16de52ada1943b55c5ae9350c0d",
+    "semantic_hash": "8e31a16de52ada1943b55c5ae9350c0d"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/form.tsx": {
+    "mtime": 1785584798.1545148,
+    "ast_hash": "4dc1e43e7f987e87b0475436001d6f3f",
+    "semantic_hash": "4dc1e43e7f987e87b0475436001d6f3f"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/hover-card.tsx": {
+    "mtime": 1785584798.1545148,
+    "ast_hash": "a9025de8fb8c2c24abeb6585421d5e4f",
+    "semantic_hash": "a9025de8fb8c2c24abeb6585421d5e4f"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/input-otp.tsx": {
+    "mtime": 1785584798.1555297,
+    "ast_hash": "f1fc6b67e2487b74b378f039e2b179c7",
+    "semantic_hash": "f1fc6b67e2487b74b378f039e2b179c7"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/input.tsx": {
+    "mtime": 1785584798.1555297,
+    "ast_hash": "ee6a7da310ce684442534f9cc8665b15",
+    "semantic_hash": "ee6a7da310ce684442534f9cc8665b15"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/label.tsx": {
+    "mtime": 1785584798.1565354,
+    "ast_hash": "af1cc595d3044ec0c4d4acc377902324",
+    "semantic_hash": "af1cc595d3044ec0c4d4acc377902324"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/menubar.tsx": {
+    "mtime": 1785584798.1575308,
+    "ast_hash": "31e5133397eb7e90344279128046e4de",
+    "semantic_hash": "31e5133397eb7e90344279128046e4de"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/navigation-menu.tsx": {
+    "mtime": 1785584798.1575308,
+    "ast_hash": "7c66900fe49bd30c4dc2f72eb80c43ba",
+    "semantic_hash": "7c66900fe49bd30c4dc2f72eb80c43ba"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/pagination.tsx": {
+    "mtime": 1785584798.1589165,
+    "ast_hash": "83f28ea401172adc158d838acf2d70da",
+    "semantic_hash": "83f28ea401172adc158d838acf2d70da"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/popover.tsx": {
+    "mtime": 1785584798.159917,
+    "ast_hash": "b88476f4b00f8e2e966f6635a7da73db",
+    "semantic_hash": "b88476f4b00f8e2e966f6635a7da73db"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/progress.tsx": {
+    "mtime": 1785584798.1613474,
+    "ast_hash": "6a06a31b6c44b9d05242aee0958d20bf",
+    "semantic_hash": "6a06a31b6c44b9d05242aee0958d20bf"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/radio-group.tsx": {
+    "mtime": 1785584798.1624372,
+    "ast_hash": "c71bac07acf79b524b3157c8474ab58b",
+    "semantic_hash": "c71bac07acf79b524b3157c8474ab58b"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/resizable.tsx": {
+    "mtime": 1785584798.1624372,
+    "ast_hash": "5653c1f9a08e003d0210371613d01e4a",
+    "semantic_hash": "5653c1f9a08e003d0210371613d01e4a"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/scroll-area.tsx": {
+    "mtime": 1785584798.163437,
+    "ast_hash": "0dd2932f08c9b5bf29056f4b76f93f88",
+    "semantic_hash": "0dd2932f08c9b5bf29056f4b76f93f88"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/select.tsx": {
+    "mtime": 1785584798.163437,
+    "ast_hash": "70792371f02d0595fb7562c4877d4fdd",
+    "semantic_hash": "70792371f02d0595fb7562c4877d4fdd"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/separator.tsx": {
+    "mtime": 1785584798.1648858,
+    "ast_hash": "6cd697e94e33b3000258b5c4190aeb0e",
+    "semantic_hash": "6cd697e94e33b3000258b5c4190aeb0e"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/sheet.tsx": {
+    "mtime": 1785584798.1658852,
+    "ast_hash": "13bf7e121139a02120b9f7045bf4b228",
+    "semantic_hash": "13bf7e121139a02120b9f7045bf4b228"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/sidebar.tsx": {
+    "mtime": 1785584798.1668847,
+    "ast_hash": "300fc58c94eb800fbe50834dd11f7574",
+    "semantic_hash": "300fc58c94eb800fbe50834dd11f7574"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/skeleton.tsx": {
+    "mtime": 1785584798.168883,
+    "ast_hash": "f2b4a2e415b6c434154de7a28aaebbb4",
+    "semantic_hash": "f2b4a2e415b6c434154de7a28aaebbb4"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/slider.tsx": {
+    "mtime": 1785584798.1698847,
+    "ast_hash": "00636c645a8500f5078059f33fd91c79",
+    "semantic_hash": "00636c645a8500f5078059f33fd91c79"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/sonner.tsx": {
+    "mtime": 1785584798.170882,
+    "ast_hash": "10d479040581a90e3957cedc170b58be",
+    "semantic_hash": "10d479040581a90e3957cedc170b58be"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/switch.tsx": {
+    "mtime": 1785584798.1718822,
+    "ast_hash": "6965f0c019db02983e22b6bf4e560bf8",
+    "semantic_hash": "6965f0c019db02983e22b6bf4e560bf8"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/table.tsx": {
+    "mtime": 1785584798.1738853,
+    "ast_hash": "001ceb1022a0312e1eb4133baa6dc83d",
+    "semantic_hash": "001ceb1022a0312e1eb4133baa6dc83d"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/tabs.tsx": {
+    "mtime": 1785584798.174883,
+    "ast_hash": "dbb20d36250470a06b4aaf7662ff44d3",
+    "semantic_hash": "dbb20d36250470a06b4aaf7662ff44d3"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/textarea.tsx": {
+    "mtime": 1785584798.175884,
+    "ast_hash": "7b1d8603f8bc4143f670ad2e50dae5bf",
+    "semantic_hash": "7b1d8603f8bc4143f670ad2e50dae5bf"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/toggle-group.tsx": {
+    "mtime": 1785584798.1768825,
+    "ast_hash": "dae00da8846531bbf8275720dbb756cc",
+    "semantic_hash": "dae00da8846531bbf8275720dbb756cc"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/toggle.tsx": {
+    "mtime": 1785584798.1781843,
+    "ast_hash": "f3be0f749b20f0be6ea84414dafdbd39",
+    "semantic_hash": "f3be0f749b20f0be6ea84414dafdbd39"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/tooltip.tsx": {
+    "mtime": 1785584798.179502,
+    "ast_hash": "0938cd8c69f39046e757e4ce20475674",
+    "semantic_hash": "0938cd8c69f39046e757e4ce20475674"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/use-mobile.ts": {
+    "mtime": 1785584798.179502,
+    "ast_hash": "b427d228366c1d3de5167763495116e3",
+    "semantic_hash": "b427d228366c1d3de5167763495116e3"
+  },
+  "Futuristic Finance App UI/src/app/components/ui/utils.ts": {
+    "mtime": 1785584798.1809435,
+    "ast_hash": "e3f848f1b39f863e6164cf58b5a8e752",
+    "semantic_hash": "e3f848f1b39f863e6164cf58b5a8e752"
+  },
+  "Futuristic Finance App UI/src/app/routes.tsx": {
+    "mtime": 1785584798.1819427,
+    "ast_hash": "be9da89a7b91f6fe132813f984a6431c",
+    "semantic_hash": "be9da89a7b91f6fe132813f984a6431c"
+  },
+  "Futuristic Finance App UI/src/main.tsx": {
+    "mtime": 1785584798.1881845,
+    "ast_hash": "3a17b50137d0110b8437a1b081bd965a",
+    "semantic_hash": "3a17b50137d0110b8437a1b081bd965a"
+  },
+  "Futuristic Finance App UI/vite.config.ts": {
+    "mtime": 1785584798.1935966,
+    "ast_hash": "e5387c33e5183e5f02f9d1bab3571ca3",
+    "semantic_hash": "e5387c33e5183e5f02f9d1bab3571ca3"
+  },
+  "FuturisticFinanceUI/package.json": {
+    "mtime": 1785584798.1998172,
+    "ast_hash": "0f56d827204b8e9f8e5cadc9d649cf08",
+    "semantic_hash": "0f56d827204b8e9f8e5cadc9d649cf08"
+  },
+  "FuturisticFinanceUI/postcss.config.mjs": {
+    "mtime": 1785584798.2008164,
+    "ast_hash": "ed236affd433122e965a27640d696d98",
+    "semantic_hash": "ed236affd433122e965a27640d696d98"
+  },
+  "FuturisticFinanceUI/src/app/App.tsx": {
+    "mtime": 1785584798.201816,
+    "ast_hash": "a1310ca5560c1e8b92c00865ba5ffab4",
+    "semantic_hash": "a1310ca5560c1e8b92c00865ba5ffab4"
+  },
+  "FuturisticFinanceUI/src/app/components/AddExpenseModal.tsx": {
+    "mtime": 1785584798.2028298,
+    "ast_hash": "6ccf6bbdad1c7ba69b656bbede0ef6db",
+    "semantic_hash": "6ccf6bbdad1c7ba69b656bbede0ef6db"
+  },
+  "FuturisticFinanceUI/src/app/components/BottomNav.tsx": {
+    "mtime": 1785584798.203823,
+    "ast_hash": "d1332b9c807ff44eac129bc11dcbcfff",
+    "semantic_hash": "d1332b9c807ff44eac129bc11dcbcfff"
+  },
+  "FuturisticFinanceUI/src/app/components/GlassCard.tsx": {
+    "mtime": 1785584798.204982,
+    "ast_hash": "88367d05d3d2f016c44a164db92048b3",
+    "semantic_hash": "88367d05d3d2f016c44a164db92048b3"
+  },
+  "FuturisticFinanceUI/src/app/components/GlassIcon.tsx": {
+    "mtime": 1785584798.204982,
+    "ast_hash": "baee0401d4137a63b6d284d1ce130122",
+    "semantic_hash": "baee0401d4137a63b6d284d1ce130122"
+  },
+  "FuturisticFinanceUI/src/app/components/Root.tsx": {
+    "mtime": 1785584798.2059803,
+    "ast_hash": "5f30a39498bad993991db1c4cfde1940",
+    "semantic_hash": "5f30a39498bad993991db1c4cfde1940"
+  },
+  "FuturisticFinanceUI/src/app/components/figma/ImageWithFallback.tsx": {
+    "mtime": 1785584798.2072558,
+    "ast_hash": "9e3d50241dd9ce80b8b780eba8cd2af0",
+    "semantic_hash": "9e3d50241dd9ce80b8b780eba8cd2af0"
+  },
+  "FuturisticFinanceUI/src/app/components/screens/Flow.tsx": {
+    "mtime": 1785584798.2082574,
+    "ast_hash": "39d8da2ee0681d3f468b2854e37d7dfb",
+    "semantic_hash": "39d8da2ee0681d3f468b2854e37d7dfb"
+  },
+  "FuturisticFinanceUI/src/app/components/screens/Home.tsx": {
+    "mtime": 1785584798.2106063,
+    "ast_hash": "740e756210b28a7f101d315b5fe2e523",
+    "semantic_hash": "740e756210b28a7f101d315b5fe2e523"
+  },
+  "FuturisticFinanceUI/src/app/components/screens/Insights.tsx": {
+    "mtime": 1785584798.2134013,
+    "ast_hash": "20c52a90d18b3da4a2db48b744a2c2d0",
+    "semantic_hash": "20c52a90d18b3da4a2db48b744a2c2d0"
+  },
+  "FuturisticFinanceUI/src/app/components/screens/Profile.tsx": {
+    "mtime": 1785584798.2147849,
+    "ast_hash": "9dc449508fc498a2814d3b33ff40ab79",
+    "semantic_hash": "9dc449508fc498a2814d3b33ff40ab79"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/accordion.tsx": {
+    "mtime": 1785584798.2157853,
+    "ast_hash": "6ac8972bea8c72ef4531e7e939caffde",
+    "semantic_hash": "6ac8972bea8c72ef4531e7e939caffde"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/alert-dialog.tsx": {
+    "mtime": 1785584798.216786,
+    "ast_hash": "bae17108fe0e26ee8ee04b6b499523f9",
+    "semantic_hash": "bae17108fe0e26ee8ee04b6b499523f9"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/alert.tsx": {
+    "mtime": 1785584798.216786,
+    "ast_hash": "77dc96be09723e553d2096f30d6b5205",
+    "semantic_hash": "77dc96be09723e553d2096f30d6b5205"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/aspect-ratio.tsx": {
+    "mtime": 1785584798.216786,
+    "ast_hash": "a9620dcbb14796aa5a3aeddab16e82ee",
+    "semantic_hash": "a9620dcbb14796aa5a3aeddab16e82ee"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/avatar.tsx": {
+    "mtime": 1785584798.2191403,
+    "ast_hash": "386ab38e62b7ce72f4581c80d529a664",
+    "semantic_hash": "386ab38e62b7ce72f4581c80d529a664"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/badge.tsx": {
+    "mtime": 1785584798.2202947,
+    "ast_hash": "55f636d5ddf4274d9fea3502e5a9c022",
+    "semantic_hash": "55f636d5ddf4274d9fea3502e5a9c022"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/breadcrumb.tsx": {
+    "mtime": 1785584798.2223673,
+    "ast_hash": "4570611e1d93766ec30603117802f6de",
+    "semantic_hash": "4570611e1d93766ec30603117802f6de"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/button.tsx": {
+    "mtime": 1785584798.2233772,
+    "ast_hash": "e41e66deb18e99f0c6adad0833b9bda3",
+    "semantic_hash": "e41e66deb18e99f0c6adad0833b9bda3"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/calendar.tsx": {
+    "mtime": 1785584798.2243652,
+    "ast_hash": "077793c68a5f734718c7bcd58dda66fa",
+    "semantic_hash": "077793c68a5f734718c7bcd58dda66fa"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/card.tsx": {
+    "mtime": 1785584798.2243652,
+    "ast_hash": "3636f7385a18e766d8e9703ade2f3c3a",
+    "semantic_hash": "3636f7385a18e766d8e9703ade2f3c3a"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/carousel.tsx": {
+    "mtime": 1785584798.225366,
+    "ast_hash": "bef00edc73965b6879f05e02a16b7200",
+    "semantic_hash": "bef00edc73965b6879f05e02a16b7200"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/chart.tsx": {
+    "mtime": 1785584798.2267494,
+    "ast_hash": "c94a6e8f6ad29f8333c6edaa16d32f3f",
+    "semantic_hash": "c94a6e8f6ad29f8333c6edaa16d32f3f"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/checkbox.tsx": {
+    "mtime": 1785584798.2277973,
+    "ast_hash": "354612a01e307a2da96d684c55745365",
+    "semantic_hash": "354612a01e307a2da96d684c55745365"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/collapsible.tsx": {
+    "mtime": 1785584798.2277973,
+    "ast_hash": "a17e8aaee3747e28c4524f4114cf738b",
+    "semantic_hash": "a17e8aaee3747e28c4524f4114cf738b"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/command.tsx": {
+    "mtime": 1785584798.2287903,
+    "ast_hash": "c38148668ea03a2f8392e198d0c9ecce",
+    "semantic_hash": "c38148668ea03a2f8392e198d0c9ecce"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/context-menu.tsx": {
+    "mtime": 1785584798.2300427,
+    "ast_hash": "b36802510ef941608474813323320c92",
+    "semantic_hash": "b36802510ef941608474813323320c92"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/dialog.tsx": {
+    "mtime": 1785584798.2300427,
+    "ast_hash": "6d4ff3d2e3fabf0f08e1b7c9faef9579",
+    "semantic_hash": "6d4ff3d2e3fabf0f08e1b7c9faef9579"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/drawer.tsx": {
+    "mtime": 1785584798.2310448,
+    "ast_hash": "6ac1c53b510c868a3d515f3191c5bee0",
+    "semantic_hash": "6ac1c53b510c868a3d515f3191c5bee0"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/dropdown-menu.tsx": {
+    "mtime": 1785584798.2310448,
+    "ast_hash": "8e31a16de52ada1943b55c5ae9350c0d",
+    "semantic_hash": "8e31a16de52ada1943b55c5ae9350c0d"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/form.tsx": {
+    "mtime": 1785584798.2322617,
+    "ast_hash": "4dc1e43e7f987e87b0475436001d6f3f",
+    "semantic_hash": "4dc1e43e7f987e87b0475436001d6f3f"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/hover-card.tsx": {
+    "mtime": 1785584798.2322617,
+    "ast_hash": "a9025de8fb8c2c24abeb6585421d5e4f",
+    "semantic_hash": "a9025de8fb8c2c24abeb6585421d5e4f"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/input-otp.tsx": {
+    "mtime": 1785584798.2334144,
+    "ast_hash": "f1fc6b67e2487b74b378f039e2b179c7",
+    "semantic_hash": "f1fc6b67e2487b74b378f039e2b179c7"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/input.tsx": {
+    "mtime": 1785584798.2344077,
+    "ast_hash": "ee6a7da310ce684442534f9cc8665b15",
+    "semantic_hash": "ee6a7da310ce684442534f9cc8665b15"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/label.tsx": {
+    "mtime": 1785584798.2354093,
+    "ast_hash": "af1cc595d3044ec0c4d4acc377902324",
+    "semantic_hash": "af1cc595d3044ec0c4d4acc377902324"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/menubar.tsx": {
+    "mtime": 1785584798.2366943,
+    "ast_hash": "31e5133397eb7e90344279128046e4de",
+    "semantic_hash": "31e5133397eb7e90344279128046e4de"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/navigation-menu.tsx": {
+    "mtime": 1785584798.2381651,
+    "ast_hash": "7c66900fe49bd30c4dc2f72eb80c43ba",
+    "semantic_hash": "7c66900fe49bd30c4dc2f72eb80c43ba"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/pagination.tsx": {
+    "mtime": 1785584798.238714,
+    "ast_hash": "83f28ea401172adc158d838acf2d70da",
+    "semantic_hash": "83f28ea401172adc158d838acf2d70da"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/popover.tsx": {
+    "mtime": 1785584798.23922,
+    "ast_hash": "b88476f4b00f8e2e966f6635a7da73db",
+    "semantic_hash": "b88476f4b00f8e2e966f6635a7da73db"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/progress.tsx": {
+    "mtime": 1785584798.23922,
+    "ast_hash": "6a06a31b6c44b9d05242aee0958d20bf",
+    "semantic_hash": "6a06a31b6c44b9d05242aee0958d20bf"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/radio-group.tsx": {
+    "mtime": 1785584798.2406642,
+    "ast_hash": "c71bac07acf79b524b3157c8474ab58b",
+    "semantic_hash": "c71bac07acf79b524b3157c8474ab58b"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/resizable.tsx": {
+    "mtime": 1785584798.2406642,
+    "ast_hash": "5653c1f9a08e003d0210371613d01e4a",
+    "semantic_hash": "5653c1f9a08e003d0210371613d01e4a"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/scroll-area.tsx": {
+    "mtime": 1785584798.241671,
+    "ast_hash": "0dd2932f08c9b5bf29056f4b76f93f88",
+    "semantic_hash": "0dd2932f08c9b5bf29056f4b76f93f88"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/select.tsx": {
+    "mtime": 1785584798.241671,
+    "ast_hash": "70792371f02d0595fb7562c4877d4fdd",
+    "semantic_hash": "70792371f02d0595fb7562c4877d4fdd"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/separator.tsx": {
+    "mtime": 1785584798.243103,
+    "ast_hash": "6cd697e94e33b3000258b5c4190aeb0e",
+    "semantic_hash": "6cd697e94e33b3000258b5c4190aeb0e"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/sheet.tsx": {
+    "mtime": 1785584798.243103,
+    "ast_hash": "13bf7e121139a02120b9f7045bf4b228",
+    "semantic_hash": "13bf7e121139a02120b9f7045bf4b228"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/sidebar.tsx": {
+    "mtime": 1785584798.2441053,
+    "ast_hash": "300fc58c94eb800fbe50834dd11f7574",
+    "semantic_hash": "300fc58c94eb800fbe50834dd11f7574"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/skeleton.tsx": {
+    "mtime": 1785584798.24461,
+    "ast_hash": "f2b4a2e415b6c434154de7a28aaebbb4",
+    "semantic_hash": "f2b4a2e415b6c434154de7a28aaebbb4"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/slider.tsx": {
+    "mtime": 1785584798.2457201,
+    "ast_hash": "00636c645a8500f5078059f33fd91c79",
+    "semantic_hash": "00636c645a8500f5078059f33fd91c79"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/sonner.tsx": {
+    "mtime": 1785584798.2457201,
+    "ast_hash": "10d479040581a90e3957cedc170b58be",
+    "semantic_hash": "10d479040581a90e3957cedc170b58be"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/switch.tsx": {
+    "mtime": 1785584798.246781,
+    "ast_hash": "6965f0c019db02983e22b6bf4e560bf8",
+    "semantic_hash": "6965f0c019db02983e22b6bf4e560bf8"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/table.tsx": {
+    "mtime": 1785584798.2472863,
+    "ast_hash": "001ceb1022a0312e1eb4133baa6dc83d",
+    "semantic_hash": "001ceb1022a0312e1eb4133baa6dc83d"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/tabs.tsx": {
+    "mtime": 1785584798.2472863,
+    "ast_hash": "dbb20d36250470a06b4aaf7662ff44d3",
+    "semantic_hash": "dbb20d36250470a06b4aaf7662ff44d3"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/textarea.tsx": {
+    "mtime": 1785584798.2483041,
+    "ast_hash": "7b1d8603f8bc4143f670ad2e50dae5bf",
+    "semantic_hash": "7b1d8603f8bc4143f670ad2e50dae5bf"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/toggle-group.tsx": {
+    "mtime": 1785584798.2483041,
+    "ast_hash": "dae00da8846531bbf8275720dbb756cc",
+    "semantic_hash": "dae00da8846531bbf8275720dbb756cc"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/toggle.tsx": {
+    "mtime": 1785584798.249462,
+    "ast_hash": "f3be0f749b20f0be6ea84414dafdbd39",
+    "semantic_hash": "f3be0f749b20f0be6ea84414dafdbd39"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/tooltip.tsx": {
+    "mtime": 1785584798.2507226,
+    "ast_hash": "0938cd8c69f39046e757e4ce20475674",
+    "semantic_hash": "0938cd8c69f39046e757e4ce20475674"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/use-mobile.ts": {
+    "mtime": 1785584798.251301,
+    "ast_hash": "b427d228366c1d3de5167763495116e3",
+    "semantic_hash": "b427d228366c1d3de5167763495116e3"
+  },
+  "FuturisticFinanceUI/src/app/components/ui/utils.ts": {
+    "mtime": 1785584798.251301,
+    "ast_hash": "e3f848f1b39f863e6164cf58b5a8e752",
+    "semantic_hash": "e3f848f1b39f863e6164cf58b5a8e752"
+  },
+  "FuturisticFinanceUI/src/app/routes.tsx": {
+    "mtime": 1785584798.252798,
+    "ast_hash": "be9da89a7b91f6fe132813f984a6431c",
+    "semantic_hash": "be9da89a7b91f6fe132813f984a6431c"
+  },
+  "FuturisticFinanceUI/src/main.tsx": {
+    "mtime": 1785584798.25658,
+    "ast_hash": "3a17b50137d0110b8437a1b081bd965a",
+    "semantic_hash": "3a17b50137d0110b8437a1b081bd965a"
+  },
+  "FuturisticFinanceUI/vite.config.ts": {
+    "mtime": 1785584798.259032,
+    "ast_hash": "e5387c33e5183e5f02f9d1bab3571ca3",
+    "semantic_hash": "e5387c33e5183e5f02f9d1bab3571ca3"
+  },
+  "android/app/build.gradle": {
+    "mtime": 1785584798.2625186,
+    "ast_hash": "f666e00e222acaab5a7231693d4b1fe8",
+    "semantic_hash": "f666e00e222acaab5a7231693d4b1fe8"
+  },
+  "android/app/capacitor.build.gradle": {
+    "mtime": 1785591605.1299243,
+    "ast_hash": "6a5ce58f1cae7678e3690434ee258a8d",
+    "semantic_hash": "6a5ce58f1cae7678e3690434ee258a8d"
+  },
+  "android/app/google-services.json": {
+    "mtime": 1785584798.264032,
+    "ast_hash": "f3fab2cb4689c3d650d57d315968ec18",
+    "semantic_hash": "f3fab2cb4689c3d650d57d315968ec18"
+  },
+  "android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java": {
+    "mtime": 1777309350.6874347,
+    "ast_hash": "c777a4127ae7213f7da22c4105bdfeab",
+    "semantic_hash": "c777a4127ae7213f7da22c4105bdfeab"
+  },
+  "android/app/src/main/java/com/coZify/com/MainActivity.java": {
+    "mtime": 1785584798.266632,
+    "ast_hash": "397866f37d86ff635b965eeaa8005c24",
+    "semantic_hash": "397866f37d86ff635b965eeaa8005c24"
+  },
+  "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
+    "mtime": 1777309351.0915823,
+    "ast_hash": "3f8a2768101e4de10f606ea4516fd339",
+    "semantic_hash": "3f8a2768101e4de10f606ea4516fd339"
+  },
+  "android/build.gradle": {
+    "mtime": 1777309351.1086905,
+    "ast_hash": "7f78ed82e3572a8411139bcde77ed922",
+    "semantic_hash": "7f78ed82e3572a8411139bcde77ed922"
+  },
+  "android/capacitor.settings.gradle": {
+    "mtime": 1785591605.1299243,
+    "ast_hash": "327768f83c4312a4d709fa7f2edb5377",
+    "semantic_hash": "327768f83c4312a4d709fa7f2edb5377"
+  },
+  "android/gradlew": {
+    "mtime": 1777309351.1597877,
+    "ast_hash": "1def6fea490817ad2829c02ac91d65cf",
+    "semantic_hash": "1def6fea490817ad2829c02ac91d65cf"
+  },
+  "android/settings.gradle": {
+    "mtime": 1785584798.293829,
+    "ast_hash": "c13746c97b45815cb148f5d39070ec3c",
+    "semantic_hash": "c13746c97b45815cb148f5d39070ec3c"
+  },
+  "android/variables.gradle": {
+    "mtime": 1777309351.1755366,
+    "ast_hash": "0b4a03daa618138b294af83c637217a6",
+    "semantic_hash": "0b4a03daa618138b294af83c637217a6"
+  },
+  "budtrack-skill/scripts/analyze.py": {
+    "mtime": 1785584798.298754,
+    "ast_hash": "9ffc8c2ce1eb3b8061dc4327fd7520e8",
+    "semantic_hash": "9ffc8c2ce1eb3b8061dc4327fd7520e8"
+  },
+  "budtrack-skill/scripts/csv_export.py": {
+    "mtime": 1785584798.2999127,
+    "ast_hash": "338170228070b5abc87f8ac436a8dd9e",
+    "semantic_hash": "338170228070b5abc87f8ac436a8dd9e"
+  },
+  "capacitor.config.json": {
+    "mtime": 1785584798.3011708,
+    "ast_hash": "383b5e60099c89564d037fafae85758a",
+    "semantic_hash": "383b5e60099c89564d037fafae85758a"
+  },
+  "firebase.json": {
+    "mtime": 1785584798.3064985,
+    "ast_hash": "329a07d924bb83a4cff275b2a7796050",
+    "semantic_hash": "329a07d924bb83a4cff275b2a7796050"
+  },
+  "firestore.indexes.json": {
+    "mtime": 1785584798.3076923,
+    "ast_hash": "31ef93a533525231b0b712e137964b5c",
+    "semantic_hash": "31ef93a533525231b0b712e137964b5c"
+  },
+  "google-services.json": {
+    "mtime": 1785584798.3086934,
+    "ast_hash": "f3fab2cb4689c3d650d57d315968ec18",
+    "semantic_hash": "f3fab2cb4689c3d650d57d315968ec18"
+  },
+  "old/budtrack_animations.js": {
+    "mtime": 1785584798.383662,
+    "ast_hash": "0225b69626cbebbf9116e020496f16ac",
+    "semantic_hash": "0225b69626cbebbf9116e020496f16ac"
+  },
+  "old/budtrack_logic.js": {
+    "mtime": 1785584798.392676,
+    "ast_hash": "145195bbfae9c0b55b862315797339ae",
+    "semantic_hash": "145195bbfae9c0b55b862315797339ae"
+  },
+  "old/budtrack_native.js": {
+    "mtime": 1785584798.393832,
+    "ast_hash": "1a1368f6e02489c0739c5aeaf35b41d8",
+    "semantic_hash": "1a1368f6e02489c0739c5aeaf35b41d8"
+  },
+  "old/reconstruct_correct.js": {
+    "mtime": 1785584798.3974414,
+    "ast_hash": "d5cce25ee4c9a9ceca4432c439cd7313",
+    "semantic_hash": "d5cce25ee4c9a9ceca4432c439cd7313"
+  },
+  "package.json": {
+    "mtime": 1785584798.4036853,
+    "ast_hash": "cb426b70629424589c58d7ac7da38538",
+    "semantic_hash": "cb426b70629424589c58d7ac7da38538"
+  },
+  "postcss.config.mjs": {
+    "mtime": 1785584798.4046862,
+    "ast_hash": "ed236affd433122e965a27640d696d98",
+    "semantic_hash": "ed236affd433122e965a27640d696d98"
+  },
+  "src/app/App.tsx": {
+    "mtime": 1785584798.4135983,
+    "ast_hash": "f4f87d82466c11a11099c2b417d27de2",
+    "semantic_hash": "f4f87d82466c11a11099c2b417d27de2"
+  },
+  "src/app/components/AddExpenseModal.tsx": {
+    "mtime": 1785584798.414709,
+    "ast_hash": "8fcff568e9f53d80b57bdd178a45149e",
+    "semantic_hash": "8fcff568e9f53d80b57bdd178a45149e"
+  },
+  "src/app/components/BottomNav.tsx": {
+    "mtime": 1785584798.4157095,
+    "ast_hash": "4cb8907cc1a4e2d21a8c317e1de18548",
+    "semantic_hash": "4cb8907cc1a4e2d21a8c317e1de18548"
+  },
+  "src/app/components/GlassCard.tsx": {
+    "mtime": 1785584798.4177065,
+    "ast_hash": "f9c4ca4ff071c3f5bc7a465b55016b33",
+    "semantic_hash": "f9c4ca4ff071c3f5bc7a465b55016b33"
+  },
+  "src/app/components/GlassIcon.tsx": {
+    "mtime": 1785584798.418713,
+    "ast_hash": "88b72b70af714ce46f6deab0b329527b",
+    "semantic_hash": "88b72b70af714ce46f6deab0b329527b"
+  },
+  "src/app/components/ProtectedRoute.tsx": {
+    "mtime": 1785584798.418713,
+    "ast_hash": "2dc73a38460e7b6bf53bd9b083b874ba",
+    "semantic_hash": "2dc73a38460e7b6bf53bd9b083b874ba"
+  },
+  "src/app/components/Root.tsx": {
+    "mtime": 1785586953.1723864,
+    "ast_hash": "b3b88df70f088cee1b1903c373e7c04a",
+    "semantic_hash": "b3b88df70f088cee1b1903c373e7c04a"
+  },
+  "src/app/components/figma/ImageWithFallback.tsx": {
+    "mtime": 1785584798.4247377,
+    "ast_hash": "9e3d50241dd9ce80b8b780eba8cd2af0",
+    "semantic_hash": "9e3d50241dd9ce80b8b780eba8cd2af0"
+  },
+  "src/app/components/modals/BudgetModal.tsx": {
+    "mtime": 1785584798.4263463,
+    "ast_hash": "f13adbec4be85f15cf396e655594b09d",
+    "semantic_hash": "f13adbec4be85f15cf396e655594b09d"
+  },
+  "src/app/components/modals/CardsModal.tsx": {
+    "mtime": 1785584798.4269226,
+    "ast_hash": "cf279e6538cbd5abfbebd7ab85fa6c18",
+    "semantic_hash": "cf279e6538cbd5abfbebd7ab85fa6c18"
+  },
+  "src/app/components/modals/DesignModal.tsx": {
+    "mtime": 1785835080.5346587,
+    "ast_hash": "680dc8bba752531a90336fe9c52ad4fb",
+    "semantic_hash": "680dc8bba752531a90336fe9c52ad4fb"
+  },
+  "src/app/components/modals/GoalsModal.tsx": {
+    "mtime": 1785584798.4285927,
+    "ast_hash": "2b22d8c50752295bcb805a829e23f771",
+    "semantic_hash": "2b22d8c50752295bcb805a829e23f771"
+  },
+  "src/app/components/modals/LanguageRegionModal.tsx": {
+    "mtime": 1785584798.431354,
+    "ast_hash": "490ea2b9c25dbf58b51c3f785a5a0cc1",
+    "semantic_hash": "490ea2b9c25dbf58b51c3f785a5a0cc1"
+  },
+  "src/app/components/modals/NotificationsModal.tsx": {
+    "mtime": 1785584798.4324734,
+    "ast_hash": "577a71b184a354eb5190258f104552e1",
+    "semantic_hash": "577a71b184a354eb5190258f104552e1"
+  },
+  "src/app/components/modals/PrivacyModal.tsx": {
+    "mtime": 1785584798.433015,
+    "ast_hash": "914cf9a06f835dfb9966eabf5a5a3a30",
+    "semantic_hash": "914cf9a06f835dfb9966eabf5a5a3a30"
+  },
+  "src/app/components/modals/ProfileSettingsModal.tsx": {
+    "mtime": 1785584798.4351907,
+    "ast_hash": "21a2b6b8e5cd545ea6671293a72797cd",
+    "semantic_hash": "21a2b6b8e5cd545ea6671293a72797cd"
+  },
+  "src/app/components/modals/WalletModal.tsx": {
+    "mtime": 1785584798.4379618,
+    "ast_hash": "f5880f5c61bad10a0339656c87dbbaed",
+    "semantic_hash": "f5880f5c61bad10a0339656c87dbbaed"
+  },
+  "src/app/components/screens/Flow.tsx": {
+    "mtime": 1785584798.4390655,
+    "ast_hash": "e1cac848cc6c962e46b38a6f73867c09",
+    "semantic_hash": "e1cac848cc6c962e46b38a6f73867c09"
+  },
+  "src/app/components/screens/Home.tsx": {
+    "mtime": 1785835474.3087394,
+    "ast_hash": "f1631a1c361fbd01202959934004b169",
+    "semantic_hash": "f1631a1c361fbd01202959934004b169"
+  },
+  "src/app/components/screens/Insights.tsx": {
+    "mtime": 1785584798.4424448,
+    "ast_hash": "a33e2761027656757d6c0c26fc6e05e6",
+    "semantic_hash": "a33e2761027656757d6c0c26fc6e05e6"
+  },
+  "src/app/components/screens/LoginScreen.tsx": {
+    "mtime": 1785589982.9781477,
+    "ast_hash": "9c1a07637f44727d57c4e4b11233bb6d",
+    "semantic_hash": "9c1a07637f44727d57c4e4b11233bb6d"
+  },
+  "src/app/components/screens/Profile.tsx": {
+    "mtime": 1785835482.1052556,
+    "ast_hash": "0d20f7d07a4737debff044da8d476c7f",
+    "semantic_hash": "0d20f7d07a4737debff044da8d476c7f"
+  },
+  "src/app/components/ui/accordion.tsx": {
+    "mtime": 1785584798.4479656,
+    "ast_hash": "6ac8972bea8c72ef4531e7e939caffde",
+    "semantic_hash": "6ac8972bea8c72ef4531e7e939caffde"
+  },
+  "src/app/components/ui/alert-dialog.tsx": {
+    "mtime": 1785584798.4501946,
+    "ast_hash": "bae17108fe0e26ee8ee04b6b499523f9",
+    "semantic_hash": "bae17108fe0e26ee8ee04b6b499523f9"
+  },
+  "src/app/components/ui/alert.tsx": {
+    "mtime": 1785584798.4513009,
+    "ast_hash": "77dc96be09723e553d2096f30d6b5205",
+    "semantic_hash": "77dc96be09723e553d2096f30d6b5205"
+  },
+  "src/app/components/ui/aspect-ratio.tsx": {
+    "mtime": 1785584798.4523811,
+    "ast_hash": "a9620dcbb14796aa5a3aeddab16e82ee",
+    "semantic_hash": "a9620dcbb14796aa5a3aeddab16e82ee"
+  },
+  "src/app/components/ui/avatar.tsx": {
+    "mtime": 1785584798.45402,
+    "ast_hash": "386ab38e62b7ce72f4581c80d529a664",
+    "semantic_hash": "386ab38e62b7ce72f4581c80d529a664"
+  },
+  "src/app/components/ui/badge.tsx": {
+    "mtime": 1785584798.4545803,
+    "ast_hash": "55f636d5ddf4274d9fea3502e5a9c022",
+    "semantic_hash": "55f636d5ddf4274d9fea3502e5a9c022"
+  },
+  "src/app/components/ui/breadcrumb.tsx": {
+    "mtime": 1785584798.4556327,
+    "ast_hash": "4570611e1d93766ec30603117802f6de",
+    "semantic_hash": "4570611e1d93766ec30603117802f6de"
+  },
+  "src/app/components/ui/button.tsx": {
+    "mtime": 1785584798.4572484,
+    "ast_hash": "e41e66deb18e99f0c6adad0833b9bda3",
+    "semantic_hash": "e41e66deb18e99f0c6adad0833b9bda3"
+  },
+  "src/app/components/ui/calendar.tsx": {
+    "mtime": 1785584798.458259,
+    "ast_hash": "077793c68a5f734718c7bcd58dda66fa",
+    "semantic_hash": "077793c68a5f734718c7bcd58dda66fa"
+  },
+  "src/app/components/ui/card.tsx": {
+    "mtime": 1785584798.459258,
+    "ast_hash": "3636f7385a18e766d8e9703ade2f3c3a",
+    "semantic_hash": "3636f7385a18e766d8e9703ade2f3c3a"
+  },
+  "src/app/components/ui/carousel.tsx": {
+    "mtime": 1785584798.4602578,
+    "ast_hash": "bef00edc73965b6879f05e02a16b7200",
+    "semantic_hash": "bef00edc73965b6879f05e02a16b7200"
+  },
+  "src/app/components/ui/chart.tsx": {
+    "mtime": 1785584798.461679,
+    "ast_hash": "c94a6e8f6ad29f8333c6edaa16d32f3f",
+    "semantic_hash": "c94a6e8f6ad29f8333c6edaa16d32f3f"
+  },
+  "src/app/components/ui/checkbox.tsx": {
+    "mtime": 1785584798.4626775,
+    "ast_hash": "354612a01e307a2da96d684c55745365",
+    "semantic_hash": "354612a01e307a2da96d684c55745365"
+  },
+  "src/app/components/ui/collapsible.tsx": {
+    "mtime": 1785584798.4626775,
+    "ast_hash": "a17e8aaee3747e28c4524f4114cf738b",
+    "semantic_hash": "a17e8aaee3747e28c4524f4114cf738b"
+  },
+  "src/app/components/ui/command.tsx": {
+    "mtime": 1785584798.464677,
+    "ast_hash": "c38148668ea03a2f8392e198d0c9ecce",
+    "semantic_hash": "c38148668ea03a2f8392e198d0c9ecce"
+  },
+  "src/app/components/ui/context-menu.tsx": {
+    "mtime": 1785584798.464677,
+    "ast_hash": "b36802510ef941608474813323320c92",
+    "semantic_hash": "b36802510ef941608474813323320c92"
+  },
+  "src/app/components/ui/dialog.tsx": {
+    "mtime": 1785584798.466186,
+    "ast_hash": "6d4ff3d2e3fabf0f08e1b7c9faef9579",
+    "semantic_hash": "6d4ff3d2e3fabf0f08e1b7c9faef9579"
+  },
+  "src/app/components/ui/drawer.tsx": {
+    "mtime": 1785584798.4671931,
+    "ast_hash": "6ac1c53b510c868a3d515f3191c5bee0",
+    "semantic_hash": "6ac1c53b510c868a3d515f3191c5bee0"
+  },
+  "src/app/components/ui/dropdown-menu.tsx": {
+    "mtime": 1785584798.4682186,
+    "ast_hash": "8e31a16de52ada1943b55c5ae9350c0d",
+    "semantic_hash": "8e31a16de52ada1943b55c5ae9350c0d"
+  },
+  "src/app/components/ui/form.tsx": {
+    "mtime": 1785584798.4682186,
+    "ast_hash": "4dc1e43e7f987e87b0475436001d6f3f",
+    "semantic_hash": "4dc1e43e7f987e87b0475436001d6f3f"
+  },
+  "src/app/components/ui/hover-card.tsx": {
+    "mtime": 1785584798.469217,
+    "ast_hash": "a9025de8fb8c2c24abeb6585421d5e4f",
+    "semantic_hash": "a9025de8fb8c2c24abeb6585421d5e4f"
+  },
+  "src/app/components/ui/input-otp.tsx": {
+    "mtime": 1785584798.4701953,
+    "ast_hash": "f1fc6b67e2487b74b378f039e2b179c7",
+    "semantic_hash": "f1fc6b67e2487b74b378f039e2b179c7"
+  },
+  "src/app/components/ui/input.tsx": {
+    "mtime": 1785584798.4701953,
+    "ast_hash": "ee6a7da310ce684442534f9cc8665b15",
+    "semantic_hash": "ee6a7da310ce684442534f9cc8665b15"
+  },
+  "src/app/components/ui/label.tsx": {
+    "mtime": 1785584798.472195,
+    "ast_hash": "af1cc595d3044ec0c4d4acc377902324",
+    "semantic_hash": "af1cc595d3044ec0c4d4acc377902324"
+  },
+  "src/app/components/ui/menubar.tsx": {
+    "mtime": 1785584798.473197,
+    "ast_hash": "31e5133397eb7e90344279128046e4de",
+    "semantic_hash": "31e5133397eb7e90344279128046e4de"
+  },
+  "src/app/components/ui/navigation-menu.tsx": {
+    "mtime": 1785584798.4741967,
+    "ast_hash": "7c66900fe49bd30c4dc2f72eb80c43ba",
+    "semantic_hash": "7c66900fe49bd30c4dc2f72eb80c43ba"
+  },
+  "src/app/components/ui/pagination.tsx": {
+    "mtime": 1785584798.475204,
+    "ast_hash": "83f28ea401172adc158d838acf2d70da",
+    "semantic_hash": "83f28ea401172adc158d838acf2d70da"
+  },
+  "src/app/components/ui/popover.tsx": {
+    "mtime": 1785584798.475204,
+    "ast_hash": "b88476f4b00f8e2e966f6635a7da73db",
+    "semantic_hash": "b88476f4b00f8e2e966f6635a7da73db"
+  },
+  "src/app/components/ui/progress.tsx": {
+    "mtime": 1785584798.4762974,
+    "ast_hash": "6a06a31b6c44b9d05242aee0958d20bf",
+    "semantic_hash": "6a06a31b6c44b9d05242aee0958d20bf"
+  },
+  "src/app/components/ui/radio-group.tsx": {
+    "mtime": 1785584798.4777648,
+    "ast_hash": "c71bac07acf79b524b3157c8474ab58b",
+    "semantic_hash": "c71bac07acf79b524b3157c8474ab58b"
+  },
+  "src/app/components/ui/resizable.tsx": {
+    "mtime": 1785584798.4777648,
+    "ast_hash": "5653c1f9a08e003d0210371613d01e4a",
+    "semantic_hash": "5653c1f9a08e003d0210371613d01e4a"
+  },
+  "src/app/components/ui/scroll-area.tsx": {
+    "mtime": 1785584798.4789896,
+    "ast_hash": "0dd2932f08c9b5bf29056f4b76f93f88",
+    "semantic_hash": "0dd2932f08c9b5bf29056f4b76f93f88"
+  },
+  "src/app/components/ui/select.tsx": {
+    "mtime": 1785584798.4801147,
+    "ast_hash": "70792371f02d0595fb7562c4877d4fdd",
+    "semantic_hash": "70792371f02d0595fb7562c4877d4fdd"
+  },
+  "src/app/components/ui/separator.tsx": {
+    "mtime": 1785584798.4801147,
+    "ast_hash": "6cd697e94e33b3000258b5c4190aeb0e",
+    "semantic_hash": "6cd697e94e33b3000258b5c4190aeb0e"
+  },
+  "src/app/components/ui/sheet.tsx": {
+    "mtime": 1785584798.48152,
+    "ast_hash": "13bf7e121139a02120b9f7045bf4b228",
+    "semantic_hash": "13bf7e121139a02120b9f7045bf4b228"
+  },
+  "src/app/components/ui/sidebar.tsx": {
+    "mtime": 1785584798.4825306,
+    "ast_hash": "300fc58c94eb800fbe50834dd11f7574",
+    "semantic_hash": "300fc58c94eb800fbe50834dd11f7574"
+  },
+  "src/app/components/ui/skeleton.tsx": {
+    "mtime": 1785584798.4835193,
+    "ast_hash": "f2b4a2e415b6c434154de7a28aaebbb4",
+    "semantic_hash": "f2b4a2e415b6c434154de7a28aaebbb4"
+  },
+  "src/app/components/ui/slider.tsx": {
+    "mtime": 1785584798.48452,
+    "ast_hash": "00636c645a8500f5078059f33fd91c79",
+    "semantic_hash": "00636c645a8500f5078059f33fd91c79"
+  },
+  "src/app/components/ui/sonner.tsx": {
+    "mtime": 1785584798.48452,
+    "ast_hash": "10d479040581a90e3957cedc170b58be",
+    "semantic_hash": "10d479040581a90e3957cedc170b58be"
+  },
+  "src/app/components/ui/switch.tsx": {
+    "mtime": 1785584798.485521,
+    "ast_hash": "6965f0c019db02983e22b6bf4e560bf8",
+    "semantic_hash": "6965f0c019db02983e22b6bf4e560bf8"
+  },
+  "src/app/components/ui/table.tsx": {
+    "mtime": 1785584798.48652,
+    "ast_hash": "001ceb1022a0312e1eb4133baa6dc83d",
+    "semantic_hash": "001ceb1022a0312e1eb4133baa6dc83d"
+  },
+  "src/app/components/ui/tabs.tsx": {
+    "mtime": 1785584798.48652,
+    "ast_hash": "dbb20d36250470a06b4aaf7662ff44d3",
+    "semantic_hash": "dbb20d36250470a06b4aaf7662ff44d3"
+  },
+  "src/app/components/ui/textarea.tsx": {
+    "mtime": 1785584798.4882808,
+    "ast_hash": "7b1d8603f8bc4143f670ad2e50dae5bf",
+    "semantic_hash": "7b1d8603f8bc4143f670ad2e50dae5bf"
+  },
+  "src/app/components/ui/toggle-group.tsx": {
+    "mtime": 1785584798.4882808,
+    "ast_hash": "dae00da8846531bbf8275720dbb756cc",
+    "semantic_hash": "dae00da8846531bbf8275720dbb756cc"
+  },
+  "src/app/components/ui/toggle.tsx": {
+    "mtime": 1785584798.4892902,
+    "ast_hash": "f3be0f749b20f0be6ea84414dafdbd39",
+    "semantic_hash": "f3be0f749b20f0be6ea84414dafdbd39"
+  },
+  "src/app/components/ui/tooltip.tsx": {
+    "mtime": 1785584798.4892902,
+    "ast_hash": "0938cd8c69f39046e757e4ce20475674",
+    "semantic_hash": "0938cd8c69f39046e757e4ce20475674"
+  },
+  "src/app/components/ui/use-mobile.ts": {
+    "mtime": 1785584798.4902909,
+    "ast_hash": "b427d228366c1d3de5167763495116e3",
+    "semantic_hash": "b427d228366c1d3de5167763495116e3"
+  },
+  "src/app/components/ui/utils.ts": {
+    "mtime": 1785584798.4902909,
+    "ast_hash": "e3f848f1b39f863e6164cf58b5a8e752",
+    "semantic_hash": "e3f848f1b39f863e6164cf58b5a8e752"
+  },
+  "src/app/routes.tsx": {
+    "mtime": 1785584798.493758,
+    "ast_hash": "373dfed2f1d1ec9ed21c27cf9e0fdd12",
+    "semantic_hash": "373dfed2f1d1ec9ed21c27cf9e0fdd12"
+  },
+  "src/features/auth/components/UniversalLogin.jsx": {
+    "mtime": 1785835508.0113673,
+    "ast_hash": "dac57a8ceec53a70c6def9a89a77746f",
+    "semantic_hash": "dac57a8ceec53a70c6def9a89a77746f"
+  },
+  "src/features/auth/hooks/useAuthLifecycle.ts": {
+    "mtime": 1785584798.4986722,
+    "ast_hash": "e9b5606a3236ac207ebf3dc8ac11d624",
+    "semantic_hash": "e9b5606a3236ac207ebf3dc8ac11d624"
+  },
+  "src/features/auth/hooks/useAuthSecurity.ts": {
+    "mtime": 1785584798.4996984,
+    "ast_hash": "433633a0d3ed565c105976e6af582518",
+    "semantic_hash": "433633a0d3ed565c105976e6af582518"
+  },
+  "src/features/auth/utils/secureLogout.ts": {
+    "mtime": 1785584798.5008202,
+    "ast_hash": "a0f6c0ea77cae3fd652b00bee71d4b20",
+    "semantic_hash": "a0f6c0ea77cae3fd652b00bee71d4b20"
+  },
+  "src/main.tsx": {
+    "mtime": 1785584798.5059948,
+    "ast_hash": "1d076cb628c046d5a9783da8a9a99416",
+    "semantic_hash": "1d076cb628c046d5a9783da8a9a99416"
+  },
+  "src/services/firebase.js": {
+    "mtime": 1785584798.507509,
+    "ast_hash": "6496f34a86e640fc39ca04bc979054b9",
+    "semantic_hash": "6496f34a86e640fc39ca04bc979054b9"
+  },
+  "src/services/firestoreService.ts": {
+    "mtime": 1785584798.5087056,
+    "ast_hash": "bdde9877bb856777da55798bfc7ff81b",
+    "semantic_hash": "bdde9877bb856777da55798bfc7ff81b"
+  },
+  "src/store/useBudgetStore.ts": {
+    "mtime": 1785835080.5412073,
+    "ast_hash": "677d0a3b34faae8af9a3fbd79a824762",
+    "semantic_hash": "677d0a3b34faae8af9a3fbd79a824762"
+  },
+  "src/utils/themePresets.ts": {
+    "mtime": 1785584798.5186667,
+    "ast_hash": "c578c1be7bb7fa934027cf374cee4f34",
+    "semantic_hash": "c578c1be7bb7fa934027cf374cee4f34"
+  },
+  "src/utils/translations.ts": {
+    "mtime": 1785584798.519678,
+    "ast_hash": "3014b8614262c8322bac61b36a9ef7ba",
+    "semantic_hash": "3014b8614262c8322bac61b36a9ef7ba"
+  },
+  "src/vite-env.d.ts": {
+    "mtime": 1785584798.5216768,
+    "ast_hash": "8f68c27c3fc38817b2726b20e2d4f1ee",
+    "semantic_hash": "8f68c27c3fc38817b2726b20e2d4f1ee"
+  },
+  "tsconfig.json": {
+    "mtime": 1785584798.5216768,
+    "ast_hash": "1de96308d6a1aca492c1b9fcb8684b66",
+    "semantic_hash": "1de96308d6a1aca492c1b9fcb8684b66"
+  },
+  "vite.config.ts": {
+    "mtime": 1785584798.5230827,
+    "ast_hash": "05516fd2f13188def1b447d2287e9d15",
+    "semantic_hash": "05516fd2f13188def1b447d2287e9d15"
+  },
+  ".agents/skills/desings/SKILL.md": {
+    "mtime": 1785051255.3155322,
+    "ast_hash": "bb9548a2cee217c4abefad13d2df4c9f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/desings/rule.md": {
+    "mtime": 1785317412.8368626,
+    "ast_hash": "33713cd45789bf0ef4f1b6c458691c01",
+    "semantic_hash": ""
+  },
+  "ATTRIBUTIONS.md": {
+    "mtime": 1777476986.0,
+    "ast_hash": "0ef7cd1ecf2c4438bc1c8787c02252da",
+    "semantic_hash": ""
+  },
+  "Futuristic Finance App UI/ATTRIBUTIONS.md": {
+    "mtime": 1782925555.0805562,
+    "ast_hash": "0ef7cd1ecf2c4438bc1c8787c02252da",
+    "semantic_hash": ""
+  },
+  "Futuristic Finance App UI/README.md": {
+    "mtime": 1782925554.9724512,
+    "ast_hash": "ef7ddd83e6c4af3b629014e125d7df01",
+    "semantic_hash": ""
+  },
+  "Futuristic Finance App UI/guidelines/Guidelines.md": {
+    "mtime": 1782925555.0607524,
+    "ast_hash": "5af43702d745a31480e9a483616bf246",
+    "semantic_hash": ""
+  },
+  "Futuristic Finance App UI/index.html": {
+    "mtime": 1782925554.9551675,
+    "ast_hash": "95cadcf6ead8c339c7640d8a4ebedda4",
+    "semantic_hash": ""
+  },
+  "Futuristic Finance App UI/pnpm-workspace.yaml": {
+    "mtime": 1782925555.1376674,
+    "ast_hash": "568472a1cb971e6f9d8bd2e7f9bc9ccc",
+    "semantic_hash": ""
+  },
+  "FuturisticFinanceUI/ATTRIBUTIONS.md": {
+    "mtime": 1777476986.0,
+    "ast_hash": "0ef7cd1ecf2c4438bc1c8787c02252da",
+    "semantic_hash": ""
+  },
+  "FuturisticFinanceUI/README.md": {
+    "mtime": 1777476986.0,
+    "ast_hash": "ef7ddd83e6c4af3b629014e125d7df01",
+    "semantic_hash": ""
+  },
+  "FuturisticFinanceUI/guidelines/Guidelines.md": {
+    "mtime": 1777476986.0,
+    "ast_hash": "5af43702d745a31480e9a483616bf246",
+    "semantic_hash": ""
+  },
+  "FuturisticFinanceUI/index.html": {
+    "mtime": 1777476986.0,
+    "ast_hash": "95cadcf6ead8c339c7640d8a4ebedda4",
+    "semantic_hash": ""
+  },
+  "FuturisticFinanceUI/pnpm-workspace.yaml": {
+    "mtime": 1777476986.0,
+    "ast_hash": "568472a1cb971e6f9d8bd2e7f9bc9ccc",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1777476986.0,
+    "ast_hash": "ef7ddd83e6c4af3b629014e125d7df01",
+    "semantic_hash": ""
+  },
+  "budtrack-skill/API_REFERENCE.md": {
+    "mtime": 1777395234.104105,
+    "ast_hash": "6edce07c6c85ce13d6a9e79b5a5ee45b",
+    "semantic_hash": ""
+  },
+  "budtrack-skill/SKILL.md": {
+    "mtime": 1777395215.176569,
+    "ast_hash": "975fe409ac9b21d2f5ebd591305c9187",
+    "semantic_hash": ""
+  },
+  "guidelines/Guidelines.md": {
+    "mtime": 1777476986.0,
+    "ast_hash": "5af43702d745a31480e9a483616bf246",
+    "semantic_hash": ""
+  },
+  "implementation_plan.md": {
+    "mtime": 1785173218.6846528,
+    "ast_hash": "4052701da5e3244b1ebe87a7e48be053",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1777476986.0,
+    "ast_hash": "95cadcf6ead8c339c7640d8a4ebedda4",
+    "semantic_hash": ""
+  },
+  "old/budtrack_app.html": {
+    "mtime": 1777316819.2654147,
+    "ast_hash": "415e165668538921f6ab629dc442a252",
+    "semantic_hash": ""
+  },
+  "old/test.txt": {
+    "mtime": 1777395193.0695689,
+    "ast_hash": "11b67adb44f94fc855cf62d1f310394d",
+    "semantic_hash": ""
+  },
+  "Futuristic Finance App UI/src/imports/zeee.png": {
+    "mtime": 1782925554.935659,
+    "ast_hash": "3cb83f8a8b44e789737d4b521ea1a3f6",
+    "semantic_hash": ""
+  },
+  "FuturisticFinanceUI/src/imports/zeee.png": {
+    "mtime": 1777476986.0,
+    "ast_hash": "3cb83f8a8b44e789737d4b521ea1a3f6",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-hdpi/splash.png": {
+    "mtime": 1777309350.72277,
+    "ast_hash": "4bddf56c527cc79784b3dfb908ad5c48",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-ldpi/splash.png": {
+    "mtime": 1777309350.7262988,
+    "ast_hash": "ca4f711813fd484acbafe1e50ff537ac",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-mdpi/splash.png": {
+    "mtime": 1777309350.7311604,
+    "ast_hash": "ef5c64609e82875c5861156ec205129b",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-night-hdpi/splash.png": {
+    "mtime": 1777309350.7373867,
+    "ast_hash": "57774c77f602dface190cc058331cffc",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-night-ldpi/splash.png": {
+    "mtime": 1777309350.7384045,
+    "ast_hash": "f87e9a5eeb9ce56c84f259371e13eab2",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-night-mdpi/splash.png": {
+    "mtime": 1777309350.7404044,
+    "ast_hash": "2160574cf09cf92077a9edd3a3168a02",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-night-xhdpi/splash.png": {
+    "mtime": 1777309350.743881,
+    "ast_hash": "cce665a2752e586c40e4f512f3f29adb",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-night-xxhdpi/splash.png": {
+    "mtime": 1777309350.7474155,
+    "ast_hash": "cefc8dd7a655c4c847cde2d63cdb8f21",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-night-xxxhdpi/splash.png": {
+    "mtime": 1777309350.751945,
+    "ast_hash": "39264b7168c6a70cb81f3d25c99eba83",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-xhdpi/splash.png": {
+    "mtime": 1777309350.7760308,
+    "ast_hash": "7e1869575ea786dc7da9c6f13baa8a3a",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-xxhdpi/splash.png": {
+    "mtime": 1777309350.8102849,
+    "ast_hash": "cc250e60a04777f352a6005c2f3a301b",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-land-xxxhdpi/splash.png": {
+    "mtime": 1777309350.8645391,
+    "ast_hash": "c5bc9832e34a998064fd32abccd51368",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-night/splash.png": {
+    "mtime": 1777309350.8706808,
+    "ast_hash": "f87e9a5eeb9ce56c84f259371e13eab2",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-hdpi/splash.png": {
+    "mtime": 1777309350.879631,
+    "ast_hash": "344140dd3351377a628e71d5c70d75d6",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-ldpi/splash.png": {
+    "mtime": 1777309350.8885427,
+    "ast_hash": "90889476a063bbdc25b95d24e1030074",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-mdpi/splash.png": {
+    "mtime": 1777309350.8926394,
+    "ast_hash": "e11a3718eef9059dde5ca89436fd9b03",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-night-hdpi/splash.png": {
+    "mtime": 1777309350.8952646,
+    "ast_hash": "6e1c15b3e8c3490620e8a96389082ee4",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-night-ldpi/splash.png": {
+    "mtime": 1777309350.8990982,
+    "ast_hash": "76532b9b3b9454be024b6effd3e539f9",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-night-mdpi/splash.png": {
+    "mtime": 1777309350.9006906,
+    "ast_hash": "87abf4880f8be9e82522c61a8950304c",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-night-xhdpi/splash.png": {
+    "mtime": 1777309350.9026887,
+    "ast_hash": "efbc7d28294bf0fe3c7e3958f2a5de91",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-night-xxhdpi/splash.png": {
+    "mtime": 1777309350.9046876,
+    "ast_hash": "475ac4510e876f94b433baa129bad7b4",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-night-xxxhdpi/splash.png": {
+    "mtime": 1777309350.9077,
+    "ast_hash": "b0f158b881a7bb335834d08a4300d6c3",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-xhdpi/splash.png": {
+    "mtime": 1777309350.9244945,
+    "ast_hash": "926a8661b9ece44a83a9e93cfe31dcaf",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-xxhdpi/splash.png": {
+    "mtime": 1777309350.958718,
+    "ast_hash": "8a037f84825e280ce055eb44517e348c",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable-port-xxxhdpi/splash.png": {
+    "mtime": 1777309351.0128183,
+    "ast_hash": "00072cb0a71465b9ed9cfa59acff5f04",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/drawable/splash.png": {
+    "mtime": 1777309351.0214195,
+    "ast_hash": "e11a3718eef9059dde5ca89436fd9b03",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
+    "mtime": 1777309351.02694,
+    "ast_hash": "5fd7cfd9b682893d4eaab9748d956b4f",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher_background.png": {
+    "mtime": 1777309351.0294657,
+    "ast_hash": "bc7c934a61eae7bcc611704b0c5b2d5f",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png": {
+    "mtime": 1777309351.0304646,
+    "ast_hash": "a37e6e80f423bad8ac9c6e4502d6d050",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png": {
+    "mtime": 1777309351.031978,
+    "ast_hash": "66c6e07d76431d7cec6a389ef88c8131",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-ldpi/ic_launcher.png": {
+    "mtime": 1777309351.0335588,
+    "ast_hash": "5293d726d9bc50236c318f2bbb037942",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-ldpi/ic_launcher_background.png": {
+    "mtime": 1777309351.0345712,
+    "ast_hash": "3d6b120d600c303583d5269332817c91",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-ldpi/ic_launcher_foreground.png": {
+    "mtime": 1777309351.0355754,
+    "ast_hash": "9dc5138e636767c187b2266db9207af6",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-ldpi/ic_launcher_round.png": {
+    "mtime": 1777309351.036571,
+    "ast_hash": "9353ed592261243e86f573822d677d34",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
+    "mtime": 1777309351.0380838,
+    "ast_hash": "af8692ea05b687694ee201fd90ced9ee",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher_background.png": {
+    "mtime": 1777309351.0386896,
+    "ast_hash": "615b60ec33c56761f38852305c1b8e47",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png": {
+    "mtime": 1777309351.039703,
+    "ast_hash": "1405e6ed8d90179bf923c27c3d87d41c",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png": {
+    "mtime": 1777309351.0413203,
+    "ast_hash": "10a72853fd1257ee63ea7e721e70ae5f",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
+    "mtime": 1777309351.0453842,
+    "ast_hash": "612ae472bf1985d7f87e557e711c1d83",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher_background.png": {
+    "mtime": 1777309351.0489166,
+    "ast_hash": "9e1ec3df60917bce2c31aa8665afe21e",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png": {
+    "mtime": 1777309351.0509167,
+    "ast_hash": "b6eb2b37a0b6db748d57d07fc123d2e6",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png": {
+    "mtime": 1777309351.0514307,
+    "ast_hash": "574a0998def3517f321696fb80a24803",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
+    "mtime": 1777309351.0539594,
+    "ast_hash": "0f0db563d2ada1fa463d8e89a8bbe5bd",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_background.png": {
+    "mtime": 1777309351.0554767,
+    "ast_hash": "5e809f15c5299495e990916334965946",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png": {
+    "mtime": 1777309351.058003,
+    "ast_hash": "61e7a482b7aee5c11894de69f9238302",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png": {
+    "mtime": 1777309351.059666,
+    "ast_hash": "48defece05b90ef0432d844a653b7e09",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
+    "mtime": 1777309351.0606625,
+    "ast_hash": "e8c9f770fe9990107b095593f9fd0d95",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png": {
+    "mtime": 1777309351.0621798,
+    "ast_hash": "2a2b548e7cb1ac0c3b0b2019cde4c5b7",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png": {
+    "mtime": 1777309351.0657065,
+    "ast_hash": "46149a08dc628e71f5cf19b519186a3d",
+    "semantic_hash": ""
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png": {
+    "mtime": 1777309351.0657065,
+    "ast_hash": "30176b4b89931ba0363a9aa061410871",
+    "semantic_hash": ""
+  },
+  "assets/icon.png": {
+    "mtime": 1777309351.1839664,
+    "ast_hash": "bcbb739e20ef0b6a409cee886c99f3d5",
+    "semantic_hash": ""
+  },
+  "assets/splash.png": {
+    "mtime": 1777309351.193166,
+    "ast_hash": "bcbb739e20ef0b6a409cee886c99f3d5",
+    "semantic_hash": ""
+  },
+  "old/budtrack_banner.png": {
+    "mtime": 1777309351.2117367,
+    "ast_hash": "d88e5d36dee60d391fe534a9fdb41bc5",
+    "semantic_hash": ""
+  },
+  "src/imports/zeee.png": {
+    "mtime": 1777476986.0,
+    "ast_hash": "3cb83f8a8b44e789737d4b521ea1a3f6",
+    "semantic_hash": ""
+  },
+  ".agents/rules/graphify.md": {
+    "mtime": 1785320763.0648632,
+    "ast_hash": "a0e4d192b9e2e17256124dbfc8e24e6a",
+    "semantic_hash": ""
+  },
+  ".agents/workflows/graphify.md": {
+    "mtime": 1785320763.0658524,
+    "ast_hash": "637776aa6f7496d069afe7520c845c8a",
+    "semantic_hash": ""
+  },
+  "cozify-legal/assets/main.js": {
+    "mtime": 1785591382.0186863,
+    "ast_hash": "0ec56897c902d2d31ae08ac683d24a75",
+    "semantic_hash": "0ec56897c902d2d31ae08ac683d24a75"
+  },
+  "src/app/components/ErrorBoundary.tsx": {
+    "mtime": 1785584798.416708,
+    "ast_hash": "54687b5ca600eb5c4c5050200dd1fc51",
+    "semantic_hash": "54687b5ca600eb5c4c5050200dd1fc51"
+  },
+  "src/app/components/SafeAvatar.tsx": {
+    "mtime": 1785584798.42202,
+    "ast_hash": "921aec264c4acf608f0542311e16c4e8",
+    "semantic_hash": "921aec264c4acf608f0542311e16c4e8"
+  },
+  "src/app/components/SkeletonLoader.tsx": {
+    "mtime": 1785584798.4230287,
+    "ast_hash": "70ef096c6b6baba6c08be0217ffa9931",
+    "semantic_hash": "70ef096c6b6baba6c08be0217ffa9931"
+  },
+  "src/app/components/modals/AccountSwitcherModal.tsx": {
+    "mtime": 1785589792.414114,
+    "ast_hash": "47d845be374802003772dfb4b13df7b1",
+    "semantic_hash": "47d845be374802003772dfb4b13df7b1"
+  },
+  "src/app/components/modals/HelpCenterModal.tsx": {
+    "mtime": 1785584798.4302697,
+    "ast_hash": "484fd3bc965093f45ee1d6dd967755d7",
+    "semantic_hash": "484fd3bc965093f45ee1d6dd967755d7"
+  },
+  "src/app/components/modals/MandatoryTermsModal.tsx": {
+    "mtime": 1785835497.4509592,
+    "ast_hash": "d9a22555d2fab0b18811a798d0fabcab",
+    "semantic_hash": "d9a22555d2fab0b18811a798d0fabcab"
+  },
+  "src/app/components/modals/PrivacyPolicyModal.tsx": {
+    "mtime": 1785584798.4335473,
+    "ast_hash": "b9ba098ac3c69b6c879b8ff4f5e4cab7",
+    "semantic_hash": "b9ba098ac3c69b6c879b8ff4f5e4cab7"
+  },
+  "src/app/components/modals/TermsConditionsModal.tsx": {
+    "mtime": 1785585285.4352434,
+    "ast_hash": "85b15dc67933d0c0834c59eae9d7d8f9",
+    "semantic_hash": "85b15dc67933d0c0834c59eae9d7d8f9"
+  },
+  "src/app/components/modals/UserProfileModal.tsx": {
+    "mtime": 1785584798.4368718,
+    "ast_hash": "6011d4d059af7797858fd7f5d2744172",
+    "semantic_hash": "6011d4d059af7797858fd7f5d2744172"
+  },
+  "src/app/hooks/useAndroidBackNavigation.ts": {
+    "mtime": 1785586454.895508,
+    "ast_hash": "0c8933517f07fecd3effe2b4d2a4b8da",
+    "semantic_hash": "0c8933517f07fecd3effe2b4d2a4b8da"
+  },
+  "src/app/utils/motionConfig.ts": {
+    "mtime": 1785584798.4948363,
+    "ast_hash": "9ca80f4240ed0a410b5f8fc56ba7b66d",
+    "semantic_hash": "9ca80f4240ed0a410b5f8fc56ba7b66d"
+  },
+  "src/utils/asyncHandler.ts": {
+    "mtime": 1785584798.515074,
+    "ast_hash": "5eb35b3f541f2b58fa92fba38178fefc",
+    "semantic_hash": "5eb35b3f541f2b58fa92fba38178fefc"
+  },
+  "src/utils/categoryConfig.ts": {
+    "mtime": 1785584798.5160842,
+    "ast_hash": "9f4d13d917b333a73d224f0f9172cc74",
+    "semantic_hash": "9f4d13d917b333a73d224f0f9172cc74"
+  },
+  "src/utils/formatters.ts": {
+    "mtime": 1785584798.5160842,
+    "ast_hash": "0dab54931808c4641a859fefbfd153f4",
+    "semantic_hash": "0dab54931808c4641a859fefbfd153f4"
+  },
+  "src/utils/logger.ts": {
+    "mtime": 1785584798.517595,
+    "ast_hash": "7e7c85cbb1f4ae0c693fd75781f35319",
+    "semantic_hash": "7e7c85cbb1f4ae0c693fd75781f35319"
+  },
+  "src/utils/uiTokens.ts": {
+    "mtime": 1785584798.520677,
+    "ast_hash": "b24050e12d80676f2a616dab50a5374f",
+    "semantic_hash": "b24050e12d80676f2a616dab50a5374f"
+  },
+  "src/utils/useLongPress.ts": {
+    "mtime": 1785584798.520677,
+    "ast_hash": "c8f09c453ccf1e1c3d1783e018af304e",
+    "semantic_hash": "c8f09c453ccf1e1c3d1783e018af304e"
+  }
+}

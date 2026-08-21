@@ -78,6 +78,7 @@ export function Profile() {
     activeModal,
     setActiveModal,
     currency,
+    language,
     savedAccounts,
   } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -133,6 +134,12 @@ export function Profile() {
         trips,
         goals,
         customCategories,
+        preferences: {
+          theme,
+          colorMode,
+          currency,
+          language
+        }
       });
       setLastBackupTime(timeIso);
       setSyncStatus("Cloud backup complete!");
@@ -481,7 +488,19 @@ export function Profile() {
                 </div>{" "}
               </div>{" "}
               <button
-                onClick={() => setCloudBackupEnabled(!isCloudBackupEnabled)}
+                onClick={async () => {
+                  const newState = !isCloudBackupEnabled;
+                  setCloudBackupEnabled(newState);
+                  if (user?.uid) {
+                    try {
+                      const { doc, setDoc } = await import("firebase/firestore");
+                      const { db } = await import("../../../services/firebase");
+                      await setDoc(doc(db, "users", user.uid), { cloudSyncEnabled: newState }, { merge: true });
+                    } catch (e) {
+                      console.warn("Failed to update cloud sync preference in firestore", e);
+                    }
+                  }
+                }}
                 className={`w-12 h-6 rounded-full transition-colors relative p-1 cursor-pointer ${isCloudBackupEnabled ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/15"}`}
               >
                 {" "}
