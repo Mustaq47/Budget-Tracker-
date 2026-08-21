@@ -306,11 +306,12 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       addTransaction: (tx) => {
-        const todayISO = new Date().toISOString().split('T')[0];
+        const _d = new Date();
+        const todayLocal = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
         const newTransaction: Transaction = {
           ...tx,
           id: Date.now().toString() + Math.random().toString(36).substring(2, 7),
-          date: todayISO,
+          date: todayLocal,
         };
 
         set((state) => ({

@@ -16,6 +16,7 @@ import { useTranslation } from "../../../utils/translations";
 import { useNavigate } from "react-router";
 import { pageTitleClass, pageSubtitleClass, sectionTitleClass, incomeTextClass, expenseTextClass, getListItemCardClass } from "../../../utils/uiTokens";
 import { useDailyBudget } from "../../hooks/useDailyBudget";
+import { formatCompactCurrency } from "../../../utils/formatters";
 
 export function Home() {
   const navigate = useNavigate();
@@ -62,10 +63,10 @@ export function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                {currencySymbols[currency]}{remainingToday.toLocaleString()}
+                {formatCompactCurrency(remainingToday, currencySymbols[currency])}
               </motion.div>
               <div className={`${subtextColor} tracking-tight text-sm font-medium`}>
-                Spent: {currencySymbols[currency]}{spentToday.toLocaleString()} / {currencySymbols[currency]}{dailyAllowance.toLocaleString()}
+                Spent: {formatCompactCurrency(spentToday, currencySymbols[currency])} / {formatCompactCurrency(dailyAllowance, currencySymbols[currency])}
               </div>
               <motion.div
                 className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${

@@ -31,6 +31,7 @@ import {
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
 import { useGoalsStore } from "../../../store/useGoalsStore";
+import { formatCompactCurrency } from "../../../utils/formatters";
 import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import {
@@ -58,6 +59,7 @@ import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
 import { useLongPress } from "../../../utils/useLongPress";
 import { logger } from "../../../utils/logger";
 import { useAdminIAM } from "../../../services/adminIamService";
+import { calculateDineroBalance } from "../../../utils/dineroUtils";
 export function Profile() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -109,13 +111,9 @@ export function Profile() {
     user?.email ||
     user?.phoneNumber ||
     (isAuthenticated ? "Registered Account" : "Not signed in");
-  const income = transactions
-    .filter((t) => t.type === "income")
-    .reduce((s, t) => s + t.amount, 0);
-  const expense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((s, t) => s + t.amount, 0);
-  const balance = Math.max(0, income - expense);
+  const incomeTransactions = transactions.filter((t) => t.type === "income");
+  const expenseTransactions = transactions.filter((t) => t.type === "expense");
+  const balance = calculateDineroBalance(incomeTransactions, expenseTransactions, currency);
   const handleLogout = async () => {
     try {
       await logout();
@@ -387,54 +385,41 @@ export function Profile() {
         </div>{" "}
       </GlassCard>{" "}
       <GlassCard className="mb-6">
-        {" "}
-        <div className="grid grid-cols-3 gap-4 text-center">
-          {" "}
+        <div className="grid grid-cols-4 gap-4 text-center">
           <div>
-            {" "}
-            <div
-              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
-            >
-              {" "}
-              {currencySymbols[currency]}
-              {balance >= 1000
-                ? `${(balance / 1000).toFixed(1)}K`
-                : balance}{" "}
-            </div>{" "}
-            <div
-              className={`${subtextColor} text-xs tracking-tight font-medium`}
-            >
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
+              {formatCompactCurrency(balance, currencySymbols[currency])}
+            </div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
               {t.balance}
-            </div>{" "}
-          </div>{" "}
+            </div>
+          </div>
           <div>
-            {" "}
-            <div
-              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
-            >
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
               {transactions.length}
-            </div>{" "}
-            <div
-              className={`${subtextColor} text-xs tracking-tight font-medium`}
-            >
+            </div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
               {t.transactions}
-            </div>{" "}
-          </div>{" "}
+            </div>
+          </div>
           <div>
-            {" "}
-            <div
-              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
-            >
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
               {tripsCount}
-            </div>{" "}
-            <div
-              className={`${subtextColor} text-xs tracking-tight font-medium`}
-            >
+            </div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
               Trips
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-      </GlassCard>{" "}
+            </div>
+          </div>
+          <div>
+            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
+              {goals.length}
+            </div>
+            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
+              Goals
+            </div>
+          </div>
+        </div>
+      </GlassCard>
       {/* Cloud Storage & Local Privacy Section */}{" "}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

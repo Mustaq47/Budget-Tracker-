@@ -5,7 +5,7 @@ import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
 import { dinero, add, toDecimal } from 'dinero.js';
-import * as currencies from 'dinero.js/currencies';
+import { getCurrencyObj, toSubunits, calculateDineroTotal } from "../../../utils/dineroUtils";
 import { GlassIcon } from "../GlassIcon";
 
 interface BudgetModalProps {
@@ -16,14 +16,7 @@ interface BudgetModalProps {
 const presetBudgets = [15000, 25000, 50000, 100000];
 const quickAddPresets = [500, 1000, 2000, 5000, 10000];
 
-const getCurrencyObj = (cCode: string) => {
-  return (currencies as any)[cCode] || (currencies as any).USD;
-};
 
-const toSubunits = (amount: number, currencyObj: any) => {
-  const factor = currencyObj.base ** currencyObj.exponent;
-  return Math.round(amount * factor);
-};
 
 export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
   const { dailyBudget, setDailyBudget, transactions, addTransaction, currency, theme, colorMode } = useBudgetStore();
@@ -46,9 +39,9 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
   // Calculate spent this month for rendering (Optional context, but kept simple to avoid heavy logic)
   const currentMonthPrefix = new Date().toISOString().substring(0, 7);
-  const spentThisMonth = transactions
-    .filter((t) => t.type === "expense" && t.date.startsWith(currentMonthPrefix))
-    .reduce((s, t) => s + t.amount, 0);
+  const spentThisMonthTxs = transactions
+    .filter((t) => t.type === "expense" && t.date.startsWith(currentMonthPrefix));
+  const spentThisMonth = calculateDineroTotal(spentThisMonthTxs, currency);
 
   const remaining = Math.max(0, dailyBudget - spentThisMonth);
   const spentPercent = Math.min(100, Math.round((spentThisMonth / (dailyBudget || 1)) * 100));

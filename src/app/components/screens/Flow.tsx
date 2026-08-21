@@ -23,6 +23,7 @@ import {
 } from "../../../utils/uiTokens";
 import { getCategoryMeta, getCombinedCategories } from "../../../utils/categoryConfig";
 import { formatCurrency } from "../../../utils/formatters";
+import { calculateDineroTotal } from "../../../utils/dineroUtils";
 import { useLongPress } from "../../../utils/useLongPress";
 
 interface FlowItemCardProps {
@@ -174,10 +175,9 @@ export function Flow() {
   const categories = useMemo(() => getCombinedCategories(customCategories), [customCategories]);
 
   const totalSpent = useMemo(() => {
-    return flowItems
-      .filter((t) => t.type === "expense")
-      .reduce((sum, item) => sum + item.amount, 0);
-  }, [flowItems]);
+    const expenseTxs = flowItems.filter((t) => t.type === "expense");
+    return calculateDineroTotal(expenseTxs, currency);
+  }, [flowItems, currency]);
 
   return (
     <div className="min-h-screen px-6 pt-12">

@@ -126,6 +126,8 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
   );
 };
 
+import { calculateDineroBalance, calculateDineroTotal } from "../../../utils/dineroUtils";
+import { formatCompactCurrency } from "../../../utils/formatters";
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { transactions, addTransaction, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
   const { trips, updateTripSpent } = useTripsStore();
@@ -140,10 +142,9 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   // Financial Context
   const incomeTxs = transactions.filter((t) => t.type === "income");
   const expenseTxs = transactions.filter((t) => t.type === "expense");
-  
-  const income = incomeTxs.reduce((sum, t) => sum + t.amount, 0);
-  const expense = expenseTxs.reduce((sum, t) => sum + t.amount, 0);
-  const totalBalance = Math.max(0, income - expense);
+  const income = calculateDineroTotal(incomeTxs, currency);
+  const expense = calculateDineroTotal(expenseTxs, currency);
+  const totalBalance = calculateDineroBalance(incomeTxs, expenseTxs, currency);
 
   // Generate sparkline data from the last 15 transactions
   const sparklineData = useMemo(() => {
@@ -302,8 +303,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     <div>
                       <div className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Available Balance</div>
                       <div className="text-white text-5xl font-black tracking-tighter drop-shadow-lg">
-                        <span className="text-[#00E5FF]/80 text-4xl mr-1">{currencySymbols[currency]}</span>
-                        {totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCompactCurrency(totalBalance, currencySymbols[currency])}
                       </div>
                     </div>
 

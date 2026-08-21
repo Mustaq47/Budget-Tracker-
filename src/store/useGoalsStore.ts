@@ -2,15 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { dinero, toDecimal, add } from 'dinero.js';
 import { SavingsGoal, useBudgetStore } from './useBudgetStore';
-import * as currencies from 'dinero.js/currencies';
-
-const getCurrencyObj = (cCode: string) => {
-  return (currencies as any)[cCode] || (currencies as any).USD;
-};
-const toSubunits = (amount: number, currencyObj: any) => {
-  const factor = currencyObj.base ** currencyObj.exponent;
-  return Math.round(amount * factor);
-};
+import { getCurrencyObj, toSubunits } from '../utils/dineroUtils';
 
 interface GoalsState {
   goals: SavingsGoal[];
