@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { GlassCard } from "../GlassCard";
 import { Coins, Target, CheckCircle2, ChevronRight, ChevronLeft } from "lucide-react";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
@@ -11,7 +12,8 @@ import { useTranslation } from "../../../utils/translations";
 export function Onboarding() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { setDailyBudget, addGoal, setHasCompletedOnboarding, theme, colorMode, currency } = useBudgetStore();
+  const { setDailyBudget, setHasCompletedOnboarding, theme, colorMode, currency } = useBudgetStore();
+  const { addGoal } = useGoalsStore();
   
   const [step, setStep] = useState(1);
   const [budget, setBudget] = useState(2000);

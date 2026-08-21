@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, User, Edit3, Users, ShieldCheck, Mail, Calendar, CreditCard, Award, TrendingDown, Target } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { SafeAvatar } from "../SafeAvatar";
 
@@ -18,7 +20,9 @@ export function UserProfileModal({
   onEditProfile,
   onSwitchUser,
 }: UserProfileModalProps) {
-  const { user, isAuthenticated, transactions, trips, goals, currency, isCloudBackupEnabled, theme, colorMode } = useBudgetStore();
+  const { user, isAuthenticated, transactions, currency, isCloudBackupEnabled, theme, colorMode } = useBudgetStore();
+  const { trips } = useTripsStore();
+  const { goals } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
 

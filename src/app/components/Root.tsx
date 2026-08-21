@@ -7,6 +7,10 @@ import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAndroidBackNavigation } from "../hooks/useAndroidBackNavigation";
 import { useCloudSync } from "../../features/sync/hooks/useCloudSync";
 
+import { useEffect } from "react";
+import { useTripsStore } from "../../store/useTripsStore";
+import { useGoalsStore } from "../../store/useGoalsStore";
+
 export function Root() {
   const { theme, colorMode } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -17,6 +21,44 @@ export function Root() {
   
   // Initialize Cloud Sync daemon
   useCloudSync();
+
+  // One-time migration from budtrack-storage-v2 to individual stores
+  useEffect(() => {
+    try {
+      const oldStorageStr = localStorage.getItem('budtrack-storage-v2');
+      if (oldStorageStr) {
+        const oldStorage = JSON.parse(oldStorageStr);
+        if (oldStorage.state) {
+          const { trips, goals } = oldStorage.state;
+          let migrated = false;
+          
+          if (trips && Array.isArray(trips) && trips.length > 0) {
+            const currentTrips = useTripsStore.getState().trips;
+            if (currentTrips.length === 0) {
+              useTripsStore.getState().setTrips(trips);
+              migrated = true;
+            }
+          }
+          
+          if (goals && Array.isArray(goals) && goals.length > 0) {
+            const currentGoals = useGoalsStore.getState().goals;
+            if (currentGoals.length === 0) {
+              useGoalsStore.getState().setGoals(goals);
+              migrated = true;
+            }
+          }
+          
+          if (migrated) {
+            delete oldStorage.state.trips;
+            delete oldStorage.state.goals;
+            localStorage.setItem('budtrack-storage-v2', JSON.stringify(oldStorage));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Migration check failed:', e);
+    }
+  }, []);
 
   return (
     <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${activeTheme.bgClass}`}>

@@ -110,11 +110,19 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
           />
 
           <motion.div
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto"
+            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto touch-pan-y"
           >
             <div
               className={`backdrop-blur-[60px] border-t rounded-t-[48px] p-7 max-h-[88vh] overflow-y-auto transition-colors ${

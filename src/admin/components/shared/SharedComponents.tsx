@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Search, AlertCircle, InboxIcon } from "lucide-react";
+import { Search, AlertCircle, InboxIcon, ArrowUpDown } from "lucide-react";
 
 // ─── StatusBadge ──────────────────────────────────────────────
 interface StatusBadgeProps {
@@ -55,6 +55,9 @@ interface FilterBarProps {
   onFilterChange: (v: string) => void;
   searchPlaceholder?: string;
   isDark?: boolean;
+  sortOptions?: FilterOption[];
+  activeSort?: string;
+  onSortChange?: (v: string) => void;
 }
 
 export function FilterBar({
@@ -65,26 +68,51 @@ export function FilterBar({
   onFilterChange,
   searchPlaceholder = "Search...",
   isDark = false,
+  sortOptions,
+  activeSort,
+  onSortChange,
 }: FilterBarProps) {
-  const inputBg = isDark ? "bg-[#2D2D2D] border-[#374151] text-white placeholder-white/30" : "bg-[#F1F5F9] border-[#E5E7EB] text-[#111827] placeholder-[#6B7280]";
-  const pillBase = isDark ? "text-[#94A3B8] hover:bg-white/10" : "text-[#6B7280] hover:bg-slate-200";
-  const pillActive = isDark ? "bg-white text-[#111827]" : "bg-[#111827] text-white";
+  const inputBg = isDark ? "bg-[#2D2D2D]/80 border-white/10 text-white placeholder-white/30 backdrop-blur-xl shadow-inner" : "bg-white/80 border-slate-200/50 text-[#111827] placeholder-slate-400 backdrop-blur-xl shadow-sm";
+  const pillBase = isDark ? "text-white/50 hover:bg-white/10" : "text-slate-500 hover:bg-slate-200/50";
+  const pillActive = isDark ? "bg-white text-black shadow-md" : "bg-black text-white shadow-md";
 
   return (
     <div className="space-y-3">
-      {/* Search */}
-      <div className="relative">
-        <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-white/30" : "text-[#6B7280]"}`} />
-        <input
-          type="text"
-          value={searchValue}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={searchPlaceholder}
-          className={`w-full h-10 pl-10 pr-4 rounded-2xl border text-sm font-medium outline-none transition-all ${inputBg}`}
-        />
+      {/* Search and Sort Row */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-white/30" : "text-[#6B7280]"}`} />
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={searchPlaceholder}
+            className={`w-full h-10 pl-10 pr-4 rounded-2xl border text-sm font-medium outline-none transition-all ${inputBg}`}
+          />
+        </div>
+        
+        {sortOptions && onSortChange && activeSort && (
+          <div className="relative flex-shrink-0">
+            <select
+              value={activeSort}
+              onChange={(e) => onSortChange(e.target.value)}
+              className={`h-10 pl-10 pr-8 appearance-none rounded-2xl border text-sm font-bold outline-none cursor-pointer transition-all ${inputBg}`}
+            >
+              {sortOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ArrowUpDown className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-white/50" : "text-slate-500"} pointer-events-none`} />
+            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+              <svg className={`w-4 h-4 ${isDark ? "text-white/50" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        )}
       </div>
       {/* Segment Pills */}
-      <div className={`flex gap-1.5 overflow-x-auto pb-1 p-1.5 rounded-2xl ${isDark ? "bg-white/5" : "bg-[#F1F5F9]"}`}>
+      <div className={`flex gap-2 overflow-x-auto pb-1 p-2 rounded-2xl ${isDark ? "bg-white/5 shadow-inner" : "bg-slate-100/50 shadow-inner"}`}>
         {filters.map((f) => (
           <button
             key={f.value}
@@ -138,20 +166,26 @@ interface ChartCardProps {
 }
 
 export function ChartCard({ title, subtitle, children, isDark, className = "", action }: ChartCardProps) {
-  const cardBg = isDark ? "bg-[#1E1E1E] border-[#374151]" : "bg-white border-[#E5E7EB]";
-  const titleColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
+  const cardBg = isDark 
+    ? "bg-[#1C1C1E]/80 border-white/5 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.4)]" 
+    : "bg-white/80 border-slate-200/50 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]";
+  const titleColor = isDark ? "text-white" : "text-[#111827]";
+  const subColor = isDark ? "text-white/50" : "text-slate-500";
   return (
-    <div className={`p-5 rounded-[20px] border ${cardBg} ${className}`}>
-      <div className="flex items-start justify-between mb-4">
+    <motion.div 
+      whileHover={{ scale: 1.01, y: -2 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      className={`p-6 rounded-[28px] border ${cardBg} ${className}`}
+    >
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className={`text-sm font-black tracking-tight ${titleColor}`}>{title}</h3>
-          {subtitle && <p className={`text-[11px] mt-0.5 ${subColor}`}>{subtitle}</p>}
+          <h3 className={`text-base font-black tracking-tight ${titleColor}`}>{title}</h3>
+          {subtitle && <p className={`text-[12px] font-semibold mt-1 ${subColor}`}>{subtitle}</p>}
         </div>
         {action}
       </div>
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -164,13 +198,13 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({ title, subtitle, action, isDark }: SectionHeaderProps) {
-  const titleColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
+  const titleColor = isDark ? "text-white" : "text-black";
+  const subColor = isDark ? "text-white/50" : "text-slate-500";
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between mb-6">
       <div>
-        <h2 className={`text-base font-black tracking-tight ${titleColor}`}>{title}</h2>
-        {subtitle && <p className={`text-[11px] mt-0.5 ${subColor}`}>{subtitle}</p>}
+        <h2 className={`text-2xl font-black tracking-tighter ${titleColor}`}>{title}</h2>
+        {subtitle && <p className={`text-sm font-semibold mt-1 ${subColor}`}>{subtitle}</p>}
       </div>
       {action}
     </div>

@@ -20,14 +20,24 @@ export interface IamRoleAssignment {
   };
 }
 
-export const ROOT_SUPER_ADMIN_EMAIL = "mustaqsk47@gmail.com";
+export const ROOT_SUPER_ADMIN_EMAILS = [
+  "mustaqsk47@gmail.com"
+];
+
+// Use the primary one as fallback where a single string is needed
+export const PRIMARY_ROOT_EMAIL = ROOT_SUPER_ADMIN_EMAILS[0];
 
 const LOCAL_STORAGE_KEY = "cozify_iam_role_assignments";
+
+export function isRootSuperAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return ROOT_SUPER_ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
 
 // Hardcode root super admin as immutable base entry
 const ROOT_ADMIN_ASSIGNMENT: IamRoleAssignment = {
   id: "mustaqsk47_gmail_com",
-  email: ROOT_SUPER_ADMIN_EMAIL,
+  email: PRIMARY_ROOT_EMAIL,
   role: "SUPER_ADMIN",
   grantedBy: "SYSTEM_ROOT",
   grantedAt: "2026-08-01T00:00:00.000Z",
@@ -84,7 +94,7 @@ export async function getIamRoleAssignments(): Promise<IamRoleAssignment[]> {
     if (raw) {
       const parsed = JSON.parse(raw) as IamRoleAssignment[];
       parsed.forEach((item) => {
-        if (item.email.toLowerCase() !== ROOT_SUPER_ADMIN_EMAIL.toLowerCase()) {
+        if (!isRootSuperAdmin(item.email)) {
           localList.push(item);
         }
       });
@@ -99,12 +109,12 @@ export async function getIamRoleAssignments(): Promise<IamRoleAssignment[]> {
     const cloudList: IamRoleAssignment[] = [ROOT_ADMIN_ASSIGNMENT];
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data() as Partial<IamRoleAssignment>;
-      if (data.email && data.email.toLowerCase() !== ROOT_SUPER_ADMIN_EMAIL.toLowerCase()) {
+      if (data.email && !isRootSuperAdmin(data.email)) {
         cloudList.push({
           id: docSnap.id,
           email: data.email,
           role: (data.role as AdminRole) || "USER",
-          grantedBy: data.grantedBy || ROOT_SUPER_ADMIN_EMAIL,
+          grantedBy: data.grantedBy || PRIMARY_ROOT_EMAIL,
           grantedAt: data.grantedAt || new Date().toISOString(),
           permissions: getRolePermissions((data.role as AdminRole) || "USER"),
         });
@@ -115,7 +125,7 @@ export async function getIamRoleAssignments(): Promise<IamRoleAssignment[]> {
     try {
       localStorage.setItem(
         LOCAL_STORAGE_KEY,
-        JSON.stringify(cloudList.filter((i) => i.email !== ROOT_SUPER_ADMIN_EMAIL))
+        JSON.stringify(cloudList.filter((i) => !isRootSuperAdmin(i.email)))
       );
     } catch {
       // ignore
@@ -134,15 +144,15 @@ export async function getIamRoleAssignments(): Promise<IamRoleAssignment[]> {
 export async function assignAdminRole(
   email: string,
   role: AdminRole,
-  grantedByEmail: string = ROOT_SUPER_ADMIN_EMAIL
+  grantedByEmail: string = PRIMARY_ROOT_EMAIL
 ): Promise<IamRoleAssignment> {
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanEmail) throw new Error("A valid user email is required.");
-  if (cleanEmail === ROOT_SUPER_ADMIN_EMAIL.toLowerCase()) {
+  if (isRootSuperAdmin(cleanEmail)) {
     return ROOT_ADMIN_ASSIGNMENT;
   }
 
-  const assignmentId = cleanEmail.replace(/[^a-z0-9]/g, "_");
+  const assignmentId = cleanEmail;
   const newAssignment: IamRoleAssignment = {
     id: assignmentId,
     email: cleanEmail,
@@ -160,7 +170,7 @@ export async function assignAdminRole(
       .concat(newAssignment);
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
-      JSON.stringify(updated.filter((i) => i.email !== ROOT_SUPER_ADMIN_EMAIL))
+      JSON.stringify(updated.filter((i) => !isRootSuperAdmin(i.email)))
     );
   } catch (e) {
     console.warn("[IAM] Local save error:", e);
@@ -187,11 +197,12 @@ export async function assignAdminRole(
  */
 export async function revokeAdminRole(email: string): Promise<boolean> {
   const cleanEmail = email.trim().toLowerCase();
-  if (cleanEmail === ROOT_SUPER_ADMIN_EMAIL.toLowerCase()) {
+  if (isRootSuperAdmin(cleanEmail)) {
     throw new Error("Cannot revoke Root Super Admin authority.");
   }
 
-  const assignmentId = cleanEmail.replace(/[^a-z0-9]/g, "_");
+  const assignmentId = cleanEmail;
+  const legacyAssignmentId = cleanEmail.replace(/[^a-z0-9]/g, "_");
 
   // 1. Remove from local storage
   try {
@@ -199,7 +210,7 @@ export async function revokeAdminRole(email: string): Promise<boolean> {
     const updated = list.filter((i) => i.email.toLowerCase() !== cleanEmail);
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
-      JSON.stringify(updated.filter((i) => i.email !== ROOT_SUPER_ADMIN_EMAIL))
+      JSON.stringify(updated.filter((i) => !isRootSuperAdmin(i.email)))
     );
   } catch {
     // ignore
@@ -208,6 +219,7 @@ export async function revokeAdminRole(email: string): Promise<boolean> {
   // 2. Remove from Firestore
   try {
     await deleteDoc(doc(db, "iam_roles", assignmentId));
+    await deleteDoc(doc(db, "iam_roles", legacyAssignmentId));
   } catch (e) {
     console.warn("[IAM] Firestore delete offline:", e);
   }
@@ -228,7 +240,7 @@ export function useAdminIAM() {
     const userEmail = user?.email?.trim().toLowerCase() || "";
 
     // Strict check for Root Super Admin
-    if (userEmail === ROOT_SUPER_ADMIN_EMAIL.toLowerCase()) {
+    if (isRootSuperAdmin(userEmail)) {
       setRole("SUPER_ADMIN");
       setIsLoading(false);
       return;

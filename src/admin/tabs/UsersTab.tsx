@@ -2,7 +2,118 @@
 // Virtual-scrolled list, mobile-optimized touch rows
 
 import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useDragControls } from "motion/react";
+
+function UserDetailPanel({
+  user,
+  onClose,
+  isDark,
+}: {
+  user: UserDirectoryEntry;
+  onClose: () => void;
+  isDark: boolean;
+}) {
+  const panelBg = isDark ? "bg-[#1C1C1E]/95 backdrop-blur-3xl" : "bg-white/95 backdrop-blur-3xl";
+  const textColor = isDark ? "text-white" : "text-black";
+  const subColor = isDark ? "text-white/50" : "text-slate-500";
+  const divider = isDark ? "divide-white/5" : "divide-slate-200/50";
+  const rowBg = isDark ? "bg-white/5 shadow-inner" : "bg-slate-100/50 shadow-inner";
+  const dragControls = useDragControls();
+
+  const stats = [
+    { label: "Transactions", value: user.stats.transactionCount },
+    { label: "Trips", value: user.stats.tripsCount },
+    { label: "Goals", value: user.stats.goalsCount },
+    { label: "Storage", value: `${user.stats.localStorageSizeKb} KB` },
+  ];
+
+  return (
+    <motion.div
+      drag="y"
+      dragControls={dragControls}
+      dragListener={false}
+      dragConstraints={{ top: 0 }}
+      dragElastic={0.2}
+      onDragEnd={(e, info) => {
+        if (info.offset.y > 100 || info.velocity.y > 500) {
+          onClose();
+        }
+      }}
+      initial={{ y: "100%", opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: "100%", opacity: 0 }}
+      transition={{ type: "spring", damping: 30, stiffness: 350 }}
+      className={`fixed inset-x-0 bottom-0 z-50 rounded-t-[40px] flex flex-col ${panelBg} shadow-[0_-20px_60px_rgb(0,0,0,0.3)] border-t ${isDark ? "border-white/10" : "border-slate-200/50"}`}
+      style={{ maxHeight: "92vh" }}
+    >
+      {/* Handle Area (Drag target) */}
+      <div 
+        onPointerDown={(e) => dragControls.start(e)}
+        style={{ touchAction: "none" }}
+        className="pt-3 pb-2 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing shrink-0"
+      >
+        <div className={`w-12 h-1.5 rounded-full ${isDark ? "bg-white/20" : "bg-slate-300"}`} />
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="overflow-y-auto touch-pan-y hide-scrollbar pb-8">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pb-6 pt-2">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-2xl font-black text-emerald-500 shadow-inner">
+              {user.displayName?.[0]?.toUpperCase() || "U"}
+            </div>
+            <div>
+              <p className={`font-black text-xl tracking-tight ${textColor}`}>{user.displayName}</p>
+              <p className={`text-sm font-semibold mt-0.5 ${subColor}`}>{user.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`p-2 rounded-full ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-100 hover:bg-slate-200 text-black"} cursor-pointer transition-colors shadow-sm`}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Status row */}
+        <div className="px-6 flex items-center gap-2 pb-6">
+          <StatusBadge status={user.syncState} isDark={isDark} />
+          <StatusBadge status={user.platform} isDark={isDark} />
+          <StatusBadge status={user.status} isDark={isDark} />
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-4 gap-2 px-6 mb-6">
+          {stats.map((s) => (
+            <div key={s.label} className={`p-4 rounded-3xl text-center ${rowBg}`}>
+              <p className={`text-base font-black tracking-tight ${textColor}`}>{s.value}</p>
+              <p className={`text-[10px] font-bold mt-1 uppercase tracking-wider ${subColor}`}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Details list */}
+        <div className={`px-6 space-y-1 divide-y ${divider}`}>
+          {[
+            { label: "UID", value: user.uid },
+            { label: "App Version", value: user.appVersion },
+            { label: "Last Login", value: new Date(user.lastLoginAt).toLocaleString() },
+            { label: "Last Backup", value: user.lastBackupAt ? new Date(user.lastBackupAt).toLocaleString() : "None" },
+            { label: "Sync State", value: user.syncState },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex justify-between items-center py-4">
+              <span className={`text-xs font-semibold ${subColor}`}>{label}</span>
+              <span className={`text-xs font-black tracking-tight ${textColor} text-right max-w-[60%] truncate`}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 import { X, Smartphone, Globe, Monitor, Cloud, Lock, ChevronRight } from "lucide-react";
 import {
   FilterBar,
@@ -27,115 +138,35 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   iOS: <Monitor className="w-3.5 h-3.5 text-purple-500" />,
 };
 
+const SORT_OPTIONS = [
+  { value: "recent_login", label: "Recent Login" },
+  { value: "name", label: "Name (A-Z)" },
+  { value: "transactions", label: "Transactions" },
+  { value: "storage", label: "Storage Size" },
+];
+
 interface UsersTabProps {
   users: UserDirectoryEntry[];
   isLoading: boolean;
   isDark: boolean;
 }
 
-function UserDetailPanel({
-  user,
-  onClose,
-  isDark,
-}: {
-  user: UserDirectoryEntry;
-  onClose: () => void;
-  isDark: boolean;
-}) {
-  const panelBg = isDark ? "bg-[#1E1E1E]" : "bg-white";
-  const textColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
-  const divider = isDark ? "divide-[#374151]" : "divide-[#E5E7EB]";
-  const rowBg = isDark ? "bg-[#2D2D2D]" : "bg-[#F8FAFC]";
-
-  const stats = [
-    { label: "Transactions", value: user.stats.transactionCount },
-    { label: "Cards", value: user.stats.cardsCount },
-    { label: "Goals", value: user.stats.goalsCount },
-    { label: "Storage", value: `${user.stats.localStorageSizeKb} KB` },
-  ];
-
-  return (
-    <motion.div
-      initial={{ y: "100%" }}
-      animate={{ y: 0 }}
-      exit={{ y: "100%" }}
-      transition={{ type: "spring", damping: 28, stiffness: 280 }}
-      className={`fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] ${panelBg} shadow-2xl`}
-      style={{ maxHeight: "80vh", overflowY: "auto" }}
-    >
-      {/* Handle */}
-      <div className="flex justify-center pt-3 pb-2">
-        <div className={`w-10 h-1 rounded-full ${isDark ? "bg-white/20" : "bg-slate-300"}`} />
-      </div>
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-xl font-black text-emerald-600">
-            {user.displayName?.[0]?.toUpperCase() || "U"}
-          </div>
-          <div>
-            <p className={`font-black text-base ${textColor}`}>{user.displayName}</p>
-            <p className={`text-xs ${subColor}`}>{user.email}</p>
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className={`p-2 rounded-full ${isDark ? "bg-white/10" : "bg-slate-100"} cursor-pointer`}
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Status row */}
-      <div className="px-5 flex items-center gap-2 pb-4">
-        <StatusBadge status={user.syncState} isDark={isDark} />
-        <StatusBadge status={user.platform} isDark={isDark} />
-        <StatusBadge status={user.status} isDark={isDark} />
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-4 gap-2 px-5 mb-4">
-        {stats.map((s) => (
-          <div key={s.label} className={`p-3 rounded-2xl text-center ${rowBg}`}>
-            <p className={`text-sm font-black ${textColor}`}>{s.value}</p>
-            <p className={`text-[9px] font-semibold mt-0.5 ${subColor}`}>{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Details list */}
-      <div className={`px-5 pb-8 space-y-2 divide-y ${divider}`}>
-        {[
-          { label: "UID", value: user.uid },
-          { label: "App Version", value: user.appVersion },
-          { label: "Last Login", value: new Date(user.lastLoginAt).toLocaleString() },
-          { label: "Last Backup", value: user.lastBackupAt ? new Date(user.lastBackupAt).toLocaleString() : "None" },
-          { label: "Sync State", value: user.syncState },
-        ].map(({ label, value }) => (
-          <div key={label} className="flex justify-between items-center py-2">
-            <span className={`text-xs ${subColor}`}>{label}</span>
-            <span className={`text-xs font-bold ${textColor} text-right max-w-[60%] truncate`}>{value}</span>
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
 export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
   const [search, setSearch] = useState("");
   const [syncFilter, setSyncFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("recent_login");
   const [selectedUser, setSelectedUser] = useState<UserDirectoryEntry | null>(null);
 
-  const cardBg = isDark ? "bg-[#1E1E1E] border-[#374151]" : "bg-white border-[#E5E7EB]";
-  const divider = isDark ? "divide-[#374151]" : "divide-[#E5E7EB]";
-  const textColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
-  const rowHover = isDark ? "hover:bg-white/5" : "hover:bg-[#F8FAFC]";
+  const cardBg = isDark 
+    ? "bg-[#1C1C1E]/80 border-white/5 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.3)]" 
+    : "bg-white/80 border-slate-200/50 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.03)]";
+  const divider = isDark ? "divide-white/5" : "divide-slate-200/50";
+  const textColor = isDark ? "text-white" : "text-black";
+  const subColor = isDark ? "text-white/50" : "text-slate-500";
+  const rowHover = isDark ? "hover:bg-white/5" : "hover:bg-slate-100/50";
 
   const filtered = useMemo(() => {
-    return users.filter((u) => {
+    let result = users.filter((u) => {
       const matchSearch =
         search === "" ||
         u.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -143,7 +174,23 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
       const matchFilter = syncFilter === "ALL" || u.syncState === syncFilter;
       return matchSearch && matchFilter;
     });
-  }, [users, search, syncFilter]);
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.displayName.localeCompare(b.displayName);
+        case "transactions":
+          return (b.stats?.transactionCount || 0) - (a.stats?.transactionCount || 0);
+        case "storage":
+          return (b.stats?.localStorageSizeKb || 0) - (a.stats?.localStorageSizeKb || 0);
+        case "recent_login":
+        default:
+          return new Date(b.lastLoginAt).getTime() - new Date(a.lastLoginAt).getTime();
+      }
+    });
+
+    return result;
+  }, [users, search, syncFilter, sortBy]);
 
   return (
     <div className="space-y-4">
@@ -161,6 +208,9 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
         onFilterChange={setSyncFilter}
         searchPlaceholder="Search by name or email..."
         isDark={isDark}
+        sortOptions={SORT_OPTIONS}
+        activeSort={sortBy}
+        onSortChange={setSortBy}
       />
 
       {isLoading ? (
@@ -176,7 +226,7 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
           isDark={isDark}
         />
       ) : (
-        <div className={`rounded-[20px] border ${cardBg} divide-y ${divider} overflow-hidden`}>
+        <div className={`rounded-[28px] border ${cardBg} divide-y ${divider} overflow-hidden`}>
           {filtered.map((user, idx) => (
             <motion.button
               key={user.uid}
@@ -199,8 +249,13 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
                 </div>
                 <div className={`text-[10px] truncate ${subColor}`}>{user.email}</div>
                 <div className={`text-[10px] mt-0.5 ${subColor}`}>
-                  Last login: {new Date(user.lastLoginAt).toLocaleDateString()}
+                  Last login: {new Date(user.lastLoginAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </div>
+                {(sortBy === "transactions" || sortBy === "storage") && (
+                  <div className={`text-[10px] mt-0.5 font-bold ${textColor}`}>
+                    {sortBy === "transactions" ? `${user.stats.transactionCount} transactions` : `${user.stats.localStorageSizeKb} KB storage`}
+                  </div>
+                )}
               </div>
 
               {/* Sync badge */}

@@ -1,9 +1,11 @@
 import React, { useState, useRef } from "react";
-import { motion, AnimatePresence, useAnimation } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { X, Plane, Plus, Calendar, Trash2, Edit3, Coins } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { GlassIcon } from "../GlassIcon";
+import { SwipeableCard } from "../ui/SwipeableCard";
 
 interface TripsModalProps {
   isOpen: boolean;
@@ -21,71 +23,45 @@ const presetGradients = [
 
 const springConfig = { type: "spring" as const, stiffness: 350, damping: 30 };
 
-// --- TripCard Component (Matches GoalCard with Swipe & Context Menu) ---
+// --- TripCard Component (Using Universal SwipeableCard) ---
 function TripCard({ trip, isLight, currency, onContribute, onEdit, onDelete }: any) {
-  const [showMenu, setShowMenu] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const pressTimer = useRef<NodeJS.Timeout | null>(null);
-  const controls = useAnimation();
-  
   const percent = Math.min(100, Math.max(0, (trip.spent / trip.budget) * 100));
   const remaining = trip.budget - trip.spent;
   const overspent = remaining < 0;
 
-  const handlePointerDown = () => {
-    pressTimer.current = setTimeout(() => {
-      setShowMenu(true);
-      if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(50);
-      }
-    }, 500);
-  };
-
-  const cancelPress = () => {
-    if (pressTimer.current) clearTimeout(pressTimer.current);
-  };
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = (event: any, info: any) => {
-    setIsDragging(false);
-    const offset = info.offset.x;
-    if (offset < -80 || offset > 80) {
-      onDelete();
-    } else {
-      controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 20 } });
-    }
-  };
-
   return (
-    <div className="relative w-full rounded-[24px] mb-4">
-      {/* Background Delete Indicator (Revealed on Swipe) */}
-      <div className={`absolute inset-0 flex items-center justify-between px-6 z-0 rounded-[24px] bg-rose-500 transition-opacity duration-300 ${isDragging ? "opacity-100" : "opacity-0"}`}>
-        <Trash2 className="text-white w-6 h-6 opacity-80" />
-        <Trash2 className="text-white w-6 h-6 opacity-80" />
-      </div>
-
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.4}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        animate={controls}
-        onPointerDown={handlePointerDown}
-        onPointerUp={cancelPress}
-        onPointerMove={cancelPress}
-        onPointerCancel={cancelPress}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          setShowMenu(true);
-        }}
-        className={`relative w-full p-5 rounded-[24px] border backdrop-blur-xl transition-all cursor-grab active:cursor-grabbing overflow-hidden z-10 ${
-          isLight ? "bg-white border-slate-200" : "bg-white/5 hover:bg-white/10 border-white/10"
-        }`}
-      >
+    <SwipeableCard
+      isLight={isLight}
+      onDelete={onDelete}
+      renderContextMenu={(closeMenu) => (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); closeMenu(); onContribute(); }}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
+          >
+            <Coins size={20} strokeWidth={1.5} />
+          </button>
+          
+          <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); closeMenu(); onEdit(); }}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
+          >
+            <Edit3 size={19} strokeWidth={1.5} />
+          </button>
+          
+          <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); closeMenu(); onDelete(); }}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-rose-500 hover:bg-rose-500/10" : "text-rose-400 hover:bg-rose-500/20"}`}
+          >
+            <Trash2 size={19} strokeWidth={1.5} />
+          </button>
+        </>
+      )}
+    >
         {/* Subtle Gradient Background matching trip flavor */}
         <div className="absolute inset-0 opacity-[0.10] pointer-events-none" style={{ background: trip.gradient }} />
         
@@ -139,71 +115,19 @@ function TripCard({ trip, isLight, currency, onContribute, onEdit, onDelete }: a
           </div>
         </div>
 
-        {/* Apple Style Context Menu Overlay */}
-        <AnimatePresence>
-          {showMenu && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[24px]"
-              onPointerDown={(e) => e.stopPropagation()}
-            >
-              <motion.div 
-                initial={{ scale: 0.95, y: 5 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={`flex items-center gap-1 p-1.5 rounded-full backdrop-blur-3xl shadow-[0_8px_30px_rgba(0,0,0,0.2)] border ${isLight ? "bg-white/80 border-white/50" : "bg-black/60 border-white/10"}`}
-              >
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); onContribute(); }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
-                >
-                  <Coins size={20} strokeWidth={1.5} />
-                </button>
-                
-                <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
-                
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit(); }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
-                >
-                  <Edit3 size={19} strokeWidth={1.5} />
-                </button>
-                
-                <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
-                
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); onDelete(); }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-rose-500 hover:bg-rose-500/10" : "text-rose-400 hover:bg-rose-500/20"}`}
-                >
-                  <Trash2 size={19} strokeWidth={1.5} />
-                </button>
-              </motion.div>
-
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowMenu(false); }}
-                className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "bg-white/80 text-slate-500 hover:text-slate-900" : "bg-white/10 text-white/50 hover:text-white"}`}
-              >
-                <X size={14} strokeWidth={2} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </div>
+    </SwipeableCard>
   );
 }
 
 
 export function TripsModal({ isOpen, onClose }: TripsModalProps) {
-  const { trips, addTrip, removeTrip, updateTripSpent, editTrip, currency, theme, colorMode } = useBudgetStore();
+  const { currency, theme, colorMode } = useBudgetStore();
+  const { trips, addTrip, removeTrip, updateTripSpent, editTrip } = useTripsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
-  const accentColor = activeTheme.primary;
+  const accentColor = activeTheme.primaryColor;
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedTripForEdit, setSelectedTripForEdit] = useState<any | null>(null);
@@ -303,11 +227,19 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
           />
 
           <motion.div
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                resetAndClose();
+              }
+            }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={springConfig}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end"
+            className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end touch-pan-y"
           >
             <div
               className={`w-full max-h-[92vh] flex flex-col rounded-t-[40px] relative transition-colors ${
@@ -360,33 +292,41 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-4"
                     >
-                      {trips.length === 0 ? (
-                        <div className={`text-center py-12 flex flex-col items-center justify-center ${subtextColor}`}>
-                          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isLight ? "bg-slate-100" : "bg-white/5"}`}>
-                            <Plane size={32} className="opacity-20" />
-                          </div>
-                          <p className="text-sm font-medium mb-6">No trips planned yet.</p>
-                          <button
-                            onClick={() => setShowAddForm(true)}
-                            style={{ backgroundColor: accentColor, color: isLight ? "#fff" : "#000" }}
-                            className="px-6 py-3.5 rounded-full font-bold text-sm hover:scale-105 transition-transform cursor-pointer flex items-center justify-center gap-2 max-w-[220px]"
+                      <AnimatePresence mode="popLayout">
+                        {trips.length === 0 ? (
+                          <motion.div 
+                            key="empty"
+                            layout
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={`text-center p-8 rounded-[24px] border border-dashed ${isLight ? "border-slate-300" : "border-white/20"}`}
                           >
-                            <Plus size={18} /> Plan Trip
-                          </button>
-                        </div>
-                      ) : (
-                        trips.map(trip => (
-                          <TripCard
-                            key={trip.id}
-                            trip={trip}
-                            isLight={isLight}
-                            currency={currency}
-                            onContribute={() => setSelectedTripForContribution(trip.id)}
-                            onEdit={() => openEditModal(trip)}
-                            onDelete={() => removeTrip(trip.id)}
-                          />
-                        ))
-                      )}
+                            <Plane className={`w-12 h-12 mx-auto mb-3 opacity-20 ${isLight ? "text-slate-900" : "text-white"}`} />
+                            <p className={`font-bold mb-1 ${textColor}`}>No Trips Planned</p>
+                            <p className={`text-sm ${subtextColor}`}>Time to book your next adventure!</p>
+                            <button
+                              onClick={() => setShowAddForm(true)}
+                              style={{ backgroundColor: accentColor, color: "#ffffff" }}
+                              className="px-6 py-3.5 rounded-full font-bold text-sm hover:scale-105 transition-transform cursor-pointer flex items-center justify-center gap-2 max-w-[220px] mx-auto mt-6"
+                            >
+                              <Plus size={18} /> Plan Trip
+                            </button>
+                          </motion.div>
+                        ) : (
+                          trips.map((trip: any) => (
+                            <TripCard
+                              key={trip.id}
+                              trip={trip}
+                              isLight={isLight}
+                              currency={currency}
+                              onContribute={() => setSelectedTripForContribution(trip.id)}
+                              onEdit={() => openEditModal(trip)}
+                              onDelete={() => removeTrip(trip.id)}
+                            />
+                          ))
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   ) : selectedTripForContribution ? (
                     <motion.form
@@ -468,7 +408,7 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
                           placeholder="e.g. Kyoto 2026"
                           autoFocus
                           className={`w-full p-4 rounded-[20px] font-bold text-lg outline-none transition-all ${
-                            isLight ? "bg-slate-50 focus:bg-white border border-slate-200" : "bg-black/20 focus:bg-black/40 border border-white/10"
+                            isLight ? "bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400" : "bg-black/20 focus:bg-black/40 border border-white/10 text-white placeholder:text-white/30"
                           }`}
                         />
                       </div>
@@ -487,7 +427,7 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
                             onChange={(e) => setNewTrip({ ...newTrip, budget: e.target.value.replace(/[^0-9.]/g, "") })}
                             placeholder="5000"
                             className={`w-full pl-10 pr-4 py-4 rounded-[20px] font-bold text-lg outline-none transition-all ${
-                              isLight ? "bg-slate-50 focus:bg-white border border-slate-200" : "bg-black/20 focus:bg-black/40 border border-white/10"
+                              isLight ? "bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400" : "bg-black/20 focus:bg-black/40 border border-white/10 text-white placeholder:text-white/30"
                             }`}
                           />
                         </div>
@@ -501,7 +441,7 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
                             value={newTrip.startDate}
                             onChange={(e) => setNewTrip({ ...newTrip, startDate: e.target.value })}
                             className={`w-full p-4 rounded-[20px] font-bold text-sm outline-none transition-all ${
-                              isLight ? "bg-slate-50 focus:bg-white border border-slate-200" : "bg-black/20 focus:bg-black/40 border border-white/10"
+                              isLight ? "bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400" : "bg-black/20 focus:bg-black/40 border border-white/10 text-white placeholder:text-white/30"
                             }`}
                           />
                         </div>
@@ -512,7 +452,7 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
                             value={newTrip.endDate}
                             onChange={(e) => setNewTrip({ ...newTrip, endDate: e.target.value })}
                             className={`w-full p-4 rounded-[20px] font-bold text-sm outline-none transition-all ${
-                              isLight ? "bg-slate-50 focus:bg-white border border-slate-200" : "bg-black/20 focus:bg-black/40 border border-white/10"
+                              isLight ? "bg-slate-50 focus:bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400" : "bg-black/20 focus:bg-black/40 border border-white/10 text-white placeholder:text-white/30"
                             }`}
                           />
                         </div>
@@ -536,9 +476,8 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
                       <button
                         type="submit"
                         disabled={!newTrip.title || !newTrip.budget}
-                        className={`w-full py-4 rounded-full font-bold text-sm disabled:opacity-50 transition-all mt-4 ${
-                          isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-slate-200"
-                        }`}
+                        style={{ background: newTrip.gradient, color: "#ffffff" }}
+                        className="w-full py-4 rounded-full font-bold text-sm disabled:opacity-50 transition-transform hover:scale-[1.02] active:scale-[0.98] mt-4 shadow-lg"
                       >
                         {selectedTripForEdit ? "Save Changes" : "Plan Trip"}
                       </button>

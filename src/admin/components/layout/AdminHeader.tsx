@@ -33,13 +33,13 @@ export function AdminHeader({
   lastRefresh,
 }: AdminHeaderProps) {
   const headerBg = isDark
-    ? "bg-[#121212]/90 border-[#374151]"
-    : "bg-white/90 border-[#E5E7EB]";
-  const titleColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
+    ? "bg-[#1C1C1E]/75 border-white/5"
+    : "bg-white/75 border-slate-200/50";
+  const titleColor = isDark ? "text-white" : "text-[#111827]";
+  const subColor = isDark ? "text-white/50" : "text-[#6B7280]";
   const btnBg = isDark
-    ? "bg-white/5 border-[#374151] text-[#94A3B8] hover:bg-white/10"
-    : "bg-[#F1F5F9] border-[#E5E7EB] text-[#6B7280] hover:bg-slate-200";
+    ? "bg-white/5 border-white/10 text-white hover:bg-white/10 shadow-sm"
+    : "bg-white border-slate-200/50 text-[#6B7280] hover:bg-slate-50 shadow-sm";
 
   const roleStyle = role ? ROLE_STYLES[role] || ROLE_STYLES["USER"] : ROLE_STYLES["USER"];
 
@@ -64,8 +64,8 @@ export function AdminHeader({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <h1 className={`text-sm font-black tracking-tight truncate ${titleColor}`}>
-                Admin Panel
+              <h1 className={`text-base font-black tracking-tight truncate ${titleColor}`}>
+                Admin Control
               </h1>
               {role && (
                 <span className={`px-1.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border flex-shrink-0 ${roleStyle}`}>

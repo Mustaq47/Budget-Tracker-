@@ -1,8 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { 
   uploadBackupToFirestore, 
-  downloadBackupFromFirestore, 
+  downloadBackupFromFirestore,
+  syncTripsToFirestore,
+  downloadTripsFromFirestore,
+  syncGoalsToFirestore,
+  downloadGoalsFromFirestore,
   computePayloadHash 
 } from "../../../services/firestoreService";
 import { logger } from "../../../utils/logger";
@@ -14,15 +20,18 @@ export function useCloudSync() {
     isCloudBackupEnabled,
     dailyBudget,
     transactions,
-    trips,
-    goals,
     customCategories,
     restoreCloudState,
     setLastBackupTime,
   } = useBudgetStore();
 
+  const { trips, setTrips } = useTripsStore();
+  const { goals, setGoals } = useGoalsStore();
+
   const isInitialMount = useRef(true);
   const lastSyncHash = useRef<string | null>(null);
+  const lastTripsHash = useRef<string | null>(null);
+  const lastGoalsHash = useRef<string | null>(null);
 
   // 1. Initial Load: Download from Cloud if enabled
   useEffect(() => {
@@ -46,16 +55,46 @@ export function useCloudSync() {
 
         const backup = await downloadBackupFromFirestore(user.uid);
         if (backup) {
+          // Conflict Resolution Check
+          const localTransactions = useBudgetStore.getState().transactions || [];
+          const latestLocalTxTime = localTransactions.length > 0 
+            ? Math.max(...localTransactions.map(t => {
+                const tsMatch = t.id.match(/^(\d{13})/); // tx IDs usually start with Date.now()
+                return tsMatch ? parseInt(tsMatch[1], 10) : 0;
+              })) 
+            : 0;
+          
+          const backupTime = backup.updatedAtFormatted ? new Date(backup.updatedAtFormatted).getTime() : 0;
+          
+          if (latestLocalTxTime > backupTime && backupTime !== 0) {
+            if (import.meta.env.DEV) {
+              logger.warn("[useCloudSync] Aborted auto-restore: Local data has newer transactions than the cloud backup.");
+            }
+            return;
+          }
+
           restoreCloudState(backup);
           if (backup.updatedAtFormatted) {
             setLastBackupTime(backup.updatedAtFormatted);
           }
-          // Set initial hash to prevent immediate re-upload
           lastSyncHash.current = computePayloadHash(backup as any);
           if (import.meta.env.DEV) {
             logger.info("[useCloudSync] Auto-restored cloud backup on login.");
           }
         }
+
+        const cloudTrips = await downloadTripsFromFirestore(user.uid);
+        if (cloudTrips) {
+           setTrips(cloudTrips);
+           lastTripsHash.current = JSON.stringify(cloudTrips);
+        }
+
+        const cloudGoals = await downloadGoalsFromFirestore(user.uid);
+        if (cloudGoals) {
+           setGoals(cloudGoals);
+           lastGoalsHash.current = JSON.stringify(cloudGoals);
+        }
+
       } catch (err) {
         logger.warn("[useCloudSync] Initial auto-restore failed:", err);
       }
@@ -65,13 +104,12 @@ export function useCloudSync() {
       isInitialMount.current = false;
       initialSync();
     }
-  }, [isAuthenticated, user?.uid, restoreCloudState, setLastBackupTime, isCloudBackupEnabled]);
+  }, [isAuthenticated, user?.uid, restoreCloudState, setLastBackupTime, isCloudBackupEnabled, setTrips, setGoals]);
 
   // 2. Auto-Upload on Data Changes (Debounced)
   useEffect(() => {
     if (!isAuthenticated || !user?.uid || !isCloudBackupEnabled) return;
 
-    // Skip the very first render if we haven't done initial sync
     if (isInitialMount.current) return;
 
     const { theme, colorMode, currency, language } = useBudgetStore.getState();
@@ -79,8 +117,6 @@ export function useCloudSync() {
     const payload = {
       dailyBudget,
       transactions,
-      trips,
-      goals,
       customCategories,
       preferences: {
         theme,
@@ -91,22 +127,38 @@ export function useCloudSync() {
     };
 
     const currentHash = computePayloadHash(payload as any);
+    const tripsHashStr = JSON.stringify(trips);
+    const goalsHashStr = JSON.stringify(goals);
 
-    // Don't upload if nothing functionally changed
-    if (currentHash === lastSyncHash.current) return;
+    const changedBackup = currentHash !== lastSyncHash.current;
+    const changedTrips = tripsHashStr !== lastTripsHash.current;
+    const changedGoals = goalsHashStr !== lastGoalsHash.current;
+
+    if (!changedBackup && !changedTrips && !changedGoals) return;
 
     const timeoutId = setTimeout(async () => {
       try {
-        const timeIso = await uploadBackupToFirestore(user.uid, payload);
-        setLastBackupTime(timeIso);
-        lastSyncHash.current = currentHash;
+        if (changedBackup) {
+          const timeIso = await uploadBackupToFirestore(user.uid, payload);
+          setLastBackupTime(timeIso);
+          lastSyncHash.current = currentHash;
+        }
+        if (changedTrips) {
+          await syncTripsToFirestore(user.uid, trips);
+          lastTripsHash.current = tripsHashStr;
+        }
+        if (changedGoals) {
+          await syncGoalsToFirestore(user.uid, goals);
+          lastGoalsHash.current = goalsHashStr;
+        }
+        
         if (import.meta.env.DEV) {
-          logger.info("[useCloudSync] Auto-uploaded backup to cloud.");
+          logger.info("[useCloudSync] Auto-uploaded to cloud.");
         }
       } catch (err) {
         logger.warn("[useCloudSync] Auto-upload failed:", err);
       }
-    }, 2000); // 2 second debounce to bundle rapid changes (e.g. adding transaction + goal)
+    }, 2000); // 2 second debounce
 
     return () => clearTimeout(timeoutId);
   }, [

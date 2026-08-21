@@ -38,9 +38,11 @@ const THEME_COLORS: Record<string, string> = {
 };
 
 export function AnalyticsTab({ analytics, isLoading, isDark }: AnalyticsTabProps) {
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
-  const textColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const cardBg = isDark ? "bg-[#1E1E1E] border-[#374151]" : "bg-white border-[#E5E7EB]";
+  const subColor = isDark ? "text-white/50" : "text-slate-500";
+  const textColor = isDark ? "text-white" : "text-black";
+  const cardBg = isDark 
+    ? "bg-[#1C1C1E]/80 border-white/5 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.3)]" 
+    : "bg-white/80 border-slate-200/50 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.03)]";
 
   const authTotal = analytics
     ? analytics.authMethods.google + analytics.authMethods.email + analytics.authMethods.phone
@@ -241,11 +243,11 @@ export function AnalyticsTab({ analytics, isLoading, isDark }: AnalyticsTabProps
 
       {/* Top Platform */}
       {!isLoading && analytics && (
-        <div className={`flex items-center gap-3 p-4 rounded-[20px] border ${isDark ? "bg-[#1E1E1E] border-[#374151]" : "bg-white border-[#E5E7EB]"}`}>
-          <span className="text-2xl">📱</span>
+        <div className={`flex items-center gap-4 p-5 rounded-[24px] border ${cardBg}`}>
+          <div className="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center text-2xl">📱</div>
           <div>
-            <p className={`text-xs ${subColor}`}>Top Platform</p>
-            <p className={`text-sm font-black ${textColor}`}>{analytics.topPlatform}</p>
+            <p className={`text-xs font-bold uppercase tracking-wider ${subColor}`}>Top Platform</p>
+            <p className={`text-xl font-black tracking-tight ${textColor}`}>{analytics.topPlatform}</p>
           </div>
         </div>
       )}

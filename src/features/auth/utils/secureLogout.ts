@@ -33,6 +33,8 @@ export async function secureLogout(logoutStoreCallback?: () => void): Promise<vo
       if (window.sessionStorage) window.sessionStorage.clear();
       if (window.localStorage) {
         try { window.localStorage.removeItem('budtrack-storage-v2'); } catch (_) {}
+        try { window.localStorage.removeItem('budtrack-trips-storage'); } catch (_) {}
+        try { window.localStorage.removeItem('budtrack-goals-storage'); } catch (_) {}
       }
     }
   } catch (error) {
