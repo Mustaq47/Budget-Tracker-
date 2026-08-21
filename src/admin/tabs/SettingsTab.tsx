@@ -29,7 +29,7 @@ import type {
   AdminRole,
   TicketStatus,
 } from "../types/admin.types";
-import { assignAdminRole, revokeAdminRole, ROOT_SUPER_ADMIN_EMAIL } from "../../services/adminIamService";
+import { assignAdminRole, revokeAdminRole, PRIMARY_ROOT_EMAIL, isRootSuperAdmin } from "../../services/adminIamService";
 import { replyToSupportTicket, updateTicketStatus } from "../../services/supportQueryService";
 import { getIamRoleAssignments } from "../../services/adminIamService";
 import { getSupportTickets } from "../../services/supportQueryService";
@@ -97,7 +97,7 @@ export function SettingsTab({
     if (!newEmail.trim()) return;
     setIamLoading(true);
     try {
-      await assignAdminRole(newEmail.trim(), newRole, userEmail || ROOT_SUPER_ADMIN_EMAIL);
+      await assignAdminRole(newEmail.trim(), newRole, userEmail || PRIMARY_ROOT_EMAIL);
       const updated = await getIamRoleAssignments();
       onIamUpdate(updated as any);
       setNewEmail("");
@@ -136,7 +136,7 @@ export function SettingsTab({
     if (!replyText.trim()) return;
     setReplyLoading(true);
     try {
-      await replyToSupportTicket(ticket.id, replyText.trim(), userEmail || ROOT_SUPER_ADMIN_EMAIL);
+      await replyToSupportTicket(ticket.id, replyText.trim(), userEmail || PRIMARY_ROOT_EMAIL);
       const updated = await getSupportTickets();
       onTicketUpdate(updated as any);
       setReplyText("");
@@ -228,7 +228,7 @@ export function SettingsTab({
         ) : (
           <div className={`rounded-[20px] border ${cardBg} divide-y ${divider} overflow-hidden`}>
             {iamRoles.map((r, idx) => {
-              const isRoot = r.email.toLowerCase() === ROOT_SUPER_ADMIN_EMAIL.toLowerCase();
+              const isRoot = isRootSuperAdmin(r.email);
               return (
                 <motion.div
                   key={r.id}
@@ -248,7 +248,7 @@ export function SettingsTab({
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <StatusBadge status={r.role} isDark={isDark} />
-                    {!isRoot && isSuperAdmin && (
+                    {!isRoot && isSuperAdmin && (r.role !== "SUPER_ADMIN" || isRootSuperAdmin(userEmail)) && (
                       <button
                         onClick={() => handleRevoke(r.email)}
                         className="p-1.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors cursor-pointer"

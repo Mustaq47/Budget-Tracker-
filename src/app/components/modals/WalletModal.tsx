@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Wallet, ArrowDownRight, ArrowUpRight, PlusCircle, MinusCircle, Sparkles, CreditCard, ChevronRight, Check } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { dinero, add, toDecimal } from 'dinero.js';
 import * as currencies from 'dinero.js/currencies';
@@ -126,7 +127,8 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
 };
 
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
-  const { transactions, trips, addTransaction, updateTripSpent, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
+  const { transactions, addTransaction, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
+  const { trips, updateTripSpent } = useTripsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
   
@@ -178,15 +180,17 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
       if (selectedTrip) title += ` (${selectedTrip.title})`;
     }
 
-    addTransaction({
-      title,
-      amount: val,
-      category: activeAction === "deposit" ? "Income" : "Transfer",
-      time: timeStr,
-      type: activeAction === "deposit" ? "income" : "expense",
-      glow: activeAction === "deposit" ? "purple" : "pink",
-      tripId: selectedTripId || undefined,
-    });
+    if (!(activeAction === "withdraw" && selectedTripId)) {
+      addTransaction({
+        title,
+        amount: val,
+        category: activeAction === "deposit" ? "Income" : "Transfer",
+        time: timeStr,
+        type: activeAction === "deposit" ? "income" : "expense",
+        glow: activeAction === "deposit" ? "purple" : "pink",
+        tripId: selectedTripId || undefined,
+      });
+    }
 
     if (activeAction === "deposit") {
       const cObj = getCurrencyObj(currency);
@@ -229,11 +233,19 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
           />
 
           <motion.div
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                resetAndClose();
+              }
+            }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={springConfig}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end"
+            className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end touch-pan-y"
           >
             <div
               className={`w-full max-h-[92vh] flex flex-col rounded-t-[40px] relative transition-colors ${

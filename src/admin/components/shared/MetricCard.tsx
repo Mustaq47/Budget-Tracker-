@@ -36,9 +36,11 @@ export function MetricCard({
   size = "md",
 }: MetricCardProps) {
   const colors = colorMap[color];
-  const cardBg = isDark ? "bg-[#1E1E1E] border-[#374151]" : "bg-white border-[#E5E7EB]";
-  const labelColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
-  const valueColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
+  const cardBg = isDark 
+    ? "bg-[#1C1C1E]/80 border-white/5 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.3)]" 
+    : "bg-white/80 border-slate-200/50 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.03)]";
+  const labelColor = isDark ? "text-white/50" : "text-slate-500";
+  const valueColor = isDark ? "text-white" : "text-black";
 
   const sizeMap = {
     sm: "p-4",
@@ -64,8 +66,9 @@ export function MetricCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, y: -2 }}
       transition={{ type: "spring", damping: 28, stiffness: 280 }}
-      className={`${sizeMap[size]} rounded-[20px] border ${cardBg} ${className}`}
+      className={`${sizeMap[size]} rounded-[24px] border ${cardBg} ${className}`}
     >
       <div className="flex items-center justify-between mb-3">
         <span className={`text-[11px] font-extrabold uppercase tracking-wider ${labelColor}`}>

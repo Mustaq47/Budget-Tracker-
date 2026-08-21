@@ -29,11 +29,17 @@ import {
   MessageSquareHeart,
 } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import {
   uploadBackupToFirestore,
   downloadBackupFromFirestore,
+  syncTripsToFirestore,
+  downloadTripsFromFirestore,
+  syncGoalsToFirestore,
+  downloadGoalsFromFirestore,
 } from "../../../services/firestoreService";
 import { DesignModal } from "../modals/DesignModal";
 import { ProfileSettingsModal } from "../modals/ProfileSettingsModal";
@@ -61,10 +67,7 @@ export function Profile() {
     isAuthenticated,
     logoutUser,
     transactions,
-    tripsCount,
     dailyBudget,
-    trips,
-    goals,
     customCategories,
     isCloudBackupEnabled,
     setCloudBackupEnabled,
@@ -81,6 +84,8 @@ export function Profile() {
     language,
     savedAccounts,
   } = useBudgetStore();
+  const { trips, tripsCount, setTrips } = useTripsStore();
+  const { goals, setGoals } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -131,8 +136,6 @@ export function Profile() {
       const timeIso = await uploadBackupToFirestore(user.uid, {
         dailyBudget,
         transactions,
-        trips,
-        goals,
         customCategories,
         preferences: {
           theme,
@@ -141,6 +144,8 @@ export function Profile() {
           language
         }
       });
+      await syncTripsToFirestore(user.uid, trips);
+      await syncGoalsToFirestore(user.uid, goals);
       setLastBackupTime(timeIso);
       setSyncStatus("Cloud backup complete!");
     } catch (err: any) {
@@ -163,6 +168,13 @@ export function Profile() {
         if (backup.updatedAtFormatted) {
           setLastBackupTime(backup.updatedAtFormatted);
         }
+        
+        const cloudTrips = await downloadTripsFromFirestore(user.uid);
+        if (cloudTrips) setTrips(cloudTrips);
+        
+        const cloudGoals = await downloadGoalsFromFirestore(user.uid);
+        if (cloudGoals) setGoals(cloudGoals);
+
         setSyncStatus("Data restored from Cloud!");
       } else {
         setSyncStatus("No cloud backup document found.");

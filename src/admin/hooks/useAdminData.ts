@@ -145,6 +145,7 @@ export function useAdminData() {
               transactionCount: data.transactionCount ?? 0,
               cardsCount: data.cardsCount ?? 0,
               goalsCount: data.goalsCount ?? 0,
+              tripsCount: data.tripsCount ?? 0,
               localStorageSizeKb: data.localStorageSizeKb ?? 0,
             },
           };

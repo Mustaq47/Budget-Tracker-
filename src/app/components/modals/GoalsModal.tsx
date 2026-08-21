@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, useAnimation } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { X, Zap, Plus, Coins, Target, Trash2, Edit3, Trophy } from "lucide-react";
 import { useBudgetStore, SavingsGoal, currencySymbols } from "../../../store/useBudgetStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { GlassIcon } from "../GlassIcon";
 import confetti from "canvas-confetti";
+import { SwipeableCard } from "../ui/SwipeableCard";
 
 interface GoalsModalProps {
   isOpen: boolean;
@@ -33,48 +35,8 @@ function GoalCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const [showMenu, setShowMenu] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const pressTimer = useRef<NodeJS.Timeout | null>(null);
-  const controls = useAnimation();
-  
   const pct = Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100));
   const isCompleted = pct >= 100;
-
-  const handlePointerDown = () => {
-    pressTimer.current = setTimeout(() => {
-      setShowMenu(true);
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate(50); // Haptic feedback on long press
-      }
-    }, 500); // 500ms long press
-  };
-
-  const cancelPress = () => {
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      pressTimer.current = null;
-    }
-  };
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = (event: any, info: any) => {
-    setIsDragging(false);
-    const offset = info.offset.x;
-    if (offset < -80 || offset > 80) {
-      // Swiped far enough
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate([30, 50, 30]);
-      }
-      onDelete();
-    } else {
-      // Snap back
-      controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 20 } });
-    }
-  };
 
   // Thematically sync the progress bar to the selected glow or active theme
   const barGradient = isCompleted 
@@ -85,32 +47,38 @@ function GoalCard({
     : "bg-gradient-to-r from-[#FFD166] via-[#FF4D8D] to-[#7B61FF] shadow-[0_0_12px_rgba(255,209,102,0.5)]";
 
   return (
-    <div className="relative w-full rounded-[24px] mb-4">
-      {/* Background Delete Indicator (Revealed on Swipe) */}
-      <div className={`absolute inset-0 flex items-center justify-between px-6 z-0 rounded-[24px] bg-rose-500 transition-opacity duration-300 ${isDragging ? "opacity-100" : "opacity-0"}`}>
-        <Trash2 className="text-white w-6 h-6 opacity-80" />
-        <Trash2 className="text-white w-6 h-6 opacity-80" />
-      </div>
-
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.4}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        animate={controls}
-        onPointerDown={handlePointerDown}
-        onPointerUp={cancelPress}
-        onPointerMove={cancelPress}
-        onPointerCancel={cancelPress}
-        onContextMenu={(e) => {
-          e.preventDefault(); // Prevent default browser context menu
-          setShowMenu(true);
-        }}
-        className={`relative w-full p-5 rounded-[24px] border backdrop-blur-xl transition-all cursor-grab active:cursor-grabbing overflow-hidden z-10 ${
-          isLight ? "bg-white border-slate-200" : "bg-white/5 hover:bg-white/10 border-white/10"
-        }`}
-      >
+    <SwipeableCard
+      isLight={isLight}
+      onDelete={onDelete}
+      renderContextMenu={(closeMenu) => (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); closeMenu(); onContribute(); }}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
+          >
+            <Coins size={20} strokeWidth={1.5} />
+          </button>
+          
+          <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); closeMenu(); onEdit(); }}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
+          >
+            <Edit3 size={19} strokeWidth={1.5} />
+          </button>
+          
+          <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); closeMenu(); onDelete(); }}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-rose-500 hover:bg-rose-500/10" : "text-rose-400 hover:bg-rose-500/20"}`}
+          >
+            <Trash2 size={19} strokeWidth={1.5} />
+          </button>
+        </>
+      )}
+    >
         <div className="flex justify-between items-start mb-4 pointer-events-none">
           <div>
             <div className={`${textColor} font-extrabold text-base tracking-tight flex items-center gap-2`}>
@@ -142,70 +110,18 @@ function GoalCard({
           />
         </div>
 
-        {/* Hold-to-open Context Menu Overlay */}
-        <AnimatePresence>
-          {showMenu && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[24px]"
-              onPointerDown={(e) => e.stopPropagation()} // Stop drag when interacting with menu
-            >
-              <motion.div 
-                initial={{ scale: 0.95, y: 5 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={`flex items-center gap-1 p-1.5 rounded-full backdrop-blur-3xl shadow-[0_8px_30px_rgba(0,0,0,0.2)] border ${isLight ? "bg-white/80 border-white/50" : "bg-black/60 border-white/10"}`}
-              >
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); onContribute(); }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
-                >
-                  <Coins size={20} strokeWidth={1.5} />
-                </button>
-                
-                <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
-                
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit(); }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-slate-700 hover:bg-black/5" : "text-white/90 hover:bg-white/10"}`}
-                >
-                  <Edit3 size={19} strokeWidth={1.5} />
-                </button>
-                
-                <div className={`w-[1px] h-6 ${isLight ? "bg-slate-200" : "bg-white/10"}`} />
-                
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); onDelete(); }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "text-rose-500 hover:bg-rose-500/10" : "text-rose-400 hover:bg-rose-500/20"}`}
-                >
-                  <Trash2 size={19} strokeWidth={1.5} />
-                </button>
-              </motion.div>
-
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowMenu(false); }}
-                className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${isLight ? "bg-white/80 text-slate-500 hover:text-slate-900" : "bg-white/10 text-white/50 hover:text-white"}`}
-              >
-                <X size={14} strokeWidth={2} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </div>
+    </SwipeableCard>
   );
 }
 
 export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
-  const { goals, addGoal, contributeToGoal, deleteGoal, editGoal, currency, theme, colorMode } = useBudgetStore();
+  const { currency, theme, colorMode } = useBudgetStore();
+  const { goals, addGoal, contributeToGoal, deleteGoal, editGoal } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
-  const accentColor = activeTheme.primary;
+  const accentColor = activeTheme.primaryColor;
 
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [selectedGoalForContribution, setSelectedGoalForContribution] = useState<string | null>(null);
@@ -316,11 +232,19 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
           {/* Bottom Sheet Modal */}
           <motion.div
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto"
+            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto touch-pan-y"
           >
             <div
               className={`backdrop-blur-3xl border-t rounded-t-[40px] p-6 pt-3 max-h-[85vh] overflow-y-auto pb-12 relative transition-colors ${
@@ -385,7 +309,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                   </p>
                   <button
                     onClick={() => setShowAddGoal(true)}
-                    style={{ backgroundColor: accentColor, color: isLight ? "#fff" : "#000" }}
+                    style={{ backgroundColor: accentColor, color: "#ffffff" }}
                     className="px-6 py-3.5 rounded-full font-bold text-sm hover:scale-105 transition-transform cursor-pointer flex items-center justify-center gap-2 mx-auto w-full max-w-[220px]"
                   >
                     <Plus size={18} /> Create Goal
@@ -393,19 +317,21 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                 </div>
               ) : (
                 <div className="mb-6">
-                  {goals.map((goal: SavingsGoal) => (
-                    <GoalCard
-                      key={goal.id}
-                      goal={goal}
-                      isLight={isLight}
-                      textColor={textColor}
-                      subtextColor={subtextColor}
-                      currency={currency}
-                      onContribute={() => setSelectedGoalForContribution(goal.id)}
-                      onEdit={() => openEditModal(goal)}
-                      onDelete={() => deleteGoal(goal.id)}
-                    />
-                  ))}
+                  <AnimatePresence mode="popLayout">
+                    {goals.map((goal: SavingsGoal) => (
+                        <GoalCard
+                          key={goal.id}
+                          goal={goal}
+                          isLight={isLight}
+                          textColor={textColor}
+                          subtextColor={subtextColor}
+                          currency={currency}
+                          onContribute={() => setSelectedGoalForContribution(goal.id)}
+                          onEdit={() => openEditModal(goal)}
+                          onDelete={() => deleteGoal(goal.id)}
+                        />
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
 
@@ -568,8 +494,12 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
                     <button
                       type="submit"
-                      style={{ backgroundColor: accentColor, color: isLight ? "#fff" : "#000" }}
-                      className="w-full mt-4 py-4 rounded-full font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-lg"
+                      className={`w-full mt-4 py-4 rounded-full font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg text-white ${
+                        selectedGlow === "gold" ? "bg-amber-500 shadow-amber-500/30" :
+                        selectedGlow === "blue" ? "bg-blue-500 shadow-blue-500/30" :
+                        selectedGlow === "purple" ? "bg-purple-500 shadow-purple-500/30" :
+                        "bg-pink-500 shadow-pink-500/30"
+                      }`}
                     >
                       {selectedGoalForEdit ? "Save Changes" : "Create Goal"}
                     </button>

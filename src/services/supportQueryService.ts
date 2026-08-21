@@ -1,6 +1,6 @@
 import { collection, doc, setDoc, getDocs, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
-import { ROOT_SUPER_ADMIN_EMAIL } from "./adminIamService";
+import { PRIMARY_ROOT_EMAIL } from "./adminIamService";
 
 export type TicketPriority = 'HIGH' | 'MEDIUM' | 'LOW';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
@@ -120,7 +120,7 @@ export async function submitSupportTicket(payload: {
 export async function replyToSupportTicket(
   ticketId: string,
   replyContent: string,
-  adminEmail: string = ROOT_SUPER_ADMIN_EMAIL
+  adminEmail: string = PRIMARY_ROOT_EMAIL
 ): Promise<SupportTicket | null> {
   const cleanReply = replyContent.trim();
   if (!cleanReply) throw new Error("Reply content cannot be empty.");

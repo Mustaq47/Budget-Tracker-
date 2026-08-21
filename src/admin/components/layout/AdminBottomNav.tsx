@@ -23,15 +23,15 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
 
 export function AdminBottomNav({ activeTab, onTabChange, isDark, openTickets = 0 }: AdminBottomNavProps) {
   const navBg = isDark
-    ? "bg-[#1E1E1E]/95 border-[#374151]"
-    : "bg-white/95 border-[#E5E7EB]";
+    ? "bg-[#1C1C1E]/75 border-white/5"
+    : "bg-white/75 border-slate-200/50";
   const activeColor = isDark ? "text-[#4ADE80]" : "text-[#16A34A]";
   const inactiveColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
   const activeDot = isDark ? "bg-[#4ADE80]" : "bg-[#16A34A]";
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-xl ${navBg}`}
+      className={`fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.08)] ${navBg}`}
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="flex items-center justify-around px-2 py-2">

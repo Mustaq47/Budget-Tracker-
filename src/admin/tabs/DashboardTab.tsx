@@ -1,8 +1,9 @@
 // Dashboard Tab — Overview KPI grid + recent logins + platform breakdown
 // M3 Material Design tokens, spring animations, Stripe-style editorial cards
 
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "motion/react";
+import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
   Users,
   Activity,
@@ -35,13 +36,40 @@ interface DashboardTabProps {
 }
 
 export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: DashboardTabProps) {
-  const cardBg = isDark ? "bg-[#1E1E1E] border-[#374151]" : "bg-white border-[#E5E7EB]";
-  const subColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
-  const textColor = isDark ? "text-[#F8FAFC]" : "text-[#111827]";
-  const divider = isDark ? "border-[#374151]" : "border-[#E5E7EB]";
-  const rowHover = isDark ? "hover:bg-white/5" : "hover:bg-[#F8FAFC]";
+  const [sortBy, setSortBy] = useState("recent_login");
+  const cardBg = isDark 
+    ? "bg-[#1C1C1E]/80 border-white/5 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.3)]" 
+    : "bg-white/80 border-slate-200/50 backdrop-blur-2xl shadow-[0_4px_20px_rgb(0,0,0,0.03)]";
+  const subColor = isDark ? "text-white/50" : "text-slate-500";
+  const textColor = isDark ? "text-white" : "text-black";
+  const divider = isDark ? "divide-white/5" : "divide-slate-200/50";
+  const rowHover = isDark ? "hover:bg-white/5" : "hover:bg-slate-100/50";
 
   const totalPlatform = (metrics?.androidCount || 0) + (metrics?.webCount || 0) + (metrics?.iosCount || 0);
+
+  const sortedUsers = useMemo(() => {
+    const list = [...recentUsers];
+    list.sort((a, b) => {
+      if (sortBy === "name") return a.displayName.localeCompare(b.displayName);
+      if (sortBy === "transactions") return (b.stats?.transactionCount || 0) - (a.stats?.transactionCount || 0);
+      return new Date(b.lastLoginAt).getTime() - new Date(a.lastLoginAt).getTime();
+    });
+    return list;
+  }, [recentUsers, sortBy]);
+
+  const activityData = useMemo(() => {
+    // Group recent logins by day for the chart
+    const groups: Record<string, number> = {};
+    recentUsers.forEach(u => {
+      const date = new Date(u.lastLoginAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      groups[date] = (groups[date] || 0) + 1;
+    });
+    // Create an array and sort by date chronologically
+    return Object.entries(groups)
+      .map(([date, count]) => ({ date, logins: count }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(-7); // Last 7 days
+  }, [recentUsers]);
 
   return (
     <div className="space-y-5">
@@ -164,13 +192,54 @@ export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: Dashbo
         </ChartCard>
       )}
 
+      {/* User Activity Graph */}
+      {!isLoading && activityData.length > 0 && (
+        <ChartCard title="User Activity" subtitle="Logins over the last active days" isDark={isDark}>
+          <div className="h-48 w-full mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={activityData}>
+                <XAxis dataKey="date" stroke={isDark ? "#ffffff50" : "#64748b"} fontSize={10} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: isDark ? '#1C1C1E' : '#ffffff', 
+                    borderRadius: '16px', 
+                    border: 'none',
+                    boxShadow: isDark ? '0 10px 40px rgba(0,0,0,0.5)' : '0 10px 40px rgba(0,0,0,0.1)'
+                  }} 
+                  itemStyle={{ color: isDark ? '#fff' : '#000', fontWeight: 'bold' }}
+                />
+                <Line type="monotone" dataKey="logins" stroke="#10b981" strokeWidth={4} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+      )}
+
       {/* Recent User Activity */}
       <div>
-        <SectionHeader
-          title="Recent Activity"
-          subtitle={`${recentUsers.length} users tracked`}
-          isDark={isDark}
-        />
+        <div className="flex items-center justify-between mb-4">
+          <SectionHeader
+            title="Recent Activity"
+            subtitle={`${recentUsers.length} users tracked`}
+            isDark={isDark}
+          />
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={`appearance-none rounded-xl px-3 py-1.5 pr-8 text-xs font-bold outline-none cursor-pointer transition-colors border ${
+                isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-slate-200 text-black"
+              }`}
+            >
+              <option value="recent_login">Recent Login</option>
+              <option value="name">Name (A-Z)</option>
+              <option value="transactions">Transactions</option>
+            </select>
+            <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+              <svg className={`w-3 h-3 ${isDark ? "text-white/50" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        </div>
         {isLoading ? (
           <SkeletonCard isDark={isDark} lines={4} />
         ) : recentUsers.length === 0 ? (
@@ -180,8 +249,8 @@ export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: Dashbo
             isDark={isDark}
           />
         ) : (
-          <div className={`rounded-[20px] border ${cardBg} divide-y ${divider} overflow-hidden`}>
-            {recentUsers.slice(0, 8).map((user, idx) => (
+          <div className={`rounded-[28px] border ${cardBg} divide-y ${divider} overflow-hidden`}>
+            {sortedUsers.slice(0, 8).map((user, idx) => (
               <motion.div
                 key={user.uid}
                 initial={{ opacity: 0, x: -8 }}
@@ -197,8 +266,18 @@ export function DashboardTab({ metrics, recentUsers, isLoading, isDark }: Dashbo
                 </div>
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <div className={`text-xs font-bold truncate ${textColor}`}>{user.displayName}</div>
-                  <div className={`text-[10px] truncate ${subColor}`}>{user.email}</div>
+                  <div className={`text-[13px] font-black tracking-tight truncate ${textColor}`}>{user.displayName}</div>
+                  <div className={`text-[11px] font-medium truncate mt-0.5 ${subColor}`}>{user.email}</div>
+                  <div className={`flex items-center gap-2 mt-1`}>
+                    <div className={`text-[9px] opacity-70 ${subColor}`}>
+                      {new Date(user.lastLoginAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    {(sortBy === "transactions") && (
+                      <div className={`text-[9px] font-bold ${textColor}`}>
+                        • {user.stats.transactionCount} transactions
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {/* Status + Platform */}
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">

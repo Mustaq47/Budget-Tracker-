@@ -55,6 +55,7 @@ export interface UserDirectoryEntry {
     transactionCount: number;
     cardsCount: number;
     goalsCount: number;
+    tripsCount: number;
     localStorageSizeKb: number;
   };
 }

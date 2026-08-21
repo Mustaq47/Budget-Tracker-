@@ -1,5 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { dinero, toDecimal, add } from 'dinero.js';
+import * as currencies from 'dinero.js/currencies';
+
+const getCurrencyObj = (cCode: string) => {
+  return (currencies as any)[cCode] || (currencies as any).USD;
+};
+const toSubunits = (amount: number, currencyObj: any) => {
+  const factor = currencyObj.base ** currencyObj.exponent;
+  return Math.round(amount * factor);
+};
 
 export interface Transaction {
   id: string;
@@ -83,9 +93,6 @@ interface BudgetState {
   authLoading: boolean;
   dailyBudget: number;
   transactions: Transaction[];
-  tripsCount: number;
-  trips: Trip[];
-  goals: SavingsGoal[];
   activeModal: QuickActionModal;
   isCloudBackupEnabled: boolean;
   lastBackupTime: string | null;
@@ -120,19 +127,11 @@ interface BudgetState {
   toggleColorMode: () => void;
   setCloudBackupEnabled: (enabled: boolean) => void;
   setLastBackupTime: (time: string | null) => void;
-  restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; trips: Trip[]; goals: SavingsGoal[] }) => void;
+  restoreCloudState: (payload: { dailyBudget: number; transactions: Transaction[]; customCategories: string[] }) => void;
   addTransaction: (tx: Omit<Transaction, 'id' | 'date'>) => void;
   deleteTransaction: (id: string) => void;
   updateTransactionCategory: (id: string, category: string) => void;
   setDailyBudget: (budget: number) => void;
-  addTrip: (trip: Omit<Trip, 'id' | 'spent'>) => void;
-  removeTrip: (id: string) => void;
-  updateTripSpent: (id: string, amount: number) => void;
-  editTrip: (id: string, updates: Partial<Trip>) => void;
-  addGoal: (goal: Omit<SavingsGoal, 'id' | 'currentAmount'>) => void;
-  deleteGoal: (id: string) => void;
-  editGoal: (id: string, updates: Partial<SavingsGoal>) => void;
-  contributeToGoal: (goalId: string, amount: number) => void;
   updateNotificationSettings: (settings: Partial<BudgetState['notificationSettings']>) => void;
   updateUserProfile: (profile: Partial<UserProfile>) => void;
   wipeAllData: () => void;
@@ -159,9 +158,6 @@ export const useBudgetStore = create<BudgetState>()(
       dailyBudget: 2000,
       transactions: [],
       customCategories: [],
-      tripsCount: 0,
-      trips: [],
-      goals: [],
       activeModal: null,
       isCloudBackupEnabled: false,
       lastBackupTime: null,
@@ -207,9 +203,6 @@ export const useBudgetStore = create<BudgetState>()(
           return {
             dailyBudget: payload.dailyBudget ?? 2000,
             transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
-            trips: Array.isArray(payload.trips) ? payload.trips : [],
-            tripsCount: Array.isArray(payload.trips) ? payload.trips.length : 0,
-            goals: Array.isArray(payload.goals) ? payload.goals : [],
             customCategories: Array.isArray(payload.customCategories) ? payload.customCategories : [],
             ...(prefs.theme ? { theme: prefs.theme } : {}),
             ...(prefs.colorMode ? { colorMode: prefs.colorMode } : {}),
@@ -236,9 +229,6 @@ export const useBudgetStore = create<BudgetState>()(
               authLoading: false,
               dailyBudget: 2000,
               transactions: [],
-              tripsCount: 0,
-              trips: [],
-              goals: [],
               activeModal: null,
               isCloudBackupEnabled: false,
               lastBackupTime: null,
@@ -304,9 +294,6 @@ export const useBudgetStore = create<BudgetState>()(
           authLoading: false,
           dailyBudget: 2000,
           transactions: [],
-          tripsCount: 0,
-          trips: [],
-          goals: [],
           activeModal: null,
           isCloudBackupEnabled: false,
           lastBackupTime: null,
@@ -351,91 +338,9 @@ export const useBudgetStore = create<BudgetState>()(
 
       setDailyBudget: (dailyBudget) => set({ dailyBudget }),
 
-      addTrip: (trip) => {
-        const newTrip: Trip = {
-          ...trip,
-          id: 'trip-' + Date.now(),
-          spent: 0,
-        };
-        set((state) => ({
-          trips: [...state.trips, newTrip],
-          tripsCount: state.trips.length + 1,
-        }));
-      },
 
-      removeTrip: (id) => {
-        set((state) => {
-          const updatedTrips = state.trips.filter((c) => c.id !== id);
-          return {
-            trips: updatedTrips,
-            tripsCount: updatedTrips.length,
-          };
-        });
-      },
 
-      updateTripSpent: (id, amount) => {
-        set((state) => ({
-          trips: state.trips.map((trip) => 
-            trip.id === id ? { ...trip, spent: trip.spent + amount } : trip
-          )
-        }));
-      },
 
-      editTrip: (id, updates) =>
-        set((state) => ({
-          trips: state.trips.map((t) => (t.id === id ? { ...t, ...updates } : t)),
-        })),
-
-      addGoal: (goal) => {
-        const newGoal: SavingsGoal = {
-          ...goal,
-          id: 'goal-' + Date.now(),
-          currentAmount: 0,
-        };
-        set((state) => ({
-          goals: [...state.goals, newGoal],
-        }));
-      },
-
-      deleteGoal: (id) =>
-        set((state) => ({
-          goals: state.goals.filter((g) => g.id !== id),
-        })),
-
-      editGoal: (id, updates) =>
-        set((state) => ({
-          goals: state.goals.map((g) => (g.id === id ? { ...g, ...updates } : g)),
-        })),
-
-      contributeToGoal: (goalId, amount) => {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        set((state) => {
-          const updatedGoals = state.goals.map((g) =>
-            g.id === goalId ? { ...g, currentAmount: g.currentAmount + amount } : g
-          );
-          const goal = state.goals.find((g) => g.id === goalId);
-          const title = goal ? `Goal: ${goal.title}` : 'Savings Contribution';
-
-          // Automatically record as an expense transaction
-          const newTx: Transaction = {
-            id: 'tx-goal-' + Date.now(),
-            title,
-            amount,
-            category: 'Savings',
-            time: timeStr,
-            date: now.toISOString().split('T')[0],
-            type: 'expense',
-            glow: 'gold',
-          };
-
-          return {
-            goals: updatedGoals,
-            transactions: [newTx, ...state.transactions],
-          };
-        });
-      },
 
       updateNotificationSettings: (settings) =>
         set((state) => ({
@@ -468,9 +373,6 @@ export const useBudgetStore = create<BudgetState>()(
           dailyBudget: 2000,
           transactions: [],
           customCategories: [],
-          tripsCount: 0,
-          trips: [],
-          goals: [],
           activeModal: null,
           isCloudBackupEnabled: false,
           lastBackupTime: null,
@@ -495,8 +397,6 @@ export const useBudgetStore = create<BudgetState>()(
         dailyBudget: state.dailyBudget,
         transactions: state.transactions,
         customCategories: state.customCategories,
-        trips: state.trips,
-        goals: state.goals,
         isCloudBackupEnabled: state.isCloudBackupEnabled,
         lastBackupTime: state.lastBackupTime,
         theme: state.theme,
@@ -537,9 +437,6 @@ export const selectUserAuth = (state: BudgetState) => ({
 
 export const selectTransactions = (state: BudgetState) => state.transactions;
 export const selectDailyBudget = (state: BudgetState) => state.dailyBudget;
-export const selectTrips = (state: BudgetState) => state.trips;
-export const selectTripsCount = (state: BudgetState) => state.trips.length;
-export const selectGoals = (state: BudgetState) => state.goals;
 
 export const selectThemeSettings = (state: BudgetState) => ({
   theme: state.theme,

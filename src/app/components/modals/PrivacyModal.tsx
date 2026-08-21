@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Lock, Download, Trash2, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useBudgetStore } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useState } from "react";
 import { logger } from "../../../utils/logger";
@@ -12,9 +14,11 @@ interface PrivacyModalProps {
 
 export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   const { 
-    transactions, trips, goals, dailyBudget, wipeAllData,
+    transactions, dailyBudget, wipeAllData,
     theme, colorMode 
   } = useBudgetStore();
+  const { trips, wipeTrips } = useTripsStore();
+  const { goals, wipeGoals } = useGoalsStore();
   
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   
@@ -53,6 +57,8 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
     } else {
       // Execute wipe
       wipeAllData();
+      wipeTrips();
+      wipeGoals();
       setSuccessMsg("All local data wiped!");
       setTimeout(() => {
         setSuccessMsg("");
