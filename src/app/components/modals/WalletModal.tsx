@@ -5,6 +5,7 @@ import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { dinero, add, toDecimal } from 'dinero.js';
 import * as currencies from 'dinero.js/currencies';
+import { GlassIcon } from "../GlassIcon";
 
 const getCurrencyObj = (cCode: string) => {
   return (currencies as any)[cCode] || (currencies as any).USD;
@@ -252,13 +253,9 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 {/* Header Row */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#7B61FF] to-[#00E5FF] p-[1px] shadow-lg shadow-[#7B61FF]/30">
-                      <div className="w-full h-full rounded-[15px] bg-[#120F28] flex items-center justify-center">
-                        <Wallet size={20} className="text-[#00E5FF]" />
-                      </div>
-                    </div>
+                    <GlassIcon icon={Wallet} size="md" glow="purple" asChild />
                     <div>
-                      <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+                      <h2 className={`${activeTheme.textColor} text-2xl font-black tracking-tight flex items-center gap-2`}>
                         Wallet <Sparkles size={16} className="text-[#FFD166]" />
                       </h2>
                       <div className={`text-xs font-semibold tracking-wide ${isLight ? "text-slate-500" : "text-white/50"}`}>

@@ -6,6 +6,7 @@ import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
 import { dinero, add, toDecimal } from 'dinero.js';
 import * as currencies from 'dinero.js/currencies';
+import { GlassIcon } from "../GlassIcon";
 
 interface BudgetModalProps {
   isOpen: boolean;
@@ -137,10 +138,8 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
               </button>
 
               {/* Header */}
-              <div className="flex items-center gap-3.5 mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF4D8D] to-[#7B61FF] flex items-center justify-center shadow-[0_0_20px_rgba(255,77,141,0.5)]">
-                  <DollarSign size={24} className="text-white" />
-                </div>
+              <div className="flex items-center gap-4 mb-5">
+                <GlassIcon icon={DollarSign} size="md" glow="pink" asChild />
                 <div>
                   <h2 className={`${textColor} text-2xl font-black tracking-tight`}>Monthly Budget</h2>
                   <div className={`${subtextColor} text-xs tracking-tight`}>Manage Current Budget & Target Allowance</div>

@@ -128,8 +128,10 @@ interface BudgetState {
   addTrip: (trip: Omit<Trip, 'id' | 'spent'>) => void;
   removeTrip: (id: string) => void;
   updateTripSpent: (id: string, amount: number) => void;
+  editTrip: (id: string, updates: Partial<Trip>) => void;
   addGoal: (goal: Omit<SavingsGoal, 'id' | 'currentAmount'>) => void;
   deleteGoal: (id: string) => void;
+  editGoal: (id: string, updates: Partial<SavingsGoal>) => void;
   contributeToGoal: (goalId: string, amount: number) => void;
   updateNotificationSettings: (settings: Partial<BudgetState['notificationSettings']>) => void;
   updateUserProfile: (profile: Partial<UserProfile>) => void;
@@ -200,12 +202,20 @@ export const useBudgetStore = create<BudgetState>()(
       setLastBackupTime: (lastBackupTime) => set({ lastBackupTime }),
 
       restoreCloudState: (payload) =>
-        set({
-          dailyBudget: payload.dailyBudget ?? 2000,
-          transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
-          trips: Array.isArray(payload.trips) ? payload.trips : [],
-          tripsCount: Array.isArray(payload.trips) ? payload.trips.length : 0,
-          goals: Array.isArray(payload.goals) ? payload.goals : [],
+        set((state) => {
+          const prefs = (payload as any).preferences || {};
+          return {
+            dailyBudget: payload.dailyBudget ?? 2000,
+            transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
+            trips: Array.isArray(payload.trips) ? payload.trips : [],
+            tripsCount: Array.isArray(payload.trips) ? payload.trips.length : 0,
+            goals: Array.isArray(payload.goals) ? payload.goals : [],
+            customCategories: Array.isArray(payload.customCategories) ? payload.customCategories : [],
+            ...(prefs.theme ? { theme: prefs.theme } : {}),
+            ...(prefs.colorMode ? { colorMode: prefs.colorMode } : {}),
+            ...(prefs.currency ? { currency: prefs.currency } : {}),
+            ...(prefs.language ? { language: prefs.language } : {}),
+          };
         }),
 
       setUser: (user) =>
@@ -371,6 +381,11 @@ export const useBudgetStore = create<BudgetState>()(
         }));
       },
 
+      editTrip: (id, updates) =>
+        set((state) => ({
+          trips: state.trips.map((t) => (t.id === id ? { ...t, ...updates } : t)),
+        })),
+
       addGoal: (goal) => {
         const newGoal: SavingsGoal = {
           ...goal,
@@ -382,11 +397,15 @@ export const useBudgetStore = create<BudgetState>()(
         }));
       },
 
-      deleteGoal: (id) => {
+      deleteGoal: (id) =>
         set((state) => ({
           goals: state.goals.filter((g) => g.id !== id),
-        }));
-      },
+        })),
+
+      editGoal: (id, updates) =>
+        set((state) => ({
+          goals: state.goals.map((g) => (g.id === id ? { ...g, ...updates } : g)),
+        })),
 
       contributeToGoal: (goalId, amount) => {
         const now = new Date();
@@ -471,7 +490,8 @@ export const useBudgetStore = create<BudgetState>()(
       name: 'budtrack-storage-v2',
       partialize: (state) => ({
         lastUserUid: state.lastUserUid,
-        // ponytail: never persist isAuthenticated/user in localStorage; let Firebase Auth control session truth
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
         dailyBudget: state.dailyBudget,
         transactions: state.transactions,
         customCategories: state.customCategories,
@@ -485,6 +505,7 @@ export const useBudgetStore = create<BudgetState>()(
         currency: state.currency,
         language: state.language,
         lastBudgetSetMonth: state.lastBudgetSetMonth,
+        hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {
