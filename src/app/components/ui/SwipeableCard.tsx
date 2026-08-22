@@ -66,10 +66,10 @@ export function SwipeableCard({ children, onDelete, renderContextMenu, isLight }
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, transition: { duration: 0.2 } }}
       transition={{ type: "spring", stiffness: 120, damping: 24, mass: 1.2 }}
-      className="relative w-full rounded-[24px] mb-4"
+      className="relative w-full rounded-[20px] mb-3"
     >
       {/* Background Delete Indicator (Revealed on Swipe) */}
-      <div className={`absolute inset-0 flex items-center justify-between px-6 z-0 rounded-[24px] bg-rose-500 overflow-hidden transition-opacity duration-300 ${isDragging ? "opacity-100" : "opacity-0"}`}>
+      <div className={`absolute inset-0 flex items-center justify-between px-5 z-0 rounded-[20px] bg-rose-500 overflow-hidden transition-opacity duration-300 ${isDragging ? "opacity-100" : "opacity-0"}`}>
         <Trash2 className="text-white w-6 h-6 opacity-80" />
         <Trash2 className="text-white w-6 h-6 opacity-80" />
       </div>
@@ -89,7 +89,7 @@ export function SwipeableCard({ children, onDelete, renderContextMenu, isLight }
           e.preventDefault(); // Prevent default browser context menu
           setShowMenu(true);
         }}
-        className={`relative w-full p-5 rounded-[24px] border backdrop-blur-xl transition-all cursor-grab active:cursor-grabbing z-10 ${
+        className={`relative w-full p-4 rounded-[20px] border backdrop-blur-xl transition-all cursor-grab active:cursor-grabbing z-10 ${
           isLight ? "bg-white border-slate-200" : "bg-white/5 hover:bg-white/10 border-white/10"
         }`}
       >
@@ -102,8 +102,9 @@ export function SwipeableCard({ children, onDelete, renderContextMenu, isLight }
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[24px]"
+              className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[20px]"
               onPointerDown={(e) => e.stopPropagation()} // Stop drag when interacting with menu
+              onClick={() => setShowMenu(false)}
             >
               <motion.div 
                 initial={{ scale: 0.95, y: 5 }}
@@ -111,6 +112,7 @@ export function SwipeableCard({ children, onDelete, renderContextMenu, isLight }
                 exit={{ scale: 0.95, y: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className={`flex items-center gap-1 p-1.5 rounded-full backdrop-blur-3xl shadow-[0_8px_30px_rgba(0,0,0,0.2)] border ${isLight ? "bg-white/80 border-white/50" : "bg-black/60 border-white/10"}`}
+                onClick={(e) => e.stopPropagation()}
               >
                 {renderContextMenu(() => setShowMenu(false))}
               </motion.div>

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BottomSheet } from "../BottomSheet";
 import { X, Wallet, ArrowDownRight, ArrowUpRight, PlusCircle, MinusCircle, Sparkles, CreditCard, ChevronRight, Check } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
@@ -42,15 +43,37 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
   });
 
   const curvePath = useMemo(() => {
+    if (points.length === 0) return "";
+    
+    const smoothing = 0.02; // Extremely tight smoothing for maximum sharpness
+    const line = (pointA: number[], pointB: number[]) => {
+      const lengthX = pointB[0] - pointA[0];
+      const lengthY = pointB[1] - pointA[1];
+      return {
+        length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+        angle: Math.atan2(lengthY, lengthX)
+      };
+    };
+    const controlPoint = (current: number[], previous: number[], next: number[], reverse?: boolean) => {
+      const p = previous || current;
+      const n = next || current;
+      const o = line(p, n);
+      const angle = o.angle + (reverse ? Math.PI : 0);
+      const length = o.length * smoothing;
+      return [current[0] + Math.cos(angle) * length, current[1] + Math.sin(angle) * length];
+    };
+
     let path = `M ${points[0][0]},${points[0][1]}`;
     for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const cp1x = p0[0] + (p1[0] - p0[0]) * 0.4;
-      const cp1y = p0[1];
-      const cp2x = p0[0] + (p1[0] - p0[0]) * 0.6;
-      const cp2y = p1[1];
-      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p1[0]},${p1[1]}`;
+      const p0 = points[i === 0 ? 0 : i - 1];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+
+      const cp1 = controlPoint(p1, p0, p2);
+      const cp2 = controlPoint(p2, p1, p3, true);
+
+      path += ` C ${cp1[0]},${cp1[1]} ${cp2[0]},${cp2[1]} ${p2[0]},${p2[1]}`;
     }
     return path;
   }, [points]);
@@ -121,11 +144,37 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6, type: "spring", bounce: 0.6 }}
         />
+
+        {/* Inner Data Points */}
+        <motion.g
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.05, delayChildren: 0.8 } }
+          }}
+        >
+          {points.slice(0, points.length - 1).map((p, i) => (
+            <motion.circle
+              key={i}
+              cx={p[0]}
+              cy={p[1]}
+              r="1.2"
+              fill={color}
+              opacity="0.8"
+              variants={{
+                hidden: { scale: 0, opacity: 0 },
+                visible: { scale: 1, opacity: 0.8 }
+              }}
+            />
+          ))}
+        </motion.g>
       </svg>
     </div>
   );
 };
 
+import { calculateDineroBalance, calculateDineroTotal } from "../../../utils/dineroUtils";
+import { formatCompactCurrency } from "../../../utils/formatters";
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { transactions, addTransaction, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
   const { trips, updateTripSpent } = useTripsStore();
@@ -140,10 +189,9 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   // Financial Context
   const incomeTxs = transactions.filter((t) => t.type === "income");
   const expenseTxs = transactions.filter((t) => t.type === "expense");
-  
-  const income = incomeTxs.reduce((sum, t) => sum + t.amount, 0);
-  const expense = expenseTxs.reduce((sum, t) => sum + t.amount, 0);
-  const totalBalance = Math.max(0, income - expense);
+  const income = calculateDineroTotal(incomeTxs, currency);
+  const expense = calculateDineroTotal(expenseTxs, currency);
+  const totalBalance = calculateDineroBalance([], expenseTxs, currency, dailyBudget);
 
   // Generate sparkline data from the last 15 transactions
   const sparklineData = useMemo(() => {
@@ -180,17 +228,15 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
       if (selectedTrip) title += ` (${selectedTrip.title})`;
     }
 
-    if (!(activeAction === "withdraw" && selectedTripId)) {
-      addTransaction({
-        title,
-        amount: val,
-        category: activeAction === "deposit" ? "Income" : "Transfer",
-        time: timeStr,
-        type: activeAction === "deposit" ? "income" : "expense",
-        glow: activeAction === "deposit" ? "purple" : "pink",
-        tripId: selectedTripId || undefined,
-      });
-    }
+    addTransaction({
+      title,
+      amount: val,
+      category: activeAction === "deposit" ? "Income" : "Transfer",
+      time: timeStr,
+      type: activeAction === "deposit" ? "income" : "expense",
+      glow: activeAction === "deposit" ? "purple" : "pink",
+      tripId: selectedTripId || undefined,
+    });
 
     if (activeAction === "deposit") {
       const cObj = getCurrencyObj(currency);
@@ -220,49 +266,8 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Deep blur backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={resetAndClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100]"
-          />
-
-          <motion.div
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              if (info.offset.y > 100 || info.velocity.y > 500) {
-                resetAndClose();
-              }
-            }}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={springConfig}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end touch-pan-y"
-          >
-            <div
-              className={`w-full max-h-[92vh] flex flex-col rounded-t-[40px] relative transition-colors ${
-                isLight
-                  ? "bg-white/95 border-t border-slate-200 text-slate-900 shadow-[0_-20px_50px_rgba(0,0,0,0.15)]"
-                  : "bg-gradient-to-b from-[#181530]/98 via-[#0F0D24]/98 to-[#090816] border-t border-white/10 text-white shadow-[0_-20px_60px_rgba(123,97,255,0.25)]"
-              } backdrop-blur-3xl`}
-            >
-              {/* Pill Handle */}
-              <div className="shrink-0 pt-4 pb-2 flex justify-center w-full bg-transparent">
-                <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/20"}`} />
-              </div>
-
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-6 pb-12 hide-scrollbar">
-                
-                {/* Header Row */}
+    <BottomSheet isOpen={isOpen} onClose={resetAndClose} isLight={isLight}>
+      {/* Header Row */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
                     <GlassIcon icon={Wallet} size="md" glow="purple" asChild />
@@ -302,8 +307,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     <div>
                       <div className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Available Balance</div>
                       <div className="text-white text-5xl font-black tracking-tighter drop-shadow-lg">
-                        <span className="text-[#00E5FF]/80 text-4xl mr-1">{currencySymbols[currency]}</span>
-                        {totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCompactCurrency(totalBalance, currencySymbols[currency])}
                       </div>
                     </div>
 
@@ -517,11 +521,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                   </motion.div>
                 )}
 
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      {/* End Header Row... actually bottom of sheet */}
+    </BottomSheet>
   );
 }

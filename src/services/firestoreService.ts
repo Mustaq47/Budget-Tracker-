@@ -33,6 +33,8 @@ export function computePayloadHash(payload: BackupPayload): string {
         category: t.category,
         date: t.date,
       })),
+      customCategories: payload.customCategories || [],
+      preferences: payload.preferences || {},
     };
     const str = JSON.stringify(normalized);
     let hash = 0;

@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Send, MessageSquareHeart } from "lucide-react";
+import { createPortal } from "react-dom";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { springConfig } from "../../../utils/motion";
+import { submitSupportTicket } from "../../../services/supportQueryService";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -10,98 +13,166 @@ interface FeedbackModalProps {
 }
 
 export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
-  const { theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, user } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   
   const isLight = !activeTheme.isDark;
-  const textColor = activeTheme.textColor;
-  const subtextColor = activeTheme.subtextColor;
 
   const [feedback, setFeedback] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!feedback.trim()) return;
-    
-    // Mock submit
+  if (!isOpen) return null;
+
+  const resetAndClose = () => {
+    onClose();
     setTimeout(() => {
-      setSubmitted(true);
-      setTimeout(() => {
-        onClose();
-        setSubmitted(false);
-        setFeedback("");
-      }, 2000);
-    }, 500);
+      setSubmitted(false);
+      setFeedback("");
+      setIsSubmitting(false);
+    }, 300);
   };
 
-  return (
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedback.trim() || isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      await submitSupportTicket({
+        userEmail: user?.email || "anonymous",
+        subject: "App Feedback",
+        question: feedback,
+        category: "FEATURE_REQUEST",
+        priority: "LOW",
+      });
+      
+      setSubmitted(true);
+      setTimeout(() => {
+        resetAndClose();
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to submit feedback", error);
+      setIsSubmitting(false);
+    }
+  };
+
+  const accentGradient = `linear-gradient(135deg, ${activeTheme.primaryColor}, ${activeTheme.secondaryColor})`;
+  const accentGlow = `0 4px 15px ${activeTheme.primaryColor}30`;
+
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+            onClick={resetAndClose}
+            className="absolute inset-0 bg-black/70 backdrop-blur-md cursor-pointer"
           />
+
+          {/* Modal Card */}
           <motion.div
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 250 }}
-            className={`fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto p-6 rounded-t-[32px] ${activeTheme.bgClass} shadow-2xl border-t ${isLight ? "border-slate-200" : "border-white/10"}`}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={springConfig}
+            className={`relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${activeTheme.bgClass} ${
+              isLight ? "border-slate-200 text-slate-800" : "border-white/10 text-white"
+            } backdrop-blur-2xl`}
           >
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
-                  <MessageSquareHeart size={20} />
+            {/* Header */}
+            <div
+              className={`flex items-center justify-between px-6 py-5 border-b shrink-0 ${
+                isLight ? "border-slate-200" : "border-white/10"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
+                  style={{ background: accentGradient, boxShadow: accentGlow }}
+                >
+                  <MessageSquareHeart className="w-5 h-5 text-white" />
                 </div>
-                <h3 className={`${textColor} text-xl font-bold tracking-tight`}>Give Feedback</h3>
+                <div>
+                  <h2 className={`text-lg font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
+                    Give Feedback
+                  </h2>
+                  <p className={`text-xs font-medium ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                    Help us improve coZify
+                  </p>
+                </div>
               </div>
-              <button onClick={onClose} className={`p-2 rounded-full ${isLight ? "bg-slate-100" : "bg-white/10"} ${textColor}`}>
-                <X size={18} />
+
+              <button
+                onClick={resetAndClose}
+                className={`p-2 rounded-full border transition-colors cursor-pointer ${
+                  isLight
+                    ? "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
+                    : "bg-white/5 hover:bg-white/10 border-white/10 text-white/70"
+                }`}
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
-            
-            {submitted ? (
-              <div className="py-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center mb-4">
-                  <Send size={24} />
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {submitted ? (
+                <div className="py-12 text-center">
+                  <div
+                    className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4"
+                    style={{ background: `${activeTheme.primaryColor}15`, color: activeTheme.primaryColor }}
+                  >
+                    <Send size={24} />
+                  </div>
+                  <h4 className={`font-bold text-lg mb-2 ${isLight ? "text-slate-900" : "text-white"}`}>
+                    Thank You!
+                  </h4>
+                  <p className={`text-sm ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                    Your feedback helps us improve.
+                  </p>
                 </div>
-                <h4 className={`${textColor} font-bold text-lg mb-2`}>Thank You!</h4>
-                <p className={`${subtextColor} text-sm`}>Your feedback helps us improve.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="What do you love? What can we improve?"
-                  className={`w-full p-4 rounded-2xl border mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                    isLight 
-                      ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400" 
-                      : "bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                  }`}
-                  rows={4}
-                />
-                <button
-                  type="submit"
-                  disabled={!feedback.trim()}
-                  className={`w-full py-3.5 rounded-2xl font-bold tracking-tight transition-all flex justify-center items-center gap-2 ${
-                    !feedback.trim()
-                      ? "bg-slate-200 text-slate-400 dark:bg-white/5 dark:text-white/30"
-                      : "bg-[#2563EB] text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                  }`}
-                >
-                  <Send size={18} /> Submit Feedback
-                </button>
-              </form>
-            )}
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="What do you love? What can we improve?"
+                    className={`w-full p-4 rounded-2xl border mb-6 focus:outline-none focus:ring-2 transition-all resize-none ${
+                      isLight 
+                        ? "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400" 
+                        : "bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                    }`}
+                    style={{ "--tw-ring-color": activeTheme.primaryColor } as React.CSSProperties}
+                    rows={5}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!feedback.trim() || isSubmitting}
+                    className={`w-full py-3.5 rounded-2xl font-extrabold tracking-tight transition-all flex justify-center items-center gap-2 ${
+                      !feedback.trim() || isSubmitting
+                        ? isLight ? "bg-slate-200 text-slate-400" : "bg-white/5 text-white/30"
+                        : "text-white shadow-lg"
+                    }`}
+                    style={feedback.trim() && !isSubmitting ? {
+                      background: accentGradient,
+                      boxShadow: accentGlow,
+                    } : {}}
+                  >
+                    <Send size={18} /> {isSubmitting ? "Sending..." : "Submit Feedback"}
+                  </button>
+                </form>
+              )}
+            </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : modalContent;
 }

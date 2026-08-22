@@ -39,13 +39,13 @@ export function MandatoryTermsModal() {
       icon: Award,
       title: "2. Purpose & Self-Directed Use",
       content:
-        "coZify is a personal budgeting and financial tracking application intended solely for informational organization. It does not provide financial, legal, tax, or investment advice.",
+        "coZify is a manual personal budgeting, expense tracking, and financial organization software tool. coZify is intended solely for personal informational use and does not provide financial, legal, tax, or investment advice.",
     },
     {
       icon: AlertCircle,
-      title: "3. User Responsibilities & Accuracy",
+      title: "3. User Accuracy & Responsibilities",
       content:
-        "You are solely responsible for the accuracy of all transaction records, budgets, and card information entered into coZify.",
+        "Since coZify does not connect to banks, you are solely responsible for manually entering and ensuring the accuracy of all financial data, Wallet transactions, Trips, custom categories, card balances, and Savings Goals.",
     },
     {
       icon: Lock,

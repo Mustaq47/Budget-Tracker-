@@ -37,7 +37,7 @@ import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
 import { categoryColors, monthsOfYear, getCategoryMeta } from "../../../utils/categoryConfig";
 import { parseLocalDate } from "../../../utils/formatters";
 import { InsightsWidget } from "./InsightsWidget";
-
+import { calculateDineroTotal } from "../../../utils/dineroUtils";
 
 // Custom Glassmorphic Tooltip for Recharts
 interface CustomTooltipProps {
@@ -203,7 +203,7 @@ export function Insights() {
       amount: weeklyMap[name],
     }));
 
-    statValue1 = targetExpenses.reduce((sum, t) => sum + t.amount, 0);
+    statValue1 = calculateDineroTotal(targetExpenses, currency);
     const activeDays = chartData.filter((d) => d.amount > 0).length || 1;
     statValue2 = Math.round(statValue1 / activeDays);
   } else if (period === "month") {
@@ -252,7 +252,7 @@ export function Insights() {
     });
 
     chartData = [...weeklyBuckets];
-    statValue1 = targetExpenses.reduce((sum, t) => sum + t.amount, 0);
+    statValue1 = calculateDineroTotal(targetExpenses, currency);
     const activeWeeks = chartData.filter((d) => d.amount > 0).length || 1;
     statValue2 = Math.round(statValue1 / activeWeeks);
   } else {
@@ -278,7 +278,7 @@ export function Insights() {
       amount: annualMap[name],
     }));
 
-      statValue1 = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+      statValue1 = calculateDineroTotal(expenseTransactions, currency);
       statValue2 = Math.round(statValue1 / 12);
     }
 
@@ -1041,10 +1041,7 @@ export function Insights() {
                     );
                   });
 
-                  const totalSpentWeek = weekTransactions.reduce(
-                    (sum, t) => sum + t.amount,
-                    0
-                  );
+                  const totalSpentWeek = calculateDineroTotal(weekTransactions, currency);
 
                   // 7-day breakdown for this week
                   const daysSpan =
@@ -1269,10 +1266,7 @@ export function Insights() {
                     return tMonth === selectedMonthReport.monthIndex;
                   });
 
-                  const totalSpentMonth = monthTransactions.reduce(
-                    (sum, t) => sum + t.amount,
-                    0
-                  );
+                  const totalSpentMonth = calculateDineroTotal(monthTransactions, currency);
 
                   // 4-Week breakdown for this month
                   const weeklyBuckets = [

@@ -31,9 +31,9 @@ export function useDailyBudget() {
     const dailyDinero = allocations[0]; // Safely allocated daily limit
     const dailyAllowance = Number(toDecimal(dailyDinero)); 
 
-    // Calculate spent today safely using integer subunits
+    // Calculate spent today safely using integer subunits, excluding trips and goals
     const spentTodaySubunits = transactions
-      .filter((t) => t.type === "expense" && t.date === todayLocal)
+      .filter((t) => t.type === "expense" && t.date === todayLocal && !t.tripId && t.category !== "Goal Contribution")
       .reduce((sum, t) => sum + toSubunits(t.amount, cObj), 0);
     const spentDinero = dinero({ amount: spentTodaySubunits, currency: cObj });
     const spentToday = Number(toDecimal(spentDinero));

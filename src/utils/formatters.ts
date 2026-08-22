@@ -15,6 +15,30 @@ export function formatCurrency(
 }
 
 /**
+ * Compact currency formatting for large numbers (e.g. 1.5M, 100K)
+ * to prevent layout overflow in prominent UI components.
+ */
+export function formatCompactCurrency(
+  amount: number,
+  currencySymbol: string = "$"
+): string {
+  const num = Number(amount) || 0;
+  
+  if (num < 1000000) {
+    // For smaller numbers, just use standard formatting to keep precision
+    return formatCurrency(amount, currencySymbol);
+  }
+  
+  const formatter = new Intl.NumberFormat('en-US', {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1
+  });
+  
+  return `${currencySymbol}${formatter.format(num)}`;
+}
+
+/**
  * Standardized date parsing for ISO string dates (YYYY-MM-DD) avoiding UTC timezone shifts.
  */
 export function parseLocalDate(dateStr: string): Date {

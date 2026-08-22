@@ -6,6 +6,7 @@ import { useTripsStore } from "../../../store/useTripsStore";
 import { useGoalsStore } from "../../../store/useGoalsStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { SafeAvatar } from "../SafeAvatar";
+import { calculateDineroTotal } from "../../../utils/dineroUtils";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -32,9 +33,8 @@ export function UserProfileModal({
   const email = user?.email || user?.phoneNumber || "Not signed in";
   const currencySymbol = currencySymbols[currency] || currency;
 
-  const totalExpense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const expenseTransactions = transactions.filter((t) => t.type === "expense");
+  const totalExpense = calculateDineroTotal(expenseTransactions, currency);
 
   const stats = [
     {

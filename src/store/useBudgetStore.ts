@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { dinero, toDecimal, add } from 'dinero.js';
+import { dinero, toDecimal, add, subtract } from 'dinero.js';
 import * as currencies from 'dinero.js/currencies';
 
 const getCurrencyObj = (cCode: string) => {
@@ -21,6 +21,7 @@ export interface Transaction {
   type: 'expense' | 'income';
   glow?: 'purple' | 'blue' | 'pink' | 'gold';
   tripId?: string;
+  goalId?: string;
 }
 
 export interface UserProfile {
@@ -66,6 +67,7 @@ export type QuickActionModal =
   | 'help-center'
   | 'privacy-policy'
   | 'terms-conditions'
+  | 'feedback'
   | 'report'
   | null;
 export type AppTheme =
@@ -306,11 +308,12 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       addTransaction: (tx) => {
-        const todayISO = new Date().toISOString().split('T')[0];
+        const _d = new Date();
+        const todayLocal = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
         const newTransaction: Transaction = {
           ...tx,
           id: Date.now().toString() + Math.random().toString(36).substring(2, 7),
-          date: todayISO,
+          date: todayLocal,
         };
 
         set((state) => ({
@@ -319,9 +322,40 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       deleteTransaction: (id) =>
-        set((state) => ({
-          transactions: state.transactions.filter((t) => t.id !== id),
-        })),
+        set((state) => {
+          const tx = state.transactions.find((t) => t.id === id);
+          let newDailyBudget = state.dailyBudget;
+
+          if (tx) {
+            if (tx.tripId) {
+              import('./useTripsStore').then(({ useTripsStore }) => {
+                useTripsStore.getState().updateTripSpent(tx.tripId!, -tx.amount);
+              });
+            } else if (tx.goalId) {
+              import('./useGoalsStore').then(({ useGoalsStore }) => {
+                useGoalsStore.getState().contributeToGoal(tx.goalId!, -tx.amount);
+              });
+            }
+
+            // Restore daily budget if an income is deleted
+            if (tx.type === "income" && tx.category === "Income") {
+              const cObj = getCurrencyObj(state.currency);
+              const currentDinero = dinero({ amount: toSubunits(state.dailyBudget, cObj), currency: cObj });
+              const subDinero = dinero({ amount: toSubunits(tx.amount, cObj), currency: cObj });
+              let newTotal = subtract(currentDinero, subDinero);
+              
+              if (Number(toDecimal(newTotal)) < 0) {
+                newTotal = dinero({ amount: 0, currency: cObj });
+              }
+              newDailyBudget = Number(toDecimal(newTotal));
+            }
+          }
+          
+          return {
+            transactions: state.transactions.filter((t) => t.id !== id),
+            dailyBudget: newDailyBudget,
+          };
+        }),
 
       updateTransactionCategory: (id, category) =>
         set((state) => ({

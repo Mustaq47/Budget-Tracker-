@@ -19,6 +19,7 @@ import { createPortal } from "react-dom";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
+import { springConfig, staggerContainer, staggerItem } from "../../../utils/motion";
 
 interface HelpCenterModalProps {
   isOpen: boolean;
@@ -97,14 +98,22 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
         icon: BookOpen,
       },
     ],
-    []
+    [],
   );
 
-  const categories = ["All", "Getting Started", "Budgeting", "Cloud & Sync", "Security", "Customization"];
+  const categories = [
+    "All",
+    "Getting Started",
+    "Budgeting",
+    "Cloud & Sync",
+    "Security",
+    "Customization",
+  ];
 
   const filteredFaqs = useMemo(() => {
     return faqs.filter((faq) => {
-      const matchesCategory = selectedCategory === "All" || faq.category === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "All" || faq.category === selectedCategory;
       const matchesSearch =
         searchQuery.trim() === "" ||
         faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,6 +157,7 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={springConfig}
             className={`relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${
               isLight
                 ? "bg-white/95 border-slate-200 text-slate-800"
@@ -166,14 +176,18 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className={`text-lg font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
+                    <h2
+                      className={`text-lg font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}
+                    >
                       {t.help}
                     </h2>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/15 border border-blue-500/30 text-blue-400">
                       24/7 HUB
                     </span>
                   </div>
-                  <p className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                  <p
+                    className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}
+                  >
                     Knowledge Base & Executive Support
                   </p>
                 </div>
@@ -215,7 +229,9 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                   <button
                     onClick={() => setSearchQuery("")}
                     className={`absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer ${
-                      isLight ? "text-slate-400 hover:text-slate-600" : "text-white/40 hover:text-white"
+                      isLight
+                        ? "text-slate-400 hover:text-slate-600"
+                        : "text-white/40 hover:text-white"
                     }`}
                   >
                     <X className="w-4 h-4" />
@@ -228,7 +244,10 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar flex-1">
                   {categories.map((cat) => {
                     const isActive = selectedCategory === cat;
-                    const count = cat === "All" ? faqs.length : faqs.filter((f) => f.category === cat).length;
+                    const count =
+                      cat === "All"
+                        ? faqs.length
+                        : faqs.filter((f) => f.category === cat).length;
                     return (
                       <button
                         key={cat}
@@ -237,12 +256,14 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                           isActive
                             ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md"
                             : isLight
-                            ? "bg-slate-100 hover:bg-slate-200 text-slate-700"
-                            : "bg-white/5 hover:bg-white/10 text-white/70 border border-white/5"
+                              ? "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                              : "bg-white/5 hover:bg-white/10 text-white/70 border border-white/5"
                         }`}
                       >
                         <span>{cat}</span>
-                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${isActive ? "bg-white/20 text-white" : "bg-black/10 text-current opacity-70"}`}>
+                        <span
+                          className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${isActive ? "bg-white/20 text-white" : "bg-black/10 text-current opacity-70"}`}
+                        >
                           {count}
                         </span>
                       </button>
@@ -252,13 +273,20 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
               </div>
 
               {/* FAQ Accordion List */}
-              <div className="space-y-3">
+              <motion.div 
+                className="space-y-3"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
                 {filteredFaqs.length === 0 ? (
                   <div className="text-center py-8">
                     <HelpCircle
                       className={`w-10 h-10 mx-auto mb-2 ${isLight ? "text-slate-300" : "text-white/20"}`}
                     />
-                    <p className={`text-xs font-medium ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                    <p
+                      className={`text-xs font-medium ${isLight ? "text-slate-500" : "text-white/60"}`}
+                    >
                       No articles found matching "{searchQuery}"
                     </p>
                   </div>
@@ -268,7 +296,8 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                     const IconComp = faq.icon;
                     const feedbackState = helpfulMap[faq.id];
                     return (
-                      <div
+                      <motion.div
+                        variants={staggerItem}
                         key={faq.id}
                         className={`rounded-2xl border transition-all select-none overflow-hidden ${
                           isExpanded
@@ -276,12 +305,14 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                               ? "bg-purple-50/80 border-purple-200 shadow-sm"
                               : "bg-white/10 border-purple-500/40 shadow-lg shadow-purple-500/5"
                             : isLight
-                            ? "bg-slate-50 border-slate-200 hover:border-slate-300 cursor-pointer"
-                            : "bg-white/5 border-white/10 hover:border-white/20 cursor-pointer"
+                              ? "bg-slate-50 border-slate-200 hover:border-slate-300 cursor-pointer"
+                              : "bg-white/5 border-white/10 hover:border-white/20 cursor-pointer"
                         }`}
                       >
                         <div
-                          onClick={() => setExpandedId(isExpanded ? null : faq.id)}
+                          onClick={() =>
+                            setExpandedId(isExpanded ? null : faq.id)
+                          }
                           className="flex items-center justify-between p-4 gap-3 cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
@@ -290,8 +321,8 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                                 isExpanded
                                   ? "bg-purple-500 text-white"
                                   : isLight
-                                  ? "bg-slate-200 text-slate-700"
-                                  : "bg-white/10 text-white/70"
+                                    ? "bg-slate-200 text-slate-700"
+                                    : "bg-white/10 text-white/70"
                               }`}
                             >
                               <IconComp className="w-4 h-4" />
@@ -312,7 +343,10 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                           <ChevronDown
                             className={`w-4 h-4 shrink-0 transition-transform duration-300 ${
                               isExpanded
-                                ? "rotate-180 text-purple-500" : isLight ? "text-slate-400" : "text-white/40"
+                                ? "rotate-180 text-purple-500"
+                                : isLight
+                                  ? "text-slate-400"
+                                  : "text-white/40"
                             }`}
                           />
                         </div>
@@ -332,21 +366,35 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                             >
                               <p className="mb-3">{faq.answer}</p>
                               {/* Helpful feedback pill */}
-                              <div className={`flex items-center justify-between pt-3 border-t text-[11px] ${isLight ? "border-slate-200" : "border-white/10"}`}>
-                                <span className={isLight ? "text-slate-500" : "text-white/60"}>Was this article helpful?</span>
+                              <div
+                                className={`flex items-center justify-between pt-3 border-t text-[11px] ${isLight ? "border-slate-200" : "border-white/10"}`}
+                              >
+                                <span
+                                  className={
+                                    isLight ? "text-slate-500" : "text-white/60"
+                                  }
+                                >
+                                  Was this article helpful?
+                                </span>
                                 {feedbackState ? (
                                   <span className="text-emerald-400 font-bold flex items-center gap-1">
-                                    <CheckCircle2 className="w-3.5 h-3.5" /> Thanks for feedback!
+                                    <CheckCircle2 className="w-3.5 h-3.5" />{" "}
+                                    Thanks for feedback!
                                   </span>
                                 ) : (
                                   <div className="flex items-center gap-1.5">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setHelpfulMap((prev) => ({ ...prev, [faq.id]: "yes" }));
+                                        setHelpfulMap((prev) => ({
+                                          ...prev,
+                                          [faq.id]: "yes",
+                                        }));
                                       }}
                                       className={`px-2.5 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
-                                        isLight ? "bg-white hover:bg-slate-100 border-slate-300 text-slate-700" : "bg-white/5 hover:bg-white/10 border-white/10 text-white"
+                                        isLight
+                                          ? "bg-white hover:bg-slate-100 border-slate-300 text-slate-700"
+                                          : "bg-white/5 hover:bg-white/10 border-white/10 text-white"
                                       }`}
                                     >
                                       Yes
@@ -354,10 +402,15 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setHelpfulMap((prev) => ({ ...prev, [faq.id]: "no" }));
+                                        setHelpfulMap((prev) => ({
+                                          ...prev,
+                                          [faq.id]: "no",
+                                        }));
                                       }}
                                       className={`px-2.5 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
-                                        isLight ? "bg-white hover:bg-slate-100 border-slate-300 text-slate-700" : "bg-white/5 hover:bg-white/10 border-white/10 text-white"
+                                        isLight
+                                          ? "bg-white hover:bg-slate-100 border-slate-300 text-slate-700"
+                                          : "bg-white/5 hover:bg-white/10 border-white/10 text-white"
                                       }`}
                                     >
                                       No
@@ -368,29 +421,35 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </motion.div>
                     );
                   })
                 )}
-              </div>
+              </motion.div>
 
               {/* Direct Support Section with Executive SLA badge */}
               <div
                 className={`p-5 rounded-2xl border ${
-                  isLight ? "bg-slate-50 border-slate-200" : "bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-white/10"
+                  isLight
+                    ? "bg-slate-50 border-slate-200"
+                    : "bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-white/10"
                 } space-y-3`}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className={`text-xs font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
+                      <h4
+                        className={`text-xs font-black tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}
+                      >
                         Executive Support
                       </h4>
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                         ⚡ SLA &lt; 24h
                       </span>
                     </div>
-                    <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                    <p
+                      className={`text-[11px] ${isLight ? "text-slate-500" : "text-white/60"}`}
+                    >
                       Lead Developer: Mustaq • Direct technical assistance
                     </p>
                   </div>
@@ -414,7 +473,9 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                     <div className="flex items-center gap-1.5 text-xs font-bold">
                       <Mail className="w-3.5 h-3.5" /> Email Developer
                     </div>
-                    <span className="text-[10px] text-white/90 font-normal mt-0.5">mustaqsk47@gmail.com</span>
+                    <span className="text-[10px] text-white/90 font-normal mt-0.5">
+                      mustaqsk47@gmail.com
+                    </span>
                   </a>
                   <button
                     onClick={handleCopyEmail}
@@ -427,7 +488,9 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                     <div className="flex items-center gap-1.5 text-xs font-bold">
                       <MessageSquare className="w-3.5 h-3.5" /> Copy Email
                     </div>
-                    <span className="text-[10px] opacity-70 font-normal mt-0.5">mustaqsk47@gmail.com</span>
+                    <span className="text-[10px] opacity-70 font-normal mt-0.5">
+                      mustaqsk47@gmail.com
+                    </span>
                   </button>
                 </div>
               </div>
@@ -436,7 +499,9 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
             {/* Footer */}
             <div
               className={`px-6 py-4 border-t flex items-center justify-between shrink-0 ${
-                isLight ? "bg-slate-100 border-slate-200 text-slate-600" : "bg-black/20 border-white/10 text-white/50"
+                isLight
+                  ? "bg-slate-100 border-slate-200 text-slate-600"
+                  : "bg-black/20 border-white/10 text-white/50"
               }`}
             >
               <div className="flex items-center gap-1.5 text-[11px] font-medium">
@@ -446,7 +511,9 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
               <button
                 onClick={onClose}
                 className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                  isLight ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-white/10 hover:bg-white/15 text-white"
+                  isLight
+                    ? "bg-slate-200 hover:bg-slate-300 text-slate-800"
+                    : "bg-white/10 hover:bg-white/15 text-white"
                 }`}
               >
                 Close
@@ -458,5 +525,7 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
     </AnimatePresence>
   );
 
-  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : modalContent;
+  return typeof document !== "undefined"
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 }
