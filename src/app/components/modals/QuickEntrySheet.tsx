@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useDragControls } from "motion/react";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
 import { useGoalsStore } from "../../../store/useGoalsStore";
@@ -6,6 +6,7 @@ import { X, Check, Zap, Plane, Wallet } from "lucide-react";
 import { useState } from "react";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import confetti from "canvas-confetti";
+import { BottomSheet } from "../BottomSheet";
 
 
 interface QuickEntrySheetProps {
@@ -98,55 +99,20 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const borderColor = isLight ? "border-slate-200" : "border-white/10";
   
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
-          />
-          <motion.div
-            drag="y"
-            dragControls={dragControls}
-            dragListener={false}
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              if (info.offset.y > 100 || info.velocity.y > 500) {
-                onClose();
-              }
-            }}
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", damping: 30, stiffness: 350 }}
-            className={`fixed bottom-0 left-0 right-0 z-[110] max-h-[92vh] flex flex-col ${activeTheme.bgClass} rounded-t-[40px] shadow-[0_-20px_60px_rgba(0,0,0,0.3)] border-t ${borderColor}`}
-          >
-            {/* Drag Handle Area */}
-            <div 
-              onPointerDown={(e) => dragControls.start(e)}
-              style={{ touchAction: "none" }}
-              className="pt-3 pb-2 px-6 flex flex-col cursor-grab active:cursor-grabbing shrink-0"
-            >
-              <div className={`w-12 h-1.5 rounded-full mx-auto mb-6 ${isLight ? "bg-slate-300" : "bg-white/20"}`} />
-              <div className="flex justify-between items-center">
-                <h3 className={`${textColor} text-2xl font-black tracking-tight`}>Add Entry</h3>
-                <button 
-                  onClick={onClose} 
-                  onPointerDown={(e) => e.stopPropagation()}
-                  className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors ${isLight ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700" : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"}`}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
+    <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight} className="!p-0 !pt-0">
+      <div className="pt-1 pb-4 px-6 flex justify-between items-center shrink-0">
+        <h3 className={`${textColor} text-2xl font-black tracking-tight`}>Add Entry</h3>
+        <button 
+          onClick={onClose} 
+          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors z-10 ${isLight ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700" : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"}`}
+        >
+          <X size={16} />
+        </button>
+      </div>
 
-            {/* Scrollable Content */}
-            <div className="px-6 pb-6 overflow-y-auto touch-pan-y hide-scrollbar">
-              {/* iOS Style Segmented Control */}
+      {/* Content */}
+      <div className="px-6 pb-2">
+        {/* iOS Style Segmented Control */}
             <div className={`flex p-1 rounded-2xl mb-8 ${segmentBg}`}>
               <button
                 onClick={() => handleModeSwitch("general")}
@@ -331,10 +297,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             >
               {entryMode === "goal" ? "Confirm Contribution" : entryMode === "trip" ? "Log Trip Expense" : "Add Expense"}
             </button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      </div>
+    </BottomSheet>
   );
 }

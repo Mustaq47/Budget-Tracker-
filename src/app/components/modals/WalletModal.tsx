@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BottomSheet } from "../BottomSheet";
 import { X, Wallet, ArrowDownRight, ArrowUpRight, PlusCircle, MinusCircle, Sparkles, CreditCard, ChevronRight, Check } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
@@ -221,49 +222,8 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Deep blur backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={resetAndClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100]"
-          />
-
-          <motion.div
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              if (info.offset.y > 100 || info.velocity.y > 500) {
-                resetAndClose();
-              }
-            }}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={springConfig}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end touch-pan-y"
-          >
-            <div
-              className={`w-full max-h-[92vh] flex flex-col rounded-t-[40px] relative transition-colors ${
-                isLight
-                  ? "bg-white/95 border-t border-slate-200 text-slate-900 shadow-[0_-20px_50px_rgba(0,0,0,0.15)]"
-                  : "bg-gradient-to-b from-[#181530]/98 via-[#0F0D24]/98 to-[#090816] border-t border-white/10 text-white shadow-[0_-20px_60px_rgba(123,97,255,0.25)]"
-              } backdrop-blur-3xl`}
-            >
-              {/* Pill Handle */}
-              <div className="shrink-0 pt-4 pb-2 flex justify-center w-full bg-transparent">
-                <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/20"}`} />
-              </div>
-
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-6 pb-12 hide-scrollbar">
-                
-                {/* Header Row */}
+    <BottomSheet isOpen={isOpen} onClose={resetAndClose} isLight={isLight}>
+      {/* Header Row */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
                     <GlassIcon icon={Wallet} size="md" glow="purple" asChild />
@@ -517,11 +477,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                   </motion.div>
                 )}
 
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      {/* End Header Row... actually bottom of sheet */}
+    </BottomSheet>
   );
 }

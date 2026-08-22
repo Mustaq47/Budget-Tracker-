@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Zap, Plus, Coins, Target, Trash2, Edit3, Trophy } from "lucide-react";
 import { useBudgetStore, SavingsGoal, currencySymbols } from "../../../store/useBudgetStore";
 import { useGoalsStore } from "../../../store/useGoalsStore";
+import { useTranslation } from "../../../utils/translations";
+import { BottomSheet } from "../BottomSheet";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { GlassIcon } from "../GlassIcon";
 import confetti from "canvas-confetti";
@@ -218,56 +220,19 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]"
-          />
+    <BottomSheet isOpen={isOpen} onClose={onClose} className="p-6 pt-3 pb-12" isLight={isLight}>
+      <button
+        onClick={onClose}
+        className={`absolute top-5 right-6 w-9 h-9 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-colors z-10 ${
+          isLight
+            ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
+            : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"
+        }`}
+      >
+        <X size={18} />
+      </button>
 
-          {/* Bottom Sheet Modal */}
-          <motion.div
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              if (info.offset.y > 100 || info.velocity.y > 500) {
-                onClose();
-              }
-            }}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto touch-pan-y"
-          >
-            <div
-              className={`backdrop-blur-3xl border-t rounded-t-[40px] p-6 pt-3 max-h-[85vh] overflow-y-auto pb-12 relative transition-colors ${
-                isLight
-                  ? "bg-white/95 border-slate-200 text-slate-900 shadow-[0_-12px_50px_rgba(0,0,0,0.1)]"
-                  : "bg-gradient-to-b from-[#181530]/98 via-[#0F0D24]/98 to-[#090816] border-white/10 text-white shadow-[0_-20px_60px_rgba(123,97,255,0.25)]"
-              }`}
-            >
-              {/* Drag Handle */}
-              <div className={`w-12 h-1.5 rounded-full mx-auto mb-6 ${isLight ? "bg-slate-300" : "bg-white/20"}`} />
-
-              <button
-                onClick={onClose}
-                className={`absolute top-5 right-6 w-9 h-9 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-colors z-10 ${
-                  isLight
-                    ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
-                    : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"
-                }`}
-              >
-                <X size={18} />
-              </button>
-
-              {/* Header */}
+      {/* Header */}
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                   <GlassIcon icon={Zap} size="md" glow="blue" asChild />
@@ -507,10 +472,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
                 )}
               </AnimatePresence>
 
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      {/* End */}
+    </BottomSheet>
   );
 }
