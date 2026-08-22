@@ -38,13 +38,13 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
       icon: Award,
       title: "2. Purpose & Self-Directed Use",
       content:
-        "coZify is a personal budgeting, expense tracking, and financial organization software tool. coZify is intended solely for personal informational use and does not provide financial, legal, tax, or investment advice.",
+        "coZify is a manual personal budgeting, expense tracking, and financial organization software tool. coZify is intended solely for personal informational use and does not provide financial, legal, tax, or investment advice.",
     },
     {
       icon: AlertCircle,
       title: "3. User Accuracy & Responsibilities",
       content:
-        "You are solely responsible for the accuracy of all financial data, transactions, custom categories, card balances, and budget goals entered into coZify. The application calculates insights and progress based strictly on the data you provide.",
+        "Since coZify does not connect to banks, you are solely responsible for manually entering and ensuring the accuracy of all financial data, Wallet transactions, Trips, custom categories, card balances, and Savings Goals. The application calculates insights and progress based strictly on the data you manually provide.",
     },
     {
       icon: Lock,
@@ -72,6 +72,9 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
     },
   ];
 
+  const accentGradient = `linear-gradient(135deg, ${activeTheme.primaryColor}, ${activeTheme.secondaryColor})`;
+  const accentGlow = `0 4px 15px ${activeTheme.primaryColor}30`;
+
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
@@ -90,10 +93,8 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className={`relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${
-              isLight
-                ? "bg-white/95 border-slate-200 text-slate-800"
-                : "bg-[#0f1123]/95 border-white/10 text-white"
+            className={`relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${activeTheme.bgClass} ${
+              isLight ? "border-slate-200 text-slate-800" : "border-white/10 text-white"
             } backdrop-blur-2xl`}
           >
             {/* Header */}
@@ -103,7 +104,10 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
+                  style={{ background: accentGradient, boxShadow: accentGlow }}
+                >
                   <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -131,13 +135,20 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {/* Executive Document Status Bar */}
-              <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] font-extrabold text-blue-400">
+              <div
+                className="flex items-center justify-between px-3.5 py-2 rounded-xl text-[11px] font-extrabold border"
+                style={{
+                  background: `${activeTheme.primaryColor}10`,
+                  borderColor: `${activeTheme.primaryColor}25`,
+                  color: activeTheme.primaryColor,
+                }}
+              >
                 <span>DOC ID: CZ-TOS-2026</span>
                 <span>STATUS: ACTIVE AGREEMENT</span>
                 <span>v1.0.0</span>
               </div>
 
-              {/* Highlight Banner / Amber Legal Disclaimer */}
+              {/* Legal Disclaimer Banner */}
               <div
                 className={`p-4 rounded-2xl border flex items-start gap-3 ${
                   isLight
@@ -151,7 +162,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                 </div>
               </div>
 
-              {/* Policy Sections with Numbered Badges & Left Accent Bar */}
+              {/* Policy Sections */}
               <div className="space-y-3">
                 {sections.map((sec, idx) => {
                   const IconComp = sec.icon;
@@ -163,7 +174,10 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                         isLight ? "bg-slate-50 border-slate-200 hover:border-slate-300" : "bg-white/5 border-white/10 hover:border-white/20"
                       }`}
                     >
-                      <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 opacity-80" />
+                      <div
+                        className="absolute top-0 left-0 bottom-0 w-1 opacity-80"
+                        style={{ background: accentGradient }}
+                      />
                       <div className="flex items-center justify-between mb-2 pl-2">
                         <div className="flex items-center gap-2.5">
                           <div
@@ -171,7 +185,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                               isLight ? "bg-slate-200 text-slate-700" : "bg-white/10 text-white/80"
                             }`}
                           >
-                            <IconComp className="w-4 h-4 text-blue-500" />
+                            <IconComp className="w-4 h-4" style={{ color: activeTheme.primaryColor }} />
                           </div>
                           <h4
                             className={`text-xs font-black tracking-tight ${
@@ -181,7 +195,14 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                             {sec.title}
                           </h4>
                         </div>
-                        <span className="text-[10px] font-black tracking-widest px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <span
+                          className="text-[10px] font-black tracking-widest px-2 py-0.5 rounded border"
+                          style={{
+                            background: `${activeTheme.primaryColor}10`,
+                            borderColor: `${activeTheme.primaryColor}25`,
+                            color: activeTheme.primaryColor,
+                          }}
+                        >
                           {sectionNum}
                         </span>
                       </div>
@@ -197,13 +218,12 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                 })}
               </div>
 
-              {/* Contact Developer Card with SLA Badge */}
+              {/* Contact Developer Card */}
               <div
                 className={`p-4 rounded-2xl border flex items-center justify-between ${
-                  isLight
-                    ? "bg-slate-100 border-slate-200"
-                    : "bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-white/10"
+                  isLight ? "bg-slate-100 border-slate-200" : "border-white/10"
                 }`}
+                style={!isLight ? { background: `${activeTheme.primaryColor}10` } : {}}
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -214,7 +234,14 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                     >
                       Legal & Compliance Contact
                     </h4>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                    <span
+                      className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border"
+                      style={{
+                        background: `${activeTheme.primaryColor}20`,
+                        borderColor: `${activeTheme.primaryColor}35`,
+                        color: activeTheme.primaryColor,
+                      }}
+                    >
                       ⚡ Verified
                     </span>
                   </div>
@@ -228,7 +255,8 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                 </div>
                 <a
                   href="mailto:mustaqsk47@gmail.com?subject=coZify%20Terms%20and%20Conditions%20Inquiry"
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2.5 rounded-xl text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
+                  style={{ background: accentGradient }}
                 >
                   <Mail className="w-3.5 h-3.5" /> Direct Legal Inquiry
                 </a>
@@ -244,13 +272,14 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
               }`}
             >
               <div className="flex items-center gap-1.5 text-[11px] font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
+                <ShieldCheck className="w-3.5 h-3.5" style={{ color: activeTheme.primaryColor }} />
                 <span>coZify v1.0.0 • Verified Legal Charter</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={onClose}
-                  className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20 hover:opacity-90 flex items-center gap-1.5`}
+                  className="px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-white shadow-lg hover:opacity-90 flex items-center gap-1.5"
+                  style={{ background: accentGradient, boxShadow: accentGlow }}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   I Agree & Accept Terms

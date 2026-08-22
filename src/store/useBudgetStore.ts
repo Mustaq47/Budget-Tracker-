@@ -66,6 +66,7 @@ export type QuickActionModal =
   | 'help-center'
   | 'privacy-policy'
   | 'terms-conditions'
+  | 'feedback'
   | 'report'
   | null;
 export type AppTheme =

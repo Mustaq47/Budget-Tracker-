@@ -31,7 +31,9 @@ import {
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
 import { useGoalsStore } from "../../../store/useGoalsStore";
+import { useTranslation } from "../../../utils/translations";
 import { formatCompactCurrency } from "../../../utils/formatters";
+import { staggerContainer, staggerItem, triggerHaptic } from "../../../utils/motion";
 import { logout } from "../../../services/firebase";
 import { useNavigate } from "react-router";
 import {
@@ -94,7 +96,6 @@ export function Profile() {
   const isLight = !activeTheme.isDark;
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const [isAccountSwitcherOpen, setIsAccountSwitcherOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
@@ -113,7 +114,11 @@ export function Profile() {
     (isAuthenticated ? "Registered Account" : "Not signed in");
   const incomeTransactions = transactions.filter((t) => t.type === "income");
   const expenseTransactions = transactions.filter((t) => t.type === "expense");
-  const balance = calculateDineroBalance(incomeTransactions, expenseTransactions, currency);
+  const balance = calculateDineroBalance(
+    incomeTransactions,
+    expenseTransactions,
+    currency,
+  );
   const handleLogout = async () => {
     try {
       await logout();
@@ -139,8 +144,8 @@ export function Profile() {
           theme,
           colorMode,
           currency,
-          language
-        }
+          language,
+        },
       });
       await syncTripsToFirestore(user.uid, trips);
       await syncGoalsToFirestore(user.uid, goals);
@@ -166,10 +171,10 @@ export function Profile() {
         if (backup.updatedAtFormatted) {
           setLastBackupTime(backup.updatedAtFormatted);
         }
-        
+
         const cloudTrips = await downloadTripsFromFirestore(user.uid);
         if (cloudTrips) setTrips(cloudTrips);
-        
+
         const cloudGoals = await downloadGoalsFromFirestore(user.uid);
         if (cloudGoals) setGoals(cloudGoals);
 
@@ -186,19 +191,19 @@ export function Profile() {
   const settingsSections = [
     ...(isAdmin
       ? [
-        {
-          title: "Executive Security & IAM",
-          items: [
-            {
-              icon: ShieldCheck,
-              label: "Admin Control Panel",
-              badge: "IAM Root Admin",
-              glow: "purple" as const,
-              action: () => navigate("/admin"),
-            },
-          ],
-        },
-      ]
+          {
+            title: "Executive Security & IAM",
+            items: [
+              {
+                icon: ShieldCheck,
+                label: "Admin Control Panel",
+                badge: "IAM Root Admin",
+                glow: "purple" as const,
+                action: () => navigate("/admin"),
+              },
+            ],
+          },
+        ]
       : []),
     {
       title: t.account,
@@ -254,7 +259,7 @@ export function Profile() {
           label: "Give Feedback",
           badge: "New",
           glow: "pink" as const,
-          action: () => setIsFeedbackOpen(true),
+          action: () => setActiveModal("feedback" as any),
         },
         {
           icon: HelpCircle,
@@ -279,17 +284,17 @@ export function Profile() {
         },
         isAuthenticated
           ? {
-            icon: LogOut,
-            label: t.logout,
-            glow: "pink" as const,
-            action: handleLogout,
-          }
+              icon: LogOut,
+              label: t.logout,
+              glow: "pink" as const,
+              action: handleLogout,
+            }
           : {
-            icon: LogIn,
-            label: t.login,
-            glow: "purple" as const,
-            action: () => navigate("/login"),
-          },
+              icon: LogIn,
+              label: t.login,
+              glow: "purple" as const,
+              action: () => navigate("/login"),
+            },
       ],
     },
   ];
@@ -387,34 +392,50 @@ export function Profile() {
       <GlassCard className="mb-6">
         <div className="grid grid-cols-4 gap-4 text-center">
           <div>
-            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
+            <div
+              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
+            >
               {formatCompactCurrency(balance, currencySymbols[currency])}
             </div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
+            <div
+              className={`${subtextColor} text-xs tracking-tight font-medium`}
+            >
               {t.balance}
             </div>
           </div>
           <div>
-            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
+            <div
+              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
+            >
               {transactions.length}
             </div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
+            <div
+              className={`${subtextColor} text-xs tracking-tight font-medium`}
+            >
               {t.transactions}
             </div>
           </div>
           <div>
-            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
+            <div
+              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
+            >
               {tripsCount}
             </div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
+            <div
+              className={`${subtextColor} text-xs tracking-tight font-medium`}
+            >
               Trips
             </div>
           </div>
           <div>
-            <div className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}>
+            <div
+              className={`${textColor} text-2xl tracking-tighter mb-1 font-black`}
+            >
               {goals.length}
             </div>
-            <div className={`${subtextColor} text-xs tracking-tight font-medium`}>
+            <div
+              className={`${subtextColor} text-xs tracking-tight font-medium`}
+            >
               Goals
             </div>
           </div>
@@ -490,11 +511,19 @@ export function Profile() {
                   setCloudBackupEnabled(newState);
                   if (user?.uid) {
                     try {
-                      const { doc, setDoc } = await import("firebase/firestore");
+                      const { doc, setDoc } =
+                        await import("firebase/firestore");
                       const { db } = await import("../../../services/firebase");
-                      await setDoc(doc(db, "users", user.uid), { cloudSyncEnabled: newState }, { merge: true });
+                      await setDoc(
+                        doc(db, "users", user.uid),
+                        { cloudSyncEnabled: newState },
+                        { merge: true },
+                      );
                     } catch (e) {
-                      console.warn("Failed to update cloud sync preference in firestore", e);
+                      console.warn(
+                        "Failed to update cloud sync preference in firestore",
+                        e,
+                      );
                     }
                   }
                 }}
@@ -569,13 +598,23 @@ export function Profile() {
           </div>{" "}
           <GlassCard>
             {" "}
-            <div className="space-y-1">
+            <motion.div 
+              className="space-y-1"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {" "}
               {section.items.map((item) => (
                 <motion.button
                   key={item.label}
-                  onClick={item.action}
+                  variants={staggerItem}
+                  onClick={(e) => {
+                    triggerHaptic(15);
+                    if (item.action) item.action(e as any);
+                  }}
                   whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
                   className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all cursor-pointer ${isLight ? "hover:bg-slate-100" : "hover:bg-white/5"}`}
                 >
                   {" "}
@@ -605,7 +644,7 @@ export function Profile() {
                   />{" "}
                 </motion.button>
               ))}{" "}
-            </div>{" "}
+            </motion.div>{" "}
           </GlassCard>{" "}
         </motion.div>
       ))}{" "}
@@ -667,8 +706,8 @@ export function Profile() {
         onSwitchUser={() => setIsAccountSwitcherOpen(true)}
       />{" "}
       <FeedbackModal
-        isOpen={isFeedbackOpen}
-        onClose={() => setIsFeedbackOpen(false)}
+        isOpen={activeModal === "feedback"}
+        onClose={() => setActiveModal(null)}
       />{" "}
       <HelpCenterModal
         isOpen={activeModal === "help-center"}

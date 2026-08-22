@@ -6,6 +6,7 @@ import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAndroidBackNavigation } from "../hooks/useAndroidBackNavigation";
 import { useCloudSync } from "../../features/sync/hooks/useCloudSync";
+import { pageTransition } from "../../utils/motion";
 
 import { useEffect } from "react";
 import { useTripsStore } from "../../store/useTripsStore";
@@ -89,10 +90,7 @@ export function Root() {
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            {...pageTransition}
           >
             <Outlet />
           </motion.div>
