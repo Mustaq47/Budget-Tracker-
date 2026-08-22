@@ -63,9 +63,6 @@ function TripCard({ trip, isLight, currency, onContribute, onEdit, onDelete }: a
         </>
       )}
     >
-        {/* Subtle Gradient Background matching trip flavor */}
-        <div className="absolute inset-0 opacity-[0.10] pointer-events-none" style={{ background: trip.gradient }} />
-        
         <div className="relative z-10 flex justify-between items-start mb-4 pointer-events-none">
           <div>
             <h3 className={`font-extrabold text-base tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>{trip.title}</h3>

@@ -165,6 +165,27 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
   const subColor = isDark ? "text-white/50" : "text-slate-500";
   const rowHover = isDark ? "hover:bg-white/5" : "hover:bg-slate-100/50";
 
+  const [viewMode, setViewMode] = useState<"DIRECTORY" | "MAIL">("DIRECTORY");
+
+  const handleDownloadCSV = () => {
+    const headers = ["userid", "username", "Mail", "timestamp"];
+    const rows = users.map(u => [
+      u.uid,
+      u.displayName || "Unknown",
+      u.email || "No Email",
+      new Date(u.lastLoginAt).toISOString()
+    ]);
+    const csvContent = [headers.join(","), ...rows.map(r => r.map(cell => `"${cell}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "cozify_users_mail_list.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filtered = useMemo(() => {
     let result = users.filter((u) => {
       const matchSearch =
@@ -194,13 +215,33 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
 
   return (
     <div className="space-y-4">
-      <SectionHeader
-        title="User Directory"
-        subtitle={`${filtered.length} ${filtered.length === 1 ? 'user' : 'users'} ${syncFilter !== 'ALL' ? `(${syncFilter.toLowerCase()})` : `(Total: ${users.length})`}`}
-        isDark={isDark}
-      />
+      <div className="flex items-center justify-between">
+        <SectionHeader
+          title={viewMode === "DIRECTORY" ? "User Directory" : "Mail Directory"}
+          subtitle={viewMode === "DIRECTORY" 
+            ? `${filtered.length} ${filtered.length === 1 ? 'user' : 'users'} ${syncFilter !== 'ALL' ? `(${syncFilter.toLowerCase()})` : `(Total: ${users.length})`}`
+            : `${users.length} registered email addresses`}
+          isDark={isDark}
+        />
+        <div className={`flex items-center p-1 rounded-full ${isDark ? "bg-[#1C1C1E]" : "bg-slate-200"}`}>
+          <button
+            onClick={() => setViewMode("DIRECTORY")}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "DIRECTORY" ? (isDark ? "bg-white text-black shadow-md" : "bg-white text-black shadow-md") : (isDark ? "text-white/50" : "text-slate-500")}`}
+          >
+            Directory
+          </button>
+          <button
+            onClick={() => setViewMode("MAIL")}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "MAIL" ? (isDark ? "bg-white text-black shadow-md" : "bg-white text-black shadow-md") : (isDark ? "text-white/50" : "text-slate-500")}`}
+          >
+            Mail
+          </button>
+        </div>
+      </div>
 
-      <FilterBar
+      {viewMode === "DIRECTORY" ? (
+        <>
+          <FilterBar
         searchValue={search}
         onSearchChange={setSearch}
         filters={SYNC_FILTERS}
@@ -265,6 +306,43 @@ export function UsersTab({ users, isLoading, isDark }: UsersTabProps) {
               </div>
             </motion.button>
           ))}
+        </div>
+      )}
+        </>
+      ) : (
+        <div className={`rounded-[28px] border p-4 ${cardBg}`}>
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={handleDownloadCSV}
+              className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 ${isDark ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-emerald-100 text-emerald-700 border border-emerald-200"}`}
+            >
+              Download CSV
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className={`border-b ${divider} ${subColor} text-[10px] uppercase tracking-wider`}>
+                  <th className="pb-3 font-bold px-2">User ID</th>
+                  <th className="pb-3 font-bold px-2">Username</th>
+                  <th className="pb-3 font-bold px-2">Mail</th>
+                  <th className="pb-3 font-bold px-2 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${divider}`}>
+                {users.map((user) => (
+                  <tr key={user.uid} className={`transition-colors ${rowHover}`}>
+                    <td className={`py-3 px-2 text-xs font-medium font-mono ${subColor} max-w-[120px] truncate`}>{user.uid}</td>
+                    <td className={`py-3 px-2 text-xs font-bold ${textColor}`}>{user.displayName || "Unknown"}</td>
+                    <td className={`py-3 px-2 text-xs ${subColor}`}>{user.email || "No Email"}</td>
+                    <td className={`py-3 px-2 text-xs ${subColor} text-right whitespace-nowrap`}>
+                      {new Date(user.lastLoginAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

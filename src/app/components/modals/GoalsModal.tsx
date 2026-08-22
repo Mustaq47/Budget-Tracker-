@@ -96,20 +96,41 @@ function GoalCard({
           
           <div className="text-right pointer-events-none">
             <div className={`${textColor} font-black text-sm tracking-tight`}>{pct}%</div>
-            <div className={`${subtextColor} text-[10px] tracking-tight mt-0.5`}>
-              {currencySymbols[currency as keyof typeof currencySymbols]}{goal.currentAmount.toLocaleString()} / {currencySymbols[currency as keyof typeof currencySymbols]}{goal.targetAmount.toLocaleString()}
-            </div>
           </div>
         </div>
 
-        {/* Apple Style Sleek Progress Bar */}
-        <div className={`w-full h-2 rounded-full overflow-hidden pointer-events-none ${isLight ? "bg-slate-200" : "bg-black/40"}`}>
-          <motion.div
-            className={`h-full rounded-full ${barGradient}`}
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          />
+        <div className="relative z-10 pointer-events-none">
+          <div className="flex justify-between items-end mb-2">
+            <div>
+              <div className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${isLight ? "text-slate-500" : "text-white/50"}`}>
+                Saved
+              </div>
+              <div className={`font-black text-lg ${textColor}`}>
+                {currencySymbols[currency as keyof typeof currencySymbols]}{goal.currentAmount.toLocaleString()}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${isLight ? "text-slate-500" : "text-white/50"}`}>
+                Remaining
+              </div>
+              <div className={`font-black text-lg ${textColor}`}>
+                {currencySymbols[currency as keyof typeof currencySymbols]}{Math.max(0, goal.targetAmount - goal.currentAmount).toLocaleString()}
+              </div>
+            </div>
+          </div>
+
+          {/* Apple Style Sleek Progress Bar */}
+          <div className={`w-full h-2 rounded-full overflow-hidden pointer-events-none ${isLight ? "bg-slate-200" : "bg-black/40"}`}>
+            <motion.div
+              className={`h-full rounded-full ${barGradient}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
+            />
+          </div>
+          <div className={`text-right text-[10px] font-bold mt-1 ${isLight ? "text-slate-400" : "text-white/40"}`}>
+            Target Goal: {currencySymbols[currency as keyof typeof currencySymbols]}{goal.targetAmount.toLocaleString()}
+          </div>
         </div>
 
     </SwipeableCard>
@@ -230,7 +251,7 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
   };
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} className="p-6 pt-3 pb-12" isLight={isLight}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight}>
       <button
         onClick={onClose}
         className={`absolute top-5 right-6 w-9 h-9 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-colors z-10 ${
