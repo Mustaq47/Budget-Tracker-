@@ -1,11 +1,11 @@
 export const springConfig = {
-  type: "spring",
+  type: "spring" as const,
   stiffness: 350,
   damping: 25,
 };
 
 export const gentleSpring = {
-  type: "spring",
+  type: "spring" as const,
   stiffness: 200,
   damping: 20,
 };

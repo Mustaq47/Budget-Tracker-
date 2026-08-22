@@ -56,7 +56,7 @@ import { HelpCenterModal } from "../modals/HelpCenterModal";
 import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
 import { TermsConditionsModal } from "../modals/TermsConditionsModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
-import { useTranslation } from "../../../utils/translations";
+
 import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
 import { useLongPress } from "../../../utils/useLongPress";
 import { logger } from "../../../utils/logger";
