@@ -26,15 +26,6 @@ export function BottomSheet({ isOpen, onClose, children, className = "", isLight
           />
 
           <motion.div
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              // Dismiss if swiped down fast, or dragged down more than 100px
-              if (info.offset.y > 100 || info.velocity.y > 500) {
-                onClose();
-              }
-            }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}

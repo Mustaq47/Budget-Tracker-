@@ -145,7 +145,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const expenseTxs = transactions.filter((t) => t.type === "expense");
   const income = calculateDineroTotal(incomeTxs, currency);
   const expense = calculateDineroTotal(expenseTxs, currency);
-  const totalBalance = calculateDineroBalance(incomeTxs, expenseTxs, currency);
+  const totalBalance = calculateDineroBalance([], expenseTxs, currency, dailyBudget);
 
   // Generate sparkline data from the last 15 transactions
   const sparklineData = useMemo(() => {
@@ -182,17 +182,15 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
       if (selectedTrip) title += ` (${selectedTrip.title})`;
     }
 
-    if (!(activeAction === "withdraw" && selectedTripId)) {
-      addTransaction({
-        title,
-        amount: val,
-        category: activeAction === "deposit" ? "Income" : "Transfer",
-        time: timeStr,
-        type: activeAction === "deposit" ? "income" : "expense",
-        glow: activeAction === "deposit" ? "purple" : "pink",
-        tripId: selectedTripId || undefined,
-      });
-    }
+    addTransaction({
+      title,
+      amount: val,
+      category: activeAction === "deposit" ? "Income" : "Transfer",
+      time: timeStr,
+      type: activeAction === "deposit" ? "income" : "expense",
+      glow: activeAction === "deposit" ? "purple" : "pink",
+      tripId: selectedTripId || undefined,
+    });
 
     if (activeAction === "deposit") {
       const cObj = getCurrencyObj(currency);

@@ -31,8 +31,14 @@ export const calculateDineroSum = (amounts: number[], currencyCode: string) => {
   return formatDinero(totalDinero);
 };
 
-export const calculateDineroBalance = (incomeTransactions: { amount: number }[], expenseTransactions: { amount: number }[], currencyCode: string) => {
+export const calculateDineroBalance = (
+  incomeTransactions: { amount: number }[], 
+  expenseTransactions: { amount: number }[], 
+  currencyCode: string,
+  baseAmount: number = 0
+) => {
   const cObj = getCurrencyObj(currencyCode);
+  const baseDinero = dinero({ amount: toSubunits(baseAmount, cObj), currency: cObj });
   
   const totalIncome = incomeTransactions.reduce((acc, t) => {
     const d = dinero({ amount: toSubunits(t.amount, cObj), currency: cObj });
@@ -44,7 +50,7 @@ export const calculateDineroBalance = (incomeTransactions: { amount: number }[],
     return add(acc, d);
   }, dinero({ amount: 0, currency: cObj }));
 
-  let balance = subtract(totalIncome, totalExpense);
+  let balance = subtract(add(baseDinero, totalIncome), totalExpense);
   
   // If balance is negative, clamp to 0 based on original Math.max(0, income - expense) logic
   if (formatDinero(balance) < 0) {

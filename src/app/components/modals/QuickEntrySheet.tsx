@@ -56,6 +56,17 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
       const amountVal = Number(amount);
       const goal = goals.find(g => g.id === selectedGoalId);
       contributeToGoal(selectedGoalId, amountVal);
+      
+      // Log as a transaction
+      addTransaction({
+        title: `Goal: ${goal?.title || "Contribution"}`,
+        amount: amountVal,
+        category: "Goal Contribution",
+        type: "expense",
+        goalId: selectedGoalId,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+
       if (goal && (goal.currentAmount + amountVal) >= goal.targetAmount && goal.currentAmount < goal.targetAmount) {
         confetti({
           particleCount: 100,
@@ -64,7 +75,19 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
         });
       }
     } else if (entryMode === "trip" && selectedTripId) {
-      updateTripSpent(selectedTripId, Number(amount));
+      const amountVal = Number(amount);
+      const trip = trips.find(t => t.id === selectedTripId);
+      updateTripSpent(selectedTripId, amountVal);
+      
+      // Log as a transaction
+      addTransaction({
+        title: `Trip: ${trip?.title || "Expense"}`,
+        amount: amountVal,
+        category: "Trip Expense",
+        type: "expense",
+        tripId: selectedTripId,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
     } else if (entryMode === "general") {
       addTransaction({
         title: category,

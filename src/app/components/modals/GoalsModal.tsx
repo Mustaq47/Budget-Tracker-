@@ -117,7 +117,7 @@ function GoalCard({
 }
 
 export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
-  const { currency, theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, currency, addTransaction } = useBudgetStore();
   const { goals, addGoal, contributeToGoal, deleteGoal, editGoal } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
@@ -199,6 +199,16 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
     const goal = goals.find(g => g.id === selectedGoalForContribution);
     contributeToGoal(selectedGoalForContribution, amount);
     
+    // Log as a transaction
+    addTransaction({
+      title: `Goal: ${goal?.title || "Contribution"}`,
+      amount: amount,
+      category: "Goal Contribution",
+      type: "expense",
+      goalId: selectedGoalForContribution,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    });
+
     if (goal && (goal.currentAmount + amount) >= goal.targetAmount && goal.currentAmount < goal.targetAmount) {
       confetti({
         particleCount: 100,

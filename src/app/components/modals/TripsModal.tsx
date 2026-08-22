@@ -122,7 +122,7 @@ function TripCard({ trip, isLight, currency, onContribute, onEdit, onDelete }: a
 
 
 export function TripsModal({ isOpen, onClose }: TripsModalProps) {
-  const { currency, theme, colorMode } = useBudgetStore();
+  const { currency, theme, colorMode, addTransaction } = useBudgetStore();
   const { trips, addTrip, removeTrip, updateTripSpent, editTrip } = useTripsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
@@ -201,7 +201,19 @@ export function TripsModal({ isOpen, onClose }: TripsModalProps) {
     e.preventDefault();
     const val = parseFloat(contributionAmount);
     if (!isNaN(val) && val > 0 && selectedTripForContribution) {
+      const trip = trips.find(t => t.id === selectedTripForContribution);
       updateTripSpent(selectedTripForContribution, val);
+      
+      // Log as a transaction
+      addTransaction({
+        title: `Trip: ${trip?.title || "Expense"}`,
+        amount: val,
+        category: "Trip Expense",
+        type: "expense",
+        tripId: selectedTripForContribution,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+
       setContributionAmount("");
       setSelectedTripForContribution(null);
     }

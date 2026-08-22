@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { dinero, toDecimal, add } from 'dinero.js';
+import { dinero, toDecimal, add, subtract } from 'dinero.js';
 import * as currencies from 'dinero.js/currencies';
 
 const getCurrencyObj = (cCode: string) => {
@@ -21,6 +21,7 @@ export interface Transaction {
   type: 'expense' | 'income';
   glow?: 'purple' | 'blue' | 'pink' | 'gold';
   tripId?: string;
+  goalId?: string;
 }
 
 export interface UserProfile {
@@ -321,9 +322,40 @@ export const useBudgetStore = create<BudgetState>()(
       },
 
       deleteTransaction: (id) =>
-        set((state) => ({
-          transactions: state.transactions.filter((t) => t.id !== id),
-        })),
+        set((state) => {
+          const tx = state.transactions.find((t) => t.id === id);
+          let newDailyBudget = state.dailyBudget;
+
+          if (tx) {
+            if (tx.tripId) {
+              import('./useTripsStore').then(({ useTripsStore }) => {
+                useTripsStore.getState().updateTripSpent(tx.tripId!, -tx.amount);
+              });
+            } else if (tx.goalId) {
+              import('./useGoalsStore').then(({ useGoalsStore }) => {
+                useGoalsStore.getState().contributeToGoal(tx.goalId!, -tx.amount);
+              });
+            }
+
+            // Restore daily budget if an income is deleted
+            if (tx.type === "income" && tx.category === "Income") {
+              const cObj = getCurrencyObj(state.currency);
+              const currentDinero = dinero({ amount: toSubunits(state.dailyBudget, cObj), currency: cObj });
+              const subDinero = dinero({ amount: toSubunits(tx.amount, cObj), currency: cObj });
+              let newTotal = subtract(currentDinero, subDinero);
+              
+              if (Number(toDecimal(newTotal)) < 0) {
+                newTotal = dinero({ amount: 0, currency: cObj });
+              }
+              newDailyBudget = Number(toDecimal(newTotal));
+            }
+          }
+          
+          return {
+            transactions: state.transactions.filter((t) => t.id !== id),
+            dailyBudget: newDailyBudget,
+          };
+        }),
 
       updateTransactionCategory: (id, category) =>
         set((state) => ({

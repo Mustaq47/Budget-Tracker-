@@ -115,9 +115,10 @@ export function Profile() {
   const incomeTransactions = transactions.filter((t) => t.type === "income");
   const expenseTransactions = transactions.filter((t) => t.type === "expense");
   const balance = calculateDineroBalance(
-    incomeTransactions,
+    [],
     expenseTransactions,
     currency,
+    dailyBudget
   );
   const handleLogout = async () => {
     try {
