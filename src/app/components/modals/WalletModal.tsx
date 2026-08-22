@@ -43,15 +43,37 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
   });
 
   const curvePath = useMemo(() => {
+    if (points.length === 0) return "";
+    
+    const smoothing = 0.02; // Extremely tight smoothing for maximum sharpness
+    const line = (pointA: number[], pointB: number[]) => {
+      const lengthX = pointB[0] - pointA[0];
+      const lengthY = pointB[1] - pointA[1];
+      return {
+        length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+        angle: Math.atan2(lengthY, lengthX)
+      };
+    };
+    const controlPoint = (current: number[], previous: number[], next: number[], reverse?: boolean) => {
+      const p = previous || current;
+      const n = next || current;
+      const o = line(p, n);
+      const angle = o.angle + (reverse ? Math.PI : 0);
+      const length = o.length * smoothing;
+      return [current[0] + Math.cos(angle) * length, current[1] + Math.sin(angle) * length];
+    };
+
     let path = `M ${points[0][0]},${points[0][1]}`;
     for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const cp1x = p0[0] + (p1[0] - p0[0]) * 0.4;
-      const cp1y = p0[1];
-      const cp2x = p0[0] + (p1[0] - p0[0]) * 0.6;
-      const cp2y = p1[1];
-      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p1[0]},${p1[1]}`;
+      const p0 = points[i === 0 ? 0 : i - 1];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+
+      const cp1 = controlPoint(p1, p0, p2);
+      const cp2 = controlPoint(p2, p1, p3, true);
+
+      path += ` C ${cp1[0]},${cp1[1]} ${cp2[0]},${cp2[1]} ${p2[0]},${p2[1]}`;
     }
     return path;
   }, [points]);
@@ -122,6 +144,30 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6, type: "spring", bounce: 0.6 }}
         />
+
+        {/* Inner Data Points */}
+        <motion.g
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.05, delayChildren: 0.8 } }
+          }}
+        >
+          {points.slice(0, points.length - 1).map((p, i) => (
+            <motion.circle
+              key={i}
+              cx={p[0]}
+              cy={p[1]}
+              r="1.2"
+              fill={color}
+              opacity="0.8"
+              variants={{
+                hidden: { scale: 0, opacity: 0 },
+                visible: { scale: 1, opacity: 0.8 }
+              }}
+            />
+          ))}
+        </motion.g>
       </svg>
     </div>
   );
