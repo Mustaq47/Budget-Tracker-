@@ -1,6 +1,6 @@
 {
   "name": "cozify",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "coZify — Track • Manage • Grow",
   "main": "index.js",
   "scripts": {
@@ -65,6 +65,7 @@
     "embla-carousel-react": "8.6.0",
     "firebase": "^12.16.0",
     "firebase-admin": "^14.2.0",
+    "idb": "^8.0.3",
     "idb-keyval": "^6.3.0",
     "input-otp": "1.4.2",
     "lucide-react": "0.487.0",

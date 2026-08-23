@@ -202,9 +202,32 @@ export const useBudgetStore = create<BudgetState>()(
       restoreCloudState: (payload) =>
         set((state) => {
           const prefs = (payload as any).preferences || {};
+
+          const ninetyDaysAgo = new Date();
+          ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+          // 1. Keep local transactions older than 90 days
+          const localOlder = (state.transactions || []).filter((t) => {
+            const txDate = new Date(t.date);
+            return txDate < ninetyDaysAgo;
+          });
+
+          // 2. Format cloud transactions and restore title if missing
+          const cloudTx = (Array.isArray(payload.transactions) ? payload.transactions : []).map((t) => ({
+            ...t,
+            title: t.title || `${t.category} ${t.type === "income" ? "Income" : "Expense"}`,
+          }));
+
+          // 3. Merge and deduplicate
+          const seenIds = new Set(cloudTx.map((t) => t.id));
+          const filteredLocalOlder = localOlder.filter((t) => !seenIds.has(t.id));
+
+          const merged = [...cloudTx, ...filteredLocalOlder];
+          merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
           return {
             dailyBudget: payload.dailyBudget ?? 2000,
-            transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
+            transactions: merged,
             customCategories: Array.isArray(payload.customCategories) ? payload.customCategories : [],
             ...(prefs.theme ? { theme: prefs.theme } : {}),
             ...(prefs.colorMode ? { colorMode: prefs.colorMode } : {}),

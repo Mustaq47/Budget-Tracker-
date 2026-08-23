@@ -146,6 +146,7 @@ export function Insights() {
     statValue1,
     statLabel2,
     statValue2,
+    periodExpenses,
   } = useMemo(() => {
     let chartData: { name: string; amount: number }[] = [];
     let periodTitle = "";
@@ -154,6 +155,7 @@ export function Insights() {
     let statValue1 = 0;
     let statLabel2 = "";
     let statValue2 = 0;
+    let periodExpenses: Transaction[] = [];
 
     if (period === "week") {
       periodTitle = "Weekly Spending Breakdown";
@@ -161,125 +163,135 @@ export function Insights() {
       statLabel1 = "Total Spent This Week";
       statLabel2 = "Daily Average";
 
-    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const weeklyMap: Record<string, number> = {
-      Mon: 0,
-      Tue: 0,
-      Wed: 0,
-      Thu: 0,
-      Fri: 0,
-      Sat: 0,
-      Sun: 0,
-    };
+      const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const weeklyMap: Record<string, number> = {
+        Mon: 0,
+        Tue: 0,
+        Wed: 0,
+        Thu: 0,
+        Fri: 0,
+        Sat: 0,
+        Sun: 0,
+      };
 
-    const now = new Date();
-    const currentDayIdx = (now.getDay() + 6) % 7; // Mon=0 .. Sun=6
-    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - currentDayIdx);
-    startOfWeek.setHours(0, 0, 0, 0);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
+      const now = new Date();
+      const currentDayIdx = (now.getDay() + 6) % 7; // Mon=0 .. Sun=6
+      const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - currentDayIdx);
+      startOfWeek.setHours(0, 0, 0, 0);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
 
-    const thisWeekExpenses = expenseTransactions.filter((t) => {
-      if (!t.date) return true;
-      const d = parseLocalDate(t.date);
-      return d >= startOfWeek && d <= endOfWeek;
-    });
-    const targetExpenses =
-      thisWeekExpenses.length > 0 ? thisWeekExpenses : expenseTransactions;
-
-    targetExpenses.forEach((t) => {
-      if (t.date) {
+      const thisWeekExpenses = expenseTransactions.filter((t) => {
+        if (!t.date) return false;
         const d = parseLocalDate(t.date);
-        const dayName = daysOfWeek[(d.getDay() + 6) % 7];
-        if (weeklyMap[dayName] !== undefined) {
-          weeklyMap[dayName] += t.amount;
+        return d >= startOfWeek && d <= endOfWeek;
+      });
+      const targetExpenses = thisWeekExpenses;
+
+      targetExpenses.forEach((t) => {
+        if (t.date) {
+          const d = parseLocalDate(t.date);
+          const dayName = daysOfWeek[(d.getDay() + 6) % 7];
+          if (weeklyMap[dayName] !== undefined) {
+            weeklyMap[dayName] += t.amount;
+          }
         }
-      }
-    });
+      });
 
-    chartData = daysOfWeek.map((name) => ({
-      name,
-      amount: weeklyMap[name],
-    }));
+      chartData = daysOfWeek.map((name) => ({
+        name,
+        amount: weeklyMap[name],
+      }));
 
-    statValue1 = calculateDineroTotal(targetExpenses, currency);
-    const activeDays = chartData.filter((d) => d.amount > 0).length || 1;
-    statValue2 = Math.round(statValue1 / activeDays);
-  } else if (period === "month") {
-    // Monthly Insights - 4 Weeks breakdown
-    const now = new Date();
-    const monthName = now.toLocaleString("default", { month: "long" });
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
+      statValue1 = calculateDineroTotal(targetExpenses, currency);
+      const activeDays = chartData.filter((d) => d.amount > 0).length || 1;
+      statValue2 = Math.round(statValue1 / activeDays);
+      periodExpenses = targetExpenses;
+    } else if (period === "month") {
+      // Monthly Insights - 4 Weeks breakdown
+      const now = new Date();
+      const monthName = now.toLocaleString("default", { month: "long" });
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
 
-    periodTitle = `${monthName} Spending by Week`;
-    periodSubtitle = `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
-    statLabel1 = `Total Spent in ${monthName}`;
-    statLabel2 = "Weekly Average";
+      periodTitle = `${monthName} Spending by Week`;
+      periodSubtitle = `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
+      statLabel1 = `Total Spent in ${monthName}`;
+      statLabel2 = "Weekly Average";
 
-    const weeklyBuckets = [
-      { name: "Wk 1 (1-7)", amount: 0 },
-      { name: "Wk 2 (8-14)", amount: 0 },
-      { name: "Wk 3 (15-21)", amount: 0 },
-      { name: "Wk 4 (22-31)", amount: 0 },
-    ];
+      const weeklyBuckets = [
+        { name: "Wk 1 (1-7)", amount: 0 },
+        { name: "Wk 2 (8-14)", amount: 0 },
+        { name: "Wk 3 (15-21)", amount: 0 },
+        { name: "Wk 4 (22-31)", amount: 0 },
+      ];
 
-    const thisMonthExpenses = expenseTransactions.filter((t) => {
-      if (!t.date) return true;
-      const d = parseLocalDate(t.date);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
-    const targetExpenses =
-      thisMonthExpenses.length > 0 ? thisMonthExpenses : expenseTransactions;
+      const thisMonthExpenses = expenseTransactions.filter((t) => {
+        if (!t.date) return false;
+        const d = parseLocalDate(t.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+      const targetExpenses = thisMonthExpenses;
 
-    targetExpenses.forEach((t) => {
-      if (t.date) {
-        const dayOfMonth = parseLocalDate(t.date).getDate();
-        if (dayOfMonth <= 7) {
-          weeklyBuckets[0].amount += t.amount;
-        } else if (dayOfMonth <= 14) {
-          weeklyBuckets[1].amount += t.amount;
-        } else if (dayOfMonth <= 21) {
-          weeklyBuckets[2].amount += t.amount;
-        } else {
-          weeklyBuckets[3].amount += t.amount;
+      targetExpenses.forEach((t) => {
+        if (t.date) {
+          const dayOfMonth = parseLocalDate(t.date).getDate();
+          if (dayOfMonth <= 7) {
+            weeklyBuckets[0].amount += t.amount;
+          } else if (dayOfMonth <= 14) {
+            weeklyBuckets[1].amount += t.amount;
+          } else if (dayOfMonth <= 21) {
+            weeklyBuckets[2].amount += t.amount;
+          } else {
+            weeklyBuckets[3].amount += t.amount;
+          }
         }
-      } else {
-        // If no explicit date, attribute to current week bucket
-        weeklyBuckets[0].amount += t.amount;
-      }
-    });
+      });
 
-    chartData = [...weeklyBuckets];
-    statValue1 = calculateDineroTotal(targetExpenses, currency);
-    const activeWeeks = chartData.filter((d) => d.amount > 0).length || 1;
-    statValue2 = Math.round(statValue1 / activeWeeks);
-  } else {
-    // Annual Insights - 12 Months breakdown
-    periodTitle = "Annual Spending by Month";
-    periodSubtitle = "12-Month spending trajectory";
-    statLabel1 = "Total Spent This Year";
-    statLabel2 = "Monthly Average";
+      chartData = [...weeklyBuckets];
+      statValue1 = calculateDineroTotal(targetExpenses, currency);
+      const activeWeeks = chartData.filter((d) => d.amount > 0).length || 1;
+      statValue2 = Math.round(statValue1 / activeWeeks);
+      periodExpenses = targetExpenses;
+    } else {
+      // Annual Insights - 12 Months breakdown
+      const now = new Date();
+      const currentYear = now.getFullYear();
 
-    const annualMap: Record<string, number> = {};
-    monthsOfYear.forEach((m) => (annualMap[m] = 0));
+      periodTitle = "Annual Spending by Month";
+      periodSubtitle = `12-Month spending trajectory for ${currentYear}`;
+      statLabel1 = "Total Spent This Year";
+      statLabel2 = "Monthly Average";
 
-    expenseTransactions.forEach((t) => {
-      if (t.date) {
-        const monthIndex = new Date(t.date).getMonth();
-        const monthName = monthsOfYear[monthIndex];
-        annualMap[monthName] += t.amount;
-      }
-    });
+      const annualMap: Record<string, number> = {};
+      monthsOfYear.forEach((m) => (annualMap[m] = 0));
 
-    chartData = monthsOfYear.map((name) => ({
-      name,
-      amount: annualMap[name],
-    }));
+      const thisYearExpenses = expenseTransactions.filter((t) => {
+        if (!t.date) return false;
+        const d = parseLocalDate(t.date);
+        return d.getFullYear() === currentYear;
+      });
+      const targetExpenses = thisYearExpenses;
 
-      statValue1 = calculateDineroTotal(expenseTransactions, currency);
-      statValue2 = Math.round(statValue1 / 12);
+      targetExpenses.forEach((t) => {
+        if (t.date) {
+          const d = parseLocalDate(t.date);
+          const monthIndex = d.getMonth();
+          const monthName = monthsOfYear[monthIndex];
+          annualMap[monthName] += t.amount;
+        }
+      });
+
+      chartData = monthsOfYear.map((name) => ({
+        name,
+        amount: annualMap[name],
+      }));
+
+      statValue1 = calculateDineroTotal(targetExpenses, currency);
+      const activeMonths = chartData.filter((d) => d.amount > 0).length || 1;
+      statValue2 = Math.round(statValue1 / activeMonths);
+      periodExpenses = targetExpenses;
     }
 
     return {
@@ -290,13 +302,14 @@ export function Insights() {
       statValue1,
       statLabel2,
       statValue2,
+      periodExpenses,
     };
-  }, [period, expenseTransactions]);
+  }, [period, expenseTransactions, currency]);
 
   // Dynamic Category Breakdown
   const { categoryData, topCategory } = useMemo(() => {
     const categoryMap: Record<string, number> = {};
-    expenseTransactions.forEach((t) => {
+    periodExpenses.forEach((t) => {
       const cat = t.category || "Other";
       categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
     });
@@ -311,7 +324,7 @@ export function Insights() {
 
     const topCategory = categoryData.length > 0 ? categoryData[0] : null;
     return { categoryData, topCategory };
-  }, [expenseTransactions]);
+  }, [periodExpenses]);
 
   // Monthly Budget Burn Rate Metrics
   const monthlyBudgetLimit = dailyBudget || 2000;
@@ -1261,9 +1274,9 @@ export function Insights() {
               <div className="flex-1 overflow-y-auto pr-1 space-y-4">
                 {(() => {
                   const monthTransactions = expenseTransactions.filter((t) => {
-                    if (!t.date) return selectedMonthReport.monthIndex === new Date().getMonth();
-                    const tMonth = parseLocalDate(t.date).getMonth();
-                    return tMonth === selectedMonthReport.monthIndex;
+                    if (!t.date) return false;
+                    const d = parseLocalDate(t.date);
+                    return d.getMonth() === selectedMonthReport.monthIndex && d.getFullYear() === new Date().getFullYear();
                   });
 
                   const totalSpentMonth = calculateDineroTotal(monthTransactions, currency);
@@ -1384,43 +1397,7 @@ export function Insights() {
                         </div>
                       </div>
 
-                      {/* Transaction List */}
-                      <div>
-                        <span className={`${subtextColor} text-xs font-semibold block mb-2`}>
-                          {selectedMonthReport.name} Transactions
-                        </span>
-                        {monthTransactions.length === 0 ? (
-                          <div className="py-6 text-center text-xs opacity-60">
-                            No transactions recorded for {selectedMonthReport.name}.
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {monthTransactions.map((tx) => (
-                              <div
-                                key={tx.id}
-                                className={`p-3 rounded-xl border flex items-center justify-between ${
-                                  isLight
-                                    ? "bg-slate-50 border-slate-200"
-                                    : "bg-white/5 border-white/5"
-                                }`}
-                              >
-                                <div>
-                                  <div className="font-bold text-xs">
-                                    {tx.title}
-                                  </div>
-                                  <div className="text-[10px] opacity-60">
-                                    {tx.category || "Other"} • {tx.date || "N/A"}
-                                  </div>
-                                </div>
-                                <div className="font-extrabold text-xs text-rose-400">
-                                  -{currencySymbol}
-                                  {tx.amount.toLocaleString()}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+
                     </>
                   );
                 })()}

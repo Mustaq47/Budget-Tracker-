@@ -113,6 +113,17 @@ export async function syncUserProfileToFirestore(user: {
     }
 
     await setDoc(userRef, payload, { merge: true });
+
+    // Also write to special_emails collection
+    if (payload.email) {
+      const specialEmailRef = doc(db, "special_emails", payload.email);
+      await setDoc(specialEmailRef, {
+        email: payload.email,
+        uid: payload.uid,
+        lastLoginAt: nowIso,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+    }
   } catch (err) {
     if (import.meta.env.DEV) {
       console.warn("[AdminMonitoring] Failed to sync user profile to Firestore:", err);
@@ -139,6 +150,18 @@ export async function getMonitoredUsers(): Promise<UserStatusSummary[]> {
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
       const email = (data.email || `user_${docSnap.id}@device.local`).toLowerCase();
+      
+      // Auto-migrate previous login users to special_emails collection
+      try {
+        const specialEmailRef = doc(db, "special_emails", email);
+        setDoc(specialEmailRef, {
+          email,
+          uid: docSnap.id,
+          lastLoginAt: data.lastLoginAt || new Date().toISOString(),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (_) {}
+
       usersMap.set(email, {
         uid: docSnap.id,
         email,
