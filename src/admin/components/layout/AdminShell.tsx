@@ -142,6 +142,7 @@ export function AdminShell() {
         onTabChange={setActiveTab}
         isDark={isDark}
         openTickets={openTickets}
+        role={role}
       />
     </div>
   );

@@ -13,6 +13,12 @@ export interface BackupPayload {
     currency?: any;
     language?: any;
   };
+  profile?: {
+    displayName?: string | null;
+    photoURL?: string | null;
+    age?: number | null;
+    gender?: string | null;
+  };
 }
 
 export interface CloudBackupData extends BackupPayload {
@@ -24,17 +30,28 @@ const lastUploadedHashes: Record<string, { hash: string; timestampFormatted: str
 
 export function computePayloadHash(payload: BackupPayload): string {
   try {
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
     const normalized = {
       dailyBudget: payload.dailyBudget || 0,
-      transactions: (payload.transactions || []).map((t) => ({
-        id: t.id,
-        amount: t.amount,
-        type: t.type,
-        category: t.category,
-        date: t.date,
-      })),
+      transactions: (payload.transactions || [])
+        .filter((t) => {
+          const txDate = new Date(t.date);
+          return txDate >= ninetyDaysAgo;
+        })
+        .map((t) => ({
+          id: t.id,
+          amount: t.amount,
+          type: t.type,
+          category: t.category,
+          date: t.date,
+          ...(t.tripId ? { tripId: t.tripId } : {}),
+          ...(t.goalId ? { goalId: t.goalId } : {}),
+        })),
       customCategories: payload.customCategories || [],
       preferences: payload.preferences || {},
+      profile: payload.profile || {},
     };
     const str = JSON.stringify(normalized);
     let hash = 0;
@@ -82,13 +99,31 @@ export async function uploadBackupToFirestore(
 
   const backupDocRef = doc(db, "users", uid, "backups", "latest");
 
+  const ninetyDaysAgo = new Date();
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+  const prunedTransactions = (payload.transactions || [])
+    .filter((t) => {
+      const txDate = new Date(t.date);
+      return txDate >= ninetyDaysAgo;
+    })
+    .map((t) => ({
+      id: t.id,
+      amount: t.amount,
+      type: t.type,
+      category: t.category,
+      date: t.date,
+      ...(t.tripId ? { tripId: t.tripId } : {}),
+      ...(t.goalId ? { goalId: t.goalId } : {}),
+    }));
+
   await retryWithBackoff(() =>
     withTimeout(
       setDoc(
         backupDocRef,
         {
           dailyBudget: payload.dailyBudget,
-          transactions: payload.transactions,
+          transactions: prunedTransactions,
           customCategories: payload.customCategories,
           preferences: payload.preferences || {},
           checksum: currentHash,
@@ -133,6 +168,10 @@ export async function uploadBackupToFirestore(
         lastBackupAt: nowIso,
         updatedAt: serverTimestamp(),
         syncState: "SYNCED",
+        ...(payload.profile?.displayName ? { displayName: payload.profile.displayName } : {}),
+        ...(payload.profile?.photoURL ? { photoURL: payload.profile.photoURL } : {}),
+        ...(payload.profile?.age ? { age: payload.profile.age } : {}),
+        ...(payload.profile?.gender ? { gender: payload.profile.gender } : {}),
         stats: {
           transactionCount: txCount,
           localStorageSizeKb: sizeKb,

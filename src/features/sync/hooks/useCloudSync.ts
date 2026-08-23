@@ -40,12 +40,24 @@ export function useCloudSync() {
       try {
         let shouldSync = isCloudBackupEnabled;
         
-        // Check cloud preference if local is false (e.g. on new device or after logout)
-        if (!shouldSync) {
-          const { doc, getDoc } = await import("firebase/firestore");
-          const { db } = await import("../../../services/firebase");
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists() && userDoc.data().cloudSyncEnabled === true) {
+        const { doc, getDoc } = await import("firebase/firestore");
+        const { db } = await import("../../../services/firebase");
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          
+          if (data.displayName || data.age || data.gender || data.photoURL) {
+            useBudgetStore.getState().updateUserProfile({
+              ...(data.displayName ? { displayName: data.displayName } : {}),
+              ...(data.photoURL ? { photoURL: data.photoURL } : {}),
+              ...(data.age ? { age: data.age } : {}),
+              ...(data.gender ? { gender: data.gender } : {}),
+            });
+          }
+
+          // Check cloud preference if local is false (e.g. on new device or after logout)
+          if (!shouldSync && data.cloudSyncEnabled === true) {
             shouldSync = true;
             useBudgetStore.getState().setCloudBackupEnabled(true);
           }
@@ -123,6 +135,12 @@ export function useCloudSync() {
         colorMode,
         currency,
         language
+      },
+      profile: {
+        displayName: user?.displayName,
+        photoURL: user?.photoURL,
+        age: user?.age,
+        gender: user?.gender,
       }
     };
 

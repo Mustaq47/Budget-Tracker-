@@ -221,10 +221,9 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                       type="button"
                       onClick={() => setSelectedTripId(trip.id)}
                       className={`shrink-0 w-36 p-4 rounded-3xl text-left border relative transition-all ${selectedTripId === trip.id
-                        ? "ring-2 ring-offset-2 ring-amber-500 dark:ring-offset-[#121212] border-transparent"
-                        : isLight ? "border-slate-200 opacity-70 hover:opacity-100" : "border-white/10 opacity-70 hover:opacity-100"
+                        ? "bg-amber-500 border-transparent ring-2 ring-offset-2 ring-amber-500 dark:ring-offset-[#121212]"
+                        : isLight ? "bg-[#f8fafc] border-slate-200 opacity-70 hover:opacity-100" : "bg-white/5 border-white/10 opacity-70 hover:opacity-100"
                         }`}
-                      style={selectedTripId === trip.id ? { background: trip.gradient } : { background: isLight ? "#f8fafc" : "rgba(255,255,255,0.03)" }}
                     >
                       {selectedTripId === trip.id && (
                         <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-black flex items-center justify-center shadow-md">
@@ -252,16 +251,9 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                       type="button"
                       onClick={() => setSelectedGoalId(goal.id)}
                       className={`shrink-0 w-36 p-4 rounded-3xl text-left border relative transition-all ${selectedGoalId === goal.id
-                        ? "ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-[#121212] border-transparent"
-                        : isLight ? "border-slate-200 opacity-70 hover:opacity-100" : "border-white/10 opacity-70 hover:opacity-100"
-                        } ${selectedGoalId === goal.id
-                          ? goal.glow === "gold" ? "bg-amber-500 text-white" :
-                            goal.glow === "blue" ? "bg-blue-500 text-white" :
-                              goal.glow === "purple" ? "bg-purple-500 text-white" :
-                                "bg-pink-500 text-white"
-                          : "bg-transparent"
+                        ? "bg-blue-500 border-transparent ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-[#121212]"
+                        : isLight ? "bg-[#f8fafc] border-slate-200 opacity-70 hover:opacity-100" : "bg-white/5 border-white/10 opacity-70 hover:opacity-100"
                         }`}
-                      style={selectedGoalId !== goal.id ? { background: isLight ? "#f8fafc" : "rgba(255,255,255,0.03)" } : {}}
                     >
                       {selectedGoalId === goal.id && (
                         <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-black flex items-center justify-center shadow-md">

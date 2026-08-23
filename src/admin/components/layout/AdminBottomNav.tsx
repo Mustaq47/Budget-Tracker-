@@ -11,6 +11,7 @@ interface AdminBottomNavProps {
   onTabChange: (tab: AdminTab) => void;
   isDark: boolean;
   openTickets?: number;
+  role: string;
 }
 
 const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
@@ -21,7 +22,7 @@ const TABS: { key: AdminTab; label: string; Icon: React.ElementType }[] = [
   { key: "settings", label: "Settings", Icon: Settings2 },
 ];
 
-export function AdminBottomNav({ activeTab, onTabChange, isDark, openTickets = 0 }: AdminBottomNavProps) {
+export function AdminBottomNav({ activeTab, onTabChange, isDark, openTickets = 0, role }: AdminBottomNavProps) {
   const navBg = isDark
     ? "bg-[#1C1C1E]/75 border-white/5"
     : "bg-white/75 border-slate-200/50";
@@ -29,13 +30,23 @@ export function AdminBottomNav({ activeTab, onTabChange, isDark, openTickets = 0
   const inactiveColor = isDark ? "text-[#94A3B8]" : "text-[#6B7280]";
   const activeDot = isDark ? "bg-[#4ADE80]" : "bg-[#16A34A]";
 
+  const visibleTabs = TABS.filter(({ key }) => {
+    if (role === "SUPPORT_MODERATOR") {
+      return key === "dashboard" || key === "settings";
+    }
+    if (role === "ANALYST") {
+      return key === "dashboard" || key === "users" || key === "revenue" || key === "analytics";
+    }
+    return true; // SUPER_ADMIN
+  });
+
   return (
     <nav
       className={`fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.08)] ${navBg}`}
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="flex items-center justify-around px-2 py-2">
-        {TABS.map(({ key, label, Icon }) => {
+        {visibleTabs.map(({ key, label, Icon }) => {
           const isActive = activeTab === key;
           const showBadge = key === "settings" && openTickets > 0;
           return (

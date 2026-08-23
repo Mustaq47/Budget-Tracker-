@@ -8,19 +8,45 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    // Helper function to get lowercased email from auth token safely
+    function getEmail() {
+      return request.auth != null && request.auth.token.email != null ? request.auth.token.email.lower() : "";
+    }
+
     // Helper function to check if user is root super admin or has a SUPER_ADMIN IAM role
     function isSuperAdmin() {
       return request.auth != null && (
-        request.auth.token.email == "mustaqsk47@gmail.com" ||
-        get(/databases/$(database)/documents/iam_roles/$(request.auth.token.email)).data.role == "SUPER_ADMIN"
+        getEmail() == "mustaqsk47@gmail.com" ||
+        (exists(/databases/$(database)/documents/iam_roles/$(getEmail())) &&
+         get(/databases/$(database)/documents/iam_roles/$(getEmail())).data.role == "SUPER_ADMIN")
+      );
+    }
+
+    // Helper function to check if user is SUPER_ADMIN or SUPPORT_MODERATOR
+    function isSupportOrAdmin() {
+      return request.auth != null && (
+        getEmail() == "mustaqsk47@gmail.com" ||
+        (exists(/databases/$(database)/documents/iam_roles/$(getEmail())) &&
+         (get(/databases/$(database)/documents/iam_roles/$(getEmail())).data.role == "SUPER_ADMIN" ||
+          get(/databases/$(database)/documents/iam_roles/$(getEmail())).data.role == "SUPPORT_MODERATOR"))
+      );
+    }
+
+    // Helper function to check if user is SUPER_ADMIN or ANALYST
+    function isAnalystOrAdmin() {
+      return request.auth != null && (
+        getEmail() == "mustaqsk47@gmail.com" ||
+        (exists(/databases/$(database)/documents/iam_roles/$(getEmail())) &&
+         (get(/databases/$(database)/documents/iam_roles/$(getEmail())).data.role == "SUPER_ADMIN" ||
+          get(/databases/$(database)/documents/iam_roles/$(getEmail())).data.role == "ANALYST"))
       );
     }
 
     // Helper function to check if user has ANY admin role
     function isAdmin() {
       return request.auth != null && (
-        request.auth.token.email == "mustaqsk47@gmail.com" ||
-        exists(/databases/$(database)/documents/iam_roles/$(request.auth.token.email))
+        getEmail() == "mustaqsk47@gmail.com" ||
+        exists(/databases/$(database)/documents/iam_roles/$(getEmail()))
       );
     }
 
@@ -40,39 +66,56 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create, update: if isSuperAdmin() && (
         request.resource.data.role != 'SUPER_ADMIN' || 
-        request.auth.token.email == "mustaqsk47@gmail.com"
+        getEmail() == "mustaqsk47@gmail.com"
       );
       allow delete: if isSuperAdmin() && (
         resource.data.role != 'SUPER_ADMIN' || 
-        request.auth.token.email == "mustaqsk47@gmail.com"
+        getEmail() == "mustaqsk47@gmail.com"
+      );
+    }
+
+    // Special emails collection for thank-you list
+    match /special_emails/{email} {
+      allow read, write: if request.auth != null && (
+        getEmail() == email.lower() || isAdmin()
       );
     }
 
     // Support queries collection
     match /support_queries/{ticketId} {
       allow create: if request.auth != null;
-      allow read, update, delete: if isAdmin() || (request.auth != null && request.auth.token.email == resource.data.userEmail);
+      allow read, update, delete: if isSupportOrAdmin() || (request.auth != null && getEmail() == resource.data.userEmail.lower());
     }
 
     // Revenue collection
     match /revenue/{document=**} {
-      allow read, write: if isAdmin();
+      allow read, write: if isSuperAdmin() || isAnalystOrAdmin();
     }
 
     // Secure user isolation rules with schema validation
     match /users/{userId}/backups/latest {
-      allow read: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAnalystOrAdmin();
       allow write: if isOwner(userId) && isValidBackupPayload();
     }
 
     // Allow users and admins to read/write parent user profile document
     match /users/{userId} {
-      allow read, write: if isOwner(userId) || isAdmin();
+      allow read, write: if isOwner(userId) || isAnalystOrAdmin();
+    }
+
+    // Allow users to sync their Trips subcollection
+    match /users/{userId}/trips/{tripId} {
+      allow read, write: if isOwner(userId) || isAnalystOrAdmin();
+    }
+
+    // Allow users to sync their Goals subcollection
+    match /users/{userId}/goals/{goalId} {
+      allow read, write: if isOwner(userId) || isAnalystOrAdmin();
     }
 
     // Allow admins to query/list all user documents
     match /users/{document=**} {
-      allow read, write: if isAdmin();
+      allow read, write: if isAnalystOrAdmin();
     }
   }
 }
