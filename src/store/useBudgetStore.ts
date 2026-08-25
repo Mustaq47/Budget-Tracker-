@@ -112,8 +112,10 @@ interface BudgetState {
   bestStreak: number;
   hasCompletedOnboarding: boolean;
   lastBudgetSetMonth: string | null;
+  budgetViewMode: 'daily' | 'monthly';
 
   // Actions
+  setBudgetViewMode: (mode: 'daily' | 'monthly') => void;
   setHasAcceptedTerms: (accepted: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
   setLastBudgetSetMonth: (month: string) => void;
@@ -177,7 +179,9 @@ export const useBudgetStore = create<BudgetState>()(
       bestStreak: 0,
       hasCompletedOnboarding: false,
       lastBudgetSetMonth: null,
+      budgetViewMode: 'daily',
 
+      setBudgetViewMode: (budgetViewMode) => set({ budgetViewMode }),
       setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
       setLastBudgetSetMonth: (lastBudgetSetMonth) => set({ lastBudgetSetMonth }),
@@ -326,6 +330,8 @@ export const useBudgetStore = create<BudgetState>()(
         if (typeof window !== 'undefined' && window.localStorage) {
           try {
             window.localStorage.removeItem('budtrack-storage-v2');
+            window.localStorage.removeItem('cozify_iam_role_assignments');
+            window.localStorage.removeItem('cozify_support_tickets_cache');
           } catch (_) { }
         }
       },
@@ -463,6 +469,7 @@ export const useBudgetStore = create<BudgetState>()(
         language: state.language,
         lastBudgetSetMonth: state.lastBudgetSetMonth,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        budgetViewMode: state.budgetViewMode,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {

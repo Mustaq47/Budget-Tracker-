@@ -64,13 +64,13 @@ export function Home() {
   }, [hasCompletedOnboarding, lastBudgetSetMonth, setLastBudgetSetMonth]);
 
   const {
-    dailyAllowance,
-    monthlyLimit,
-    spentToday,
-    remainingToday,
+    allowance,
+    spent,
+    remaining,
     percentage,
     status,
     feedback,
+    label,
   } = useDailyBudget();
   const isOverBudget = status === "danger";
   const circumference = 2 * Math.PI * 140;
@@ -229,21 +229,21 @@ export function Home() {
             <div
               className={`${subtextColor} mb-2 tracking-tight font-semibold`}
             >
-              Safe to Spend Today
+              {label}
             </div>
             <motion.div
               className={`${isOverBudget ? "text-red-500" : textColor} text-5xl tracking-tighter mb-2 font-black`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              {formatCompactCurrency(remainingToday, currencySymbols[currency])}
+              {formatCompactCurrency(remaining, currencySymbols[currency])}
             </motion.div>
             <div
               className={`${subtextColor} tracking-tight text-sm font-medium`}
             >
               Spent:{" "}
-              {formatCompactCurrency(spentToday, currencySymbols[currency])} /{" "}
-              {formatCompactCurrency(dailyAllowance, currencySymbols[currency])}
+              {formatCompactCurrency(spent, currencySymbols[currency])} /{" "}
+              {formatCompactCurrency(allowance, currencySymbols[currency])}
             </div>
             <motion.div
               className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${

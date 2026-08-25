@@ -16,14 +16,14 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
   const navigate = useNavigate();
 
   const {
-    dailyAllowance,
-    monthlyLimit,
-    spentToday,
-    remainingToday,
+    allowance,
+    spent,
+    remaining,
     overspent,
     percentage,
     status,
-    feedback
+    feedback,
+    label
   } = useDailyBudget();
 
   const isLight = !activeTheme.isDark;
@@ -71,10 +71,10 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
 
               <div className="text-center mb-6 mt-4">
                 <div className={`${subtextColor} text-sm uppercase tracking-widest font-bold mb-2`}>
-                  Safe to Spend
+                  {label === "Safe to Spend Today" ? "Safe to Spend" : "Monthly Plan"}
                 </div>
                 <div className={`${status === "danger" ? "text-red-500" : textColor} text-5xl font-black tracking-tighter mb-2`}>
-                  {currencySymbols[currency]}{remainingToday.toLocaleString()}
+                  {currencySymbols[currency]}{remaining.toLocaleString()}
                 </div>
                 <div
                   className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold ${
@@ -92,8 +92,8 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
               {/* Progress Bar */}
               <div className="mb-8">
                 <div className="flex justify-between text-xs font-bold mb-2">
-                  <span className={subtextColor}>Spent: {currencySymbols[currency]}{spentToday.toLocaleString()}</span>
-                  <span className={subtextColor}>Limit: {currencySymbols[currency]}{dailyAllowance.toLocaleString()}</span>
+                  <span className={subtextColor}>Spent: {currencySymbols[currency]}{spent.toLocaleString()}</span>
+                  <span className={subtextColor}>Limit: {currencySymbols[currency]}{allowance.toLocaleString()}</span>
                 </div>
                 <div className={`w-full h-3 rounded-full overflow-hidden ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
                   <motion.div

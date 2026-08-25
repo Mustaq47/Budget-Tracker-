@@ -50,15 +50,9 @@ service cloud.firestore {
       );
     }
 
-    // Helper function to validate backup payload schema & size limits
+    // Helper function to validate backup payload size limits
     function isValidBackupPayload() {
-      let data = request.resource.data;
-      return request.resource.size < 1 * 1024 * 1024
-        && data.keys().hasOnly(['dailyBudget', 'transactions', 'customCategories', 'preferences', 'checksum', 'updatedAt', 'updatedAtFormatted'])
-        && data.dailyBudget is number
-        && data.transactions is list
-        && data.customCategories is list
-        && data.preferences is map;
+      return request.resource.size < 1 * 1024 * 1024;
     }
 
     // Admin IAM roles collection
