@@ -175,8 +175,11 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
 
 import { calculateDineroBalance, calculateDineroTotal } from "../../../utils/dineroUtils";
 import { formatCompactCurrency } from "../../../utils/formatters";
+import { useTranslation } from "../../../utils/translations";
+
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { transactions, addTransaction, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
+  const { t, translate } = useTranslation();
   const { trips, updateTripSpent } = useTripsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
@@ -214,7 +217,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     if (isNaN(val) || val <= 0) return;
 
     if (activeAction === "withdraw" && val > totalBalance) {
-      alert("Insufficient funds for this withdrawal.");
+      alert(t.insufficientFunds || "Insufficient funds for this withdrawal.");
       return;
     }
 
@@ -224,7 +227,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     
     let title = source.trim();
     if (!title) {
-      title = activeAction === "deposit" ? "Wallet Deposit" : "Wallet Withdrawal";
+      title = activeAction === "deposit" ? (t.walletDeposit || "Wallet Deposit") : (t.walletWithdrawal || "Wallet Withdrawal");
       if (selectedTrip) title += ` (${selectedTrip.title})`;
     }
 
@@ -273,10 +276,10 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     <GlassIcon icon={Wallet} size="md" glow="purple" asChild />
                     <div>
                       <h2 className={`${activeTheme.textColor} text-2xl font-black tracking-tight flex items-center gap-2`}>
-                        Wallet <Sparkles size={16} className="text-[#FFD166]" />
+                        {t.wallet || "Wallet"} <Sparkles size={16} className="text-[#FFD166]" />
                       </h2>
                       <div className={`text-xs font-semibold tracking-wide ${isLight ? "text-slate-500" : "text-white/50"}`}>
-                        Liquidity Center
+                        {t.liquidityCenter || "Liquidity Center"}
                       </div>
                     </div>
                   </div>
@@ -305,7 +308,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                   
                   <div className="relative z-10 flex flex-col justify-between h-full">
                     <div>
-                      <div className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Available Balance</div>
+                      <div className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">{t.availableBalance || "Available Balance"}</div>
                       <div className="text-white text-5xl font-black tracking-tighter drop-shadow-lg">
                         {formatCompactCurrency(totalBalance, currencySymbols[currency])}
                       </div>
@@ -318,13 +321,13 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/10">
                       <div>
                         <div className="text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                          <ArrowDownRight size={12} /> Inflow
+                          <ArrowDownRight size={12} /> {t.inflow || "Inflow"}
                         </div>
                         <div className="text-white font-bold text-sm">{currencySymbols[currency]}{income.toLocaleString()}</div>
                       </div>
                       <div>
                         <div className="text-rose-400 text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                          <ArrowUpRight size={12} /> Outflow
+                          <ArrowUpRight size={12} /> {t.outflow || "Outflow"}
                         </div>
                         <div className="text-white font-bold text-sm">{currencySymbols[currency]}{expense.toLocaleString()}</div>
                       </div>
@@ -351,7 +354,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
                           <PlusCircle size={24} className="text-emerald-600 dark:text-emerald-400" />
                         </div>
-                        <span className="font-bold text-sm text-emerald-700 dark:text-emerald-300">Deposit</span>
+                        <span className="font-bold text-sm text-emerald-700 dark:text-emerald-300">{t.deposit || "Deposit"}</span>
                       </button>
 
                       <button 
@@ -363,7 +366,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
                           <MinusCircle size={24} className="text-rose-600 dark:text-rose-400" />
                         </div>
-                        <span className="font-bold text-sm text-rose-700 dark:text-rose-300">Withdraw</span>
+                        <span className="font-bold text-sm text-rose-700 dark:text-rose-300">{t.withdraw || "Withdraw"}</span>
                       </button>
                     </motion.div>
                   ) : (
@@ -379,9 +382,9 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     >
                       <div className="flex justify-between items-center px-2">
                         <h3 className="font-bold text-lg">
-                          {activeAction === "deposit" ? "Add Funds" : "Withdraw Funds"}
+                          {activeAction === "deposit" ? (t.addFunds || "Add Funds") : (t.withdrawFunds || "Withdraw Funds")}
                         </h3>
-                        <button type="button" onClick={() => setActiveAction(null)} className="text-sm font-bold opacity-60">Cancel</button>
+                        <button type="button" onClick={() => setActiveAction(null)} className="text-sm font-bold opacity-60">{t.cancel || "Cancel"}</button>
                       </div>
 
                       {/* Giant Number Input */}
@@ -428,7 +431,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       {(activeAction === "withdraw" && trips && trips.length > 0) && (
                         <div className="space-y-2 pt-2">
                           <div className={`text-xs font-bold uppercase tracking-wider px-2 ${isLight ? "text-slate-500" : "text-white/40"}`}>
-                            Link to Trip (Optional)
+                            {t.linkToTripOptional || "Link to Trip (Optional)"}
                           </div>
                           <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
                             {trips.map(trip => (
@@ -452,7 +455,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                                   {trip.title}
                                 </div>
                                 <div className={`font-mono text-[10px] uppercase tracking-widest ${selectedTripId === trip.id ? "text-white/80" : "opacity-50"}`}>
-                                  Budget: {currencySymbols[currency]}{trip.budget}
+                                  {t.budgetLabel || "Budget:"} {currencySymbols[currency]}{trip.budget}
                                 </div>
                               </button>
                             ))}
@@ -465,7 +468,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                           type="text"
                           value={source}
                           onChange={(e) => setSource(e.target.value)}
-                          placeholder="Note (e.g. Salary, Rent)"
+                          placeholder={t.walletNotePlaceholder || "Note (e.g. Salary, Rent)"}
                           className={`w-full p-4 rounded-[20px] font-medium outline-none transition-all ${
                             isLight ? "bg-slate-50 focus:bg-white border border-slate-200" : "bg-black/20 focus:bg-black/40 border border-white/10"
                           }`}
@@ -483,7 +486,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                             : "bg-rose-500 text-white shadow-xl shadow-rose-500/30"
                         }`}
                       >
-                        {activeAction === "deposit" ? "Confirm Deposit" : "Confirm Withdrawal"}
+                        {activeAction === "deposit" ? (t.confirmDeposit || "Confirm Deposit") : (t.confirmWithdrawal || "Confirm Withdrawal")}
                       </motion.button>
                     </motion.form>
                   )}
@@ -493,7 +496,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 {!activeAction && recentTxs.length > 0 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 pt-6 border-t border-dashed border-gray-500/30">
                     <h3 className={`text-xs font-bold uppercase tracking-wider mb-4 px-2 ${isLight ? "text-slate-500" : "text-white/40"}`}>
-                      Recent Activity
+                      {t.recentActivity || "Recent Activity"}
                     </h3>
                     <div className="space-y-3">
                       {recentTxs.map((tx) => (

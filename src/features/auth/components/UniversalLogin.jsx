@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { secureLogout } from "../utils/secureLogout";
 import cozifyLogo from "../../../assets/cozify-logo.png";
+import { useTranslation } from "../../../utils/translations";
 
 /**
  * UniversalLogin — Security-Hardened Authentication Component
@@ -125,6 +126,7 @@ export default function UniversalLogin({
     { code: "+91", label: "+91 (IN)" }
   ]
 }) {
+  const { t } = useTranslation();
   const [view, setView] = useState(initialView);
   const [activeTab, setActiveTab] = useState('email');
 
@@ -565,12 +567,12 @@ export default function UniversalLogin({
                   className="h-16 w-auto mb-5 object-contain drop-shadow-sm"
                 />
                 <h1 className="text-2xl md:text-3xl font-bold text-[#051A3E] mb-2 tracking-tight">
-                  {view === 'login' ? 'Sign-In' : 'Create your account'}
+                  {view === 'login' ? (t.signInHeader || 'Sign-In') : (t.createAccountHeader || 'Create your account')}
                 </h1>
                 <p className="text-sm text-[#434654]">
                   {view === 'login'
-                    ? 'Welcome back. Please enter your details.'
-                    : `Join ${companyName.split(' ')[0]} for seamless access.`
+                    ? (t.welcomeBack || 'Welcome back. Please enter your details.')
+                    : (t.joinMessage || `Join ${companyName.split(' ')[0]} for seamless access.`)
                   }
                 </p>
               </div>
@@ -600,14 +602,14 @@ export default function UniversalLogin({
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
-                  <span>Continue with Google</span>
+                  <span>{t.continueWithGoogle || "Continue with Google"}</span>
                 </button>
               </div>
 
               {/* Divider */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="h-px bg-[#DFE1E6] flex-grow"></div>
-                <span className="text-xs font-semibold text-[#737685] uppercase tracking-wider">or</span>
+                <span className="text-xs font-semibold text-[#737685] uppercase tracking-wider">{t.or || "or"}</span>
                 <div className="h-px bg-[#DFE1E6] flex-grow"></div>
               </div>
 
@@ -801,7 +803,7 @@ export default function UniversalLogin({
                       ? (activeTab === 'phone' ? 'Sending code...' : 'Please wait...')
                       : loginLimiter.isLocked()
                         ? `Locked (${loginLimiter.getRemainingLockout()}s)`
-                        : (view === 'login' ? 'Sign In' : 'Create Account')
+                        : (view === 'login' ? (t.signInBtn || 'Sign In') : (t.createAccountBtn || 'Create Account'))
                     }
                   </button>
                 </div>
@@ -852,21 +854,21 @@ export default function UniversalLogin({
               onClick={(e) => { e.preventDefault(); onOpenPrivacyPolicy?.(); }}
               className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
             >
-              Privacy Policy
+              {t.privacyPolicy || "Privacy Policy"}
             </button>
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onOpenTerms?.(); }}
               className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
             >
-              Terms of Service
+              {t.termsOfService || "Terms of Service"}
             </button>
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onOpenHelp?.(); }}
               className="hover:text-[#003D9B] underline transition-colors cursor-pointer"
             >
-              Help Center
+              {t.helpCenter || "Help Center"}
             </button>
           </div>
         </div>

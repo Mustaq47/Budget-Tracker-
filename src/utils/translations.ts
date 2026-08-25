@@ -56,6 +56,40 @@ export const translations = {
     addIncome: "Add Income",
     cardName: "Card Name",
     last4Digits: "Last 4 Digits",
+    wallet: "Wallet",
+    trips: "Trips",
+    budget: "Budget",
+    goals: "Goals",
+    quickActions: "Quick Actions",
+    recentActivity: "Recent Activity",
+    noRecentActivity: "No recent activity yet. Tap + to add your first transaction.",
+    spent: "Spent",
+    safeToSpendToday: "Safe to Spend Today",
+    remainingThisMonth: "Remaining this Month",
+    budgetExceeded: "⚠️ Budget Exceeded",
+    inControl: "✓ You're in control",
+    overTodayLimit: "⚠️ You're over today's limit",
+    overMonthLimit: "⚠️ You're over this month's limit",
+    budgetReachedToday: "Budget reached for today",
+    budgetReachedMonth: "Budget reached for this month",
+    underTodayLimit: "You're under today's limit ✅",
+    underMonthLimit: "You're under this month's limit ✅",
+    readyToTrackDay: "Ready to track your day!",
+    readyToTrackMonth: "Ready to track your month!",
+    today: "Today",
+    home: "Home",
+    flow: "Flow",
+    insights: "Insights",
+    Shopping: "Shopping",
+    Food: "Food",
+    Transport: "Transport",
+    Bills: "Bills",
+    Utilities: "Utilities",
+    Health: "Health",
+    Other: "Other",
+    Income: "Income",
+    Expense: "Expense",
+    Savings: "Savings",
   },
   te: {
     welcome: "తిరిగి స్వాగతం",
@@ -110,8 +144,42 @@ export const translations = {
     title: "Title",
     category: "Category",
     addIncome: "Add Income",
-    cardName: "Card Name",
-    last4Digits: "Last 4 Digits",
+    cardName: "కార్డ్ పేరు",
+    last4Digits: "చివరి 4 అంకెలు",
+    wallet: "వాలెట్",
+    trips: "ప్రయాణాలు",
+    budget: "బడ్జెట్",
+    goals: "లక్ష్యాలు",
+    quickActions: "త్వరిత చర్యలు",
+    recentActivity: "ఇటీవలి కార్యకలాపాలు",
+    noRecentActivity: "ఇంకా ఇటీవలి కార్యకలాపాలు లేవు. మీ మొదటి లావాదేవీని జోడించడానికి + ని నొక్కండి.",
+    spent: "ఖర్చు చేసినవి",
+    safeToSpendToday: "ఈరోజు సురక్షితమైన ఖర్చు",
+    remainingThisMonth: "ఈ నెలలో మిగిలినవి",
+    budgetExceeded: "⚠️ బడ్జెట్ మించిపోయింది",
+    inControl: "✓ నియంత్రణలో ఉన్నారు",
+    overTodayLimit: "⚠️ ఈరోజు పరిమితి దాటింది",
+    overMonthLimit: "⚠️ ఈ నెల పరిమితి దాటింది",
+    budgetReachedToday: "ఈరోజు బడ్జెట్ పూర్తయింది",
+    budgetReachedMonth: "ఈ నెల బడ్జెట్ పూర్తయింది",
+    underTodayLimit: "మీరు ఈరోజు పరిమితిలోనే ఉన్నారు ✅",
+    underMonthLimit: "మీరు ఈ నెల పరిమితిలోనే ఉన్నారు ✅",
+    readyToTrackDay: "మీ రోజువారీ ఖర్చులను నమోదు చేయడానికి సిద్ధం!",
+    readyToTrackMonth: "మీ నెలవారీ ఖర్చులను నమోదు చేయడానికి సిద్ధం!",
+    today: "ఈరోజు",
+    home: "హోమ్",
+    flow: "ఫ్లో",
+    insights: "అంతర్దృష్టులు",
+    Shopping: "షాపింగ్",
+    Food: "ఆహారం",
+    Transport: "రవాణా",
+    Bills: "బిల్లులు",
+    Utilities: "ఉపయోగాలు",
+    Health: "ఆరోగ్యం",
+    Other: "ఇతర",
+    Income: "ఆదాయం",
+    Expense: "ఖర్చు",
+    Savings: "పొదుపులు",
   },
   hi: {
     welcome: "स्वागत है",
@@ -168,6 +236,40 @@ export const translations = {
     addIncome: "Add Income",
     cardName: "Card Name",
     last4Digits: "Last 4 Digits",
+    wallet: "वॉलेट",
+    trips: "यात्राएं",
+    budget: "बजट",
+    goals: "लक्ष्य",
+    quickActions: "त्वरित कार्रवाई",
+    recentActivity: "हाल की गतिविधि",
+    noRecentActivity: "अभी तक कोई हाल की गतिविधि नहीं है। अपना पहला लेनदेन जोड़ने के लिए + टैप करें।",
+    spent: "खर्च किया",
+    safeToSpendToday: "आज खर्च करने के लिए सुरक्षित",
+    remainingThisMonth: "इस महीने शेष",
+    budgetExceeded: "⚠️ बजट सीमा पार",
+    inControl: "✓ आप नियंत्रण में हैं",
+    overTodayLimit: "⚠️ आप आज की सीमा से अधिक हैं",
+    overMonthLimit: "⚠️ आप इस महीने की सीमा से अधिक हैं",
+    budgetReachedToday: "आज का बजट पूरा हो गया है",
+    budgetReachedMonth: "इस महीने का बजट पूरा हो गया है",
+    underTodayLimit: "आप आज की सीमा के अंदर हैं ✅",
+    underMonthLimit: "आप इस महीने की सीमा के अंदर हैं ✅",
+    readyToTrackDay: "अपने दिन को ट्रैक करने के लिए तैयार!",
+    readyToTrackMonth: "अपने महीने को ट्रैक करने के लिए तैयार!",
+    today: "आज",
+    home: "होम",
+    flow: "फ्लो",
+    insights: "अंतर्दृष्टि",
+    Shopping: "खरीदारी",
+    Food: "भोजन",
+    Transport: "परिवहन",
+    Bills: "बिल",
+    Utilities: "उपयोगिताएँ",
+    Health: "स्वास्थ्य",
+    Other: "अन्य",
+    Income: "आय",
+    Expense: "खर्च",
+    Savings: "बचत",
   },
   ar: {
     welcome: "مرحباً بعودتك",
@@ -1237,6 +1339,29 @@ export const translations = {
 
 export function useTranslation() {
   const language = useBudgetStore((state) => state.language) || "en";
-  const t = translations[language as LanguageCode] || translations.en;
-  return { t, language };
+  const rawDict = (translations as any)[language] || translations.en;
+  
+  const t = new Proxy(rawDict, {
+    get(target, prop: string) {
+      if (prop in target && target[prop] !== undefined && target[prop] !== "") {
+        return target[prop];
+      }
+      if (prop in translations.en) {
+        return (translations.en as any)[prop];
+      }
+      return prop;
+    }
+  });
+
+  const translate = (key: string, params?: Record<string, string | number>) => {
+    let str = t[key];
+    if (params) {
+      Object.keys(params).forEach(k => {
+        str = str.replace(new RegExp(`{${k}}`, 'g'), String(params[k]));
+      });
+    }
+    return str;
+  };
+
+  return { t, translate, language };
 }

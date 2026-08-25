@@ -87,6 +87,7 @@ export function Profile() {
     currency,
     language,
     savedAccounts,
+    appVersion,
   } = useBudgetStore();
   const { trips, tripsCount, setTrips } = useTripsStore();
   const { goals, setGoals } = useGoalsStore();
@@ -237,12 +238,6 @@ export function Profile() {
           label: t.designThemes,
           glow: "pink" as const,
           action: () => setIsDesignModalOpen(true),
-        },
-        {
-          icon: Plane,
-          label: "Trips",
-          glow: "gold" as const,
-          action: () => setActiveModal("trips"),
         },
         {
           icon: Globe,
@@ -666,7 +661,7 @@ export function Profile() {
           {" "}
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[11px] uppercase tracking-wider shadow-sm">
             {" "}
-            v1.0.0{" "}
+            v{appVersion}{" "}
           </span>{" "}
           <span
             className={`${subtextColor} text-xs font-semibold tracking-tight`}

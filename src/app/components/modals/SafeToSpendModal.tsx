@@ -4,6 +4,7 @@ import { useDailyBudget } from "../../hooks/useDailyBudget";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { X, TrendingDown, Settings, List, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "../../../utils/translations";
 
 interface SafeToSpendModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
   const { theme, colorMode, currency, setActiveModal } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const {
     allowance,
@@ -92,8 +94,8 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
               {/* Progress Bar */}
               <div className="mb-8">
                 <div className="flex justify-between text-xs font-bold mb-2">
-                  <span className={subtextColor}>Spent: {currencySymbols[currency]}{spent.toLocaleString()}</span>
-                  <span className={subtextColor}>Limit: {currencySymbols[currency]}{allowance.toLocaleString()}</span>
+                  <span className={subtextColor}>{t.spent || "Spent"}: {currencySymbols[currency]}{spent.toLocaleString()}</span>
+                  <span className={subtextColor}>{t.limit || "Limit"}: {currencySymbols[currency]}{allowance.toLocaleString()}</span>
                 </div>
                 <div className={`w-full h-3 rounded-full overflow-hidden ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
                   <motion.div
@@ -120,7 +122,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                   }}
                   className="w-full py-4 rounded-2xl font-black text-sm tracking-tight text-white flex items-center justify-center gap-2 bg-gradient-to-r from-[#FF4D8D] to-[#7B61FF] hover:opacity-90 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,77,141,0.3)] cursor-pointer"
                 >
-                  <Plus size={18} /> Add New Expense
+                  <Plus size={18} /> {t.addExpense || "Add New Expense"}
                 </button>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -135,7 +137,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                         : "bg-white/5 border-white/10 text-white hover:bg-white/10"
                     }`}
                   >
-                    <Settings size={16} /> Adjust Budget
+                    <Settings size={16} /> {t.setBudget || "Adjust Budget"}
                   </button>
                   <button
                     onClick={() => {
@@ -150,7 +152,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                         : "bg-white/5 border-white/10 text-white hover:bg-white/10"
                     }`}
                   >
-                    <List size={16} /> All Expenses
+                    <List size={16} /> {t.transactions || "All Expenses"}
                   </button>
                 </div>
               </div>

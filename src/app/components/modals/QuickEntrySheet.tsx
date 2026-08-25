@@ -7,6 +7,7 @@ import { useState } from "react";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import confetti from "canvas-confetti";
 import { BottomSheet } from "../BottomSheet";
+import { useTranslation } from "../../../utils/translations";
 
 
 interface QuickEntrySheetProps {
@@ -26,6 +27,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const { trips, updateTripSpent } = useTripsStore();
   const { goals, contributeToGoal } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
+  const { t } = useTranslation();
 
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -124,7 +126,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight} className="!p-0 !pt-0">
       <div className="pt-1 pb-4 px-6 flex justify-between items-center shrink-0">
-        <h3 className={`${textColor} text-2xl font-black tracking-tight`}>Add Entry</h3>
+        <h3 className={`${textColor} text-2xl font-black tracking-tight`}>{t.addEntry || "Add Entry"}</h3>
         <button
           onClick={onClose}
           className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors z-10 ${isLight ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700" : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"}`}
@@ -142,7 +144,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${entryMode === "general" ? `${activeSegmentBg} ${textColor}` : `${subtextColor} hover:${textColor}`
               }`}
           >
-            <Wallet size={16} /> General
+            <Wallet size={16} /> {t.general || "General"}
           </button>
           {(trips && trips.length > 0) && (
             <button
@@ -150,7 +152,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${entryMode === "trip" ? `${activeSegmentBg} text-amber-500` : `${subtextColor} hover:${textColor}`
                 }`}
             >
-              <Plane size={16} /> Trip
+              <Plane size={16} /> {t.trip || "Trip"}
             </button>
           )}
           {(goals && goals.length > 0) && (
@@ -159,7 +161,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${entryMode === "goal" ? `${activeSegmentBg} text-blue-500` : `${subtextColor} hover:${textColor}`
                 }`}
             >
-              <Zap size={16} /> Goal
+              <Zap size={16} /> {t.goal || "Goal"}
             </button>
           )}
         </div>
@@ -212,7 +214,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             {entryMode === "trip" && trips && (
               <div className="space-y-3">
                 <div className={`text-[11px] font-bold uppercase tracking-wider px-1 ${subtextColor}`}>
-                  Select Destination
+                  {t.selectDestination || "Select Destination"}
                 </div>
                 <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 px-1">
                   {trips.map(trip => (
@@ -242,7 +244,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             {entryMode === "goal" && goals && (
               <div className="space-y-3">
                 <div className={`text-[11px] font-bold uppercase tracking-wider px-1 ${subtextColor}`}>
-                  Target Goal
+                  {t.targetGoal || "Target Goal"}
                 </div>
                 <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 px-1">
                   {goals.map(goal => (
@@ -273,7 +275,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             {/* Dynamic Categories */}
             <div className="space-y-3">
               <div className={`text-[11px] font-bold uppercase tracking-wider px-1 ${subtextColor}`}>
-                {entryMode === "general" ? "Expense Category" : entryMode === "trip" ? "Trip Category" : "Contribution Type"}
+                {entryMode === "general" ? (t.expenseCategory || "Expense Category") : entryMode === "trip" ? (t.tripCategory || "Trip Category") : (t.contributionType || "Contribution Type")}
               </div>
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-4 px-1">
                 {getActiveCategories().map((cat) => (
@@ -287,7 +289,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                       : isLight ? "border-slate-200 text-slate-600 bg-white" : "border-white/10 text-white/70 bg-white/5"
                       }`}
                   >
-                    {cat}
+                    {t[cat] || cat}
                   </button>
                 ))}
               </div>
@@ -305,7 +307,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                 : "bg-emerald-500 text-white shadow-emerald-500/30"
             }`}
         >
-          {entryMode === "goal" ? "Confirm Contribution" : entryMode === "trip" ? "Log Trip Expense" : "Add Expense"}
+          {entryMode === "goal" ? (t.confirmContribution || "Confirm Contribution") : entryMode === "trip" ? (t.logTripExpense || "Log Trip Expense") : (t.addExpense || "Add Expense")}
         </button>
       </div>
     </BottomSheet>

@@ -113,8 +113,10 @@ interface BudgetState {
   hasCompletedOnboarding: boolean;
   lastBudgetSetMonth: string | null;
   budgetViewMode: 'daily' | 'monthly';
+  appVersion: string;
 
   // Actions
+  setAppVersion: (version: string) => void;
   setBudgetViewMode: (mode: 'daily' | 'monthly') => void;
   setHasAcceptedTerms: (accepted: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
@@ -180,7 +182,9 @@ export const useBudgetStore = create<BudgetState>()(
       hasCompletedOnboarding: false,
       lastBudgetSetMonth: null,
       budgetViewMode: 'daily',
+      appVersion: '1.0.3',
 
+      setAppVersion: (appVersion) => set({ appVersion }),
       setBudgetViewMode: (budgetViewMode) => set({ budgetViewMode }),
       setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
@@ -237,6 +241,8 @@ export const useBudgetStore = create<BudgetState>()(
             ...(prefs.colorMode ? { colorMode: prefs.colorMode } : {}),
             ...(prefs.currency ? { currency: prefs.currency } : {}),
             ...(prefs.language ? { language: prefs.language } : {}),
+            ...(prefs.budgetViewMode ? { budgetViewMode: prefs.budgetViewMode } : {}),
+            ...(prefs.appVersion ? { appVersion: prefs.appVersion } : {}),
           };
         }),
 
@@ -470,6 +476,7 @@ export const useBudgetStore = create<BudgetState>()(
         lastBudgetSetMonth: state.lastBudgetSetMonth,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         budgetViewMode: state.budgetViewMode,
+        appVersion: state.appVersion,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {

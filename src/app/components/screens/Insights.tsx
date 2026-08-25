@@ -38,6 +38,7 @@ import { categoryColors, monthsOfYear, getCategoryMeta } from "../../../utils/ca
 import { parseLocalDate } from "../../../utils/formatters";
 import { InsightsWidget } from "./InsightsWidget";
 import { calculateDineroTotal } from "../../../utils/dineroUtils";
+import { useTranslation } from "../../../utils/translations";
 
 // Custom Glassmorphic Tooltip for Recharts
 interface CustomTooltipProps {
@@ -88,6 +89,8 @@ export function Insights() {
     setDailyBudget,
     setActiveModal,
   } = useBudgetStore();
+  
+  const { t, translate } = useTranslation();
 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [tempBudgetInput, setTempBudgetInput] = useState("");
@@ -158,10 +161,10 @@ export function Insights() {
     let periodExpenses: Transaction[] = [];
 
     if (period === "week") {
-      periodTitle = "Weekly Spending Breakdown";
-      periodSubtitle = "Daily spending across the week";
-      statLabel1 = "Total Spent This Week";
-      statLabel2 = "Daily Average";
+      periodTitle = t.weeklySpendingBreakdown || "Weekly Spending Breakdown";
+      periodSubtitle = t.weeklySpendingSubtitle || "Daily spending across the week";
+      statLabel1 = t.totalSpentThisWeek || "Total Spent This Week";
+      statLabel2 = t.dailyAverage || "Daily Average";
 
       const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       const weeklyMap: Record<string, number> = {
@@ -211,14 +214,12 @@ export function Insights() {
     } else if (period === "month") {
       // Monthly Insights - 4 Weeks breakdown
       const now = new Date();
-      const monthName = now.toLocaleString("default", { month: "long" });
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
+      const monthName = t[monthsOfYear[currentMonth]] || monthsOfYear[currentMonth];
 
-      periodTitle = `${monthName} Spending by Week`;
-      periodSubtitle = `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
-      statLabel1 = `Total Spent in ${monthName}`;
-      statLabel2 = "Weekly Average";
+      periodTitle = translate("monthlySpendingBreakdown", { month: monthName }) || `${monthName} Spending by Week`;
+      periodSubtitle = translate("monthlySpendingSubtitle", { month: monthName, year: currentYear }) || `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
+      statLabel1 = translate("totalSpentInMonth", { month: monthName }) || `Total Spent in ${monthName}`;
+      statLabel2 = t.weeklyAverage || "Weekly Average";
 
       const weeklyBuckets = [
         { name: "Wk 1 (1-7)", amount: 0 },
@@ -259,10 +260,10 @@ export function Insights() {
       const now = new Date();
       const currentYear = now.getFullYear();
 
-      periodTitle = "Annual Spending by Month";
-      periodSubtitle = `12-Month spending trajectory for ${currentYear}`;
-      statLabel1 = "Total Spent This Year";
-      statLabel2 = "Monthly Average";
+      periodTitle = t.annualSpendingBreakdown || "Annual Spending by Month";
+      periodSubtitle = translate("annualSpendingSubtitle", { year: currentYear }) || `12-Month spending trajectory for ${currentYear}`;
+      statLabel1 = t.totalSpentThisYear || "Total Spent This Year";
+      statLabel2 = t.monthlyAverage || "Monthly Average";
 
       const annualMap: Record<string, number> = {};
       monthsOfYear.forEach((m) => (annualMap[m] = 0));
@@ -507,7 +508,7 @@ export function Insights() {
             <h1
               className={`${textColor} ${pageTitleClass}`}
             >
-              Insights
+              {t.insights}
             </h1>
             <div className={`${subtextColor} ${pageSubtitleClass}`}>
               {periodSubtitle}
@@ -537,7 +538,7 @@ export function Insights() {
               }
             `}
           >
-            {p.charAt(0).toUpperCase() + p.slice(1)}
+            {t[p] || (p.charAt(0).toUpperCase() + p.slice(1))}
           </button>
         ))}
       </div>

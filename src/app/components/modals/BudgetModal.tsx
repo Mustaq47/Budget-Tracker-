@@ -110,10 +110,10 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
           <GlassIcon icon={DollarSign} size="md" glow="pink" asChild />
           <div>
             <h2 className={`${textColor} text-2xl font-black tracking-tight`}>
-              {budgetViewMode === 'daily' ? 'Daily Budget' : 'Monthly Budget'}
+              {budgetViewMode === 'daily' ? (t.dailyBudget || 'Daily Budget') : (t.monthlyBudgetTitle || 'Monthly Budget')}
             </h2>
             <div className={`${subtextColor} text-xs tracking-tight`}>
-              {budgetViewMode === 'daily' ? 'Manage Daily Limit & Expenses' : 'Manage Monthly Budget & Target'}
+              {budgetViewMode === 'daily' ? (t.manageDailyLimit || 'Manage Daily Limit & Expenses') : (t.manageMonthlyBudget || 'Manage Monthly Budget & Target')}
             </div>
           </div>
         </div>
@@ -129,7 +129,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/60 hover:text-white"
             }`}
           >
-            Daily
+            {t.daily || "Daily"}
           </button>
           <button
             type="button"
@@ -140,7 +140,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/60 hover:text-white"
             }`}
           >
-            Monthly
+            {t.monthly || "Monthly"}
           </button>
         </div>
       </div>
@@ -155,7 +155,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 <div className="flex justify-between items-end mb-3">
                   <div>
                     <div className={`${subtextColor} text-xs tracking-tight mb-1 flex items-center gap-1`}>
-                      <TrendingUp size={12} className="text-[#FF4D8D]" /> Spent This Month
+                      <TrendingUp size={12} className="text-[#FF4D8D]" /> {t.spentThisMonth || "Spent This Month"}
                     </div>
                     <div className={`${textColor} text-3xl font-black tracking-tighter`}>
                       {currencySymbols[currency]}
@@ -163,7 +163,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`${subtextColor} text-xs tracking-tight mb-1`}>Target Limit</div>
+                    <div className={`${subtextColor} text-xs tracking-tight mb-1`}>{t.targetLimit || "Target Limit"}</div>
                     <div className={`${textColor} text-lg font-bold tracking-tight`}>
                       {currencySymbols[currency]}
                       {dailyBudget.toLocaleString()}
@@ -186,9 +186,9 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 </div>
 
                 <div className={`flex justify-between text-[11px] font-medium ${subtextColor}`}>
-                  <span>{spentPercent}% spent</span>
+                  <span>{spentPercent}% {t.spent || "spent"}</span>
                   <span>
-                    {remaining > 0 ? `${currencySymbols[currency]}${remaining.toLocaleString()} remaining` : "Budget Exceeded!"}
+                    {remaining > 0 ? `${currencySymbols[currency]}${remaining.toLocaleString()} ${t.remaining || "remaining"}` : (t.budgetExceeded || "Budget Exceeded!")}
                   </span>
                 </div>
               </div>
@@ -210,7 +210,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       : "text-white/60 hover:text-white"
                   }`}
                 >
-                  <Plus size={14} /> Add to Budget
+                  <Plus size={14} /> {t.addToBudget || "Add to Budget"}
                 </button>
                 <button
                   type="button"
@@ -223,7 +223,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       : "text-white/60 hover:text-white"
                   }`}
                 >
-                  <Sliders size={14} /> Set Target Limit
+                  <Sliders size={14} /> {t.setTargetLimit || "Set Target Limit"}
                 </button>
               </div>
 
@@ -232,7 +232,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 <form onSubmit={handleAddDirectAmount} className="space-y-5">
                   <div>
                     <label className={`block text-xs font-bold mb-2 ${isLight ? "text-slate-700" : "text-white/80"}`}>
-                      Amount to Add to Current Budget
+                      {t.amountToAddToBudget || "Amount to Add to Current Budget"}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-[#FF4D8D] text-2xl font-black">{currencySymbols[currency]}</span>
@@ -254,7 +254,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                   {/* Quick Add Chips */}
                   <div>
                     <div className={`${subtextColor} text-xs mb-2 font-medium flex items-center gap-1`}>
-                      <Sparkles size={12} className="text-[#FF4D8D]" /> Quick Addition Chips
+                      <Sparkles size={12} className="text-[#FF4D8D]" /> {t.quickAdditionChips || "Quick Addition Chips"}
                     </div>
                     <div className="grid grid-cols-5 gap-1.5">
                       {quickAddPresets.map((amt) => (
@@ -277,13 +277,13 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
                   <div>
                     <label className={`block text-xs font-semibold mb-2 ${isLight ? "text-slate-700" : "text-white/70"}`}>
-                      Note / Source (Optional)
+                      {t.noteSourceOptional || "Note / Source (Optional)"}
                     </label>
                     <input
                       type="text"
                       value={budgetTitle}
                       onChange={(e) => setBudgetTitle(e.target.value)}
-                      placeholder="e.g. Salary, Bonus, Pocket Money"
+                      placeholder={t.noteSourcePlaceholder || "e.g. Salary, Bonus, Pocket Money"}
                       className={`w-full border rounded-2xl px-4 py-3 text-sm focus:outline-none transition-all ${
                         isLight
                           ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#FF4D8D]"
@@ -305,7 +305,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                         : "bg-white/10 text-white/30 cursor-not-allowed border border-white/5"
                     }`}
                   >
-                    <Plus size={18} /> Add to Monthly Budget Limit
+                    <Plus size={18} /> {t.addToMonthlyBudgetLimit || "Add to Monthly Budget Limit"}
                   </motion.button>
                 </form>
               )}
@@ -315,7 +315,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 <form onSubmit={handleSaveTarget} className="space-y-5">
                   <div>
                     <label className={`block text-xs font-bold mb-2 ${isLight ? "text-slate-700" : "text-white/80"}`}>
-                      New Target Budget Limit
+                      {t.newTargetBudgetLimit || "New Target Budget Limit"}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-[#00E5FF] text-2xl font-black">{currencySymbols[currency]}</span>
@@ -324,7 +324,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                         inputMode="numeric"
                         value={budgetInput}
                         onChange={(e) => setBudgetInput(e.target.value.replace(/[^0-9.]/g, ""))}
-                        placeholder="Enter target amount"
+                        placeholder={t.enterTargetAmount || "Enter target amount"}
                         className={`w-full border rounded-2xl pl-10 pr-4 py-4 text-2xl font-black focus:outline-none transition-all ${
                           isLight
                             ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#00E5FF]"
@@ -336,7 +336,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
                   {/* Preset Chips */}
                   <div>
-                    <div className={`${subtextColor} text-xs mb-2 font-medium`}>Quick Target Presets</div>
+                    <div className={`${subtextColor} text-xs mb-2 font-medium`}>{t.quickTargetPresets || "Quick Target Presets"}</div>
                     <div className="grid grid-cols-4 gap-2">
                       {presetBudgets.map((preset) => (
                         <button
@@ -364,7 +364,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                     whileTap={{ scale: 0.98 }}
                     className="w-full py-4 rounded-2xl font-black text-xs bg-gradient-to-r from-[#00E5FF] to-[#7B61FF] text-white shadow-[0_0_25px_rgba(0,229,255,0.5)] flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Check size={18} /> Save New Target Limit
+                    <Check size={18} /> {t.saveNewTargetLimit || "Save New Target Limit"}
                   </motion.button>
                 </form>
               )}

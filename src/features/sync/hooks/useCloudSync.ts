@@ -124,7 +124,7 @@ export function useCloudSync() {
 
     if (isInitialMount.current) return;
 
-    const { theme, colorMode, currency, language } = useBudgetStore.getState();
+    const { theme, colorMode, currency, language, budgetViewMode, appVersion } = useBudgetStore.getState();
 
     const payload = {
       dailyBudget,
@@ -134,7 +134,9 @@ export function useCloudSync() {
         theme,
         colorMode,
         currency,
-        language
+        language,
+        budgetViewMode,
+        appVersion,
       },
       profile: {
         displayName: user?.displayName,

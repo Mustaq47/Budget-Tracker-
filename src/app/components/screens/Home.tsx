@@ -78,25 +78,25 @@ export function Home() {
   const quickActions = [
     {
       icon: Wallet,
-      label: "Wallet",
+      label: t.wallet || "Wallet",
       glow: "purple" as const,
       action: () => setActiveModal("wallet"),
     },
     {
       icon: Plane,
-      label: "Trips",
+      label: t.trips || "Trips",
       glow: "gold" as const,
       action: () => setActiveModal("trips"),
     },
     {
       icon: DollarSign,
-      label: "Budget",
+      label: t.budget || "Budget",
       glow: "pink" as const,
       action: () => setActiveModal("budget"),
     },
     {
       icon: Zap,
-      label: "Goals",
+      label: t.goals || "Goals",
       glow: "blue" as const,
       action: () => setActiveModal("goals"),
     },
@@ -241,7 +241,7 @@ export function Home() {
             <div
               className={`${subtextColor} tracking-tight text-sm font-medium`}
             >
-              Spent:{" "}
+              {t.spent || "Spent"}:{" "}
               {formatCompactCurrency(spent, currencySymbols[currency])} /{" "}
               {formatCompactCurrency(allowance, currencySymbols[currency])}
             </div>
@@ -256,7 +256,7 @@ export function Home() {
               animate={status === "danger" ? { scale: [1, 1.05, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              {status === "danger" ? "⚠️ Budget Exceeded" : feedback}
+              {status === "danger" ? (t.budgetExceeded || "⚠️ Budget Exceeded") : feedback}
             </motion.div>
           </motion.div>{" "}
           <motion.div
@@ -276,7 +276,7 @@ export function Home() {
       <GlassCard className="mb-6">
         {" "}
         <div className={`${subtextColor} ${sectionTitleClass}`}>
-          Quick Actions
+          {t.quickActions || "Quick Actions"}
         </div>{" "}
         <div className="grid grid-cols-4 gap-4">
           {" "}
@@ -308,16 +308,14 @@ export function Home() {
       <GlassCard glow glowColor="purple">
         {" "}
         <div className={`${subtextColor} ${sectionTitleClass}`}>
-          Recent Activity
+          {t.recentActivity || "Recent Activity"}
         </div>{" "}
         {recentTransactions.length === 0 ? (
           <div
             className={`py-8 text-center ${subtextColor} text-sm tracking-tight`}
           >
             {" "}
-            No recent activity yet. Tap{" "}
-            <span className="text-[#16A34A] font-bold">+</span> to add your
-            first transaction.{" "}
+            {t.noRecentActivity || "No recent activity yet. Tap + to add your first transaction."}{" "}
           </div>
         ) : (
           <motion.div 
