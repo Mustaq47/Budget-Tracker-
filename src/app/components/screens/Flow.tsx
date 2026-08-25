@@ -25,7 +25,6 @@ import { getCategoryMeta, getCombinedCategories } from "../../../utils/categoryC
 import { formatCurrency } from "../../../utils/formatters";
 import { calculateDineroTotal } from "../../../utils/dineroUtils";
 import { useLongPress } from "../../../utils/useLongPress";
-import { useTranslation } from "../../../utils/translations";
 
 interface FlowItemCardProps {
   item: Transaction;
@@ -51,7 +50,6 @@ const FlowItemCard = memo(function FlowItemCard({
   const meta = getCategoryMeta(item.category);
   const IconComp = meta.icon;
   const longPressHandlers = useLongPress({ onLongPress, vibrateMs: 30 });
-  const { t } = useTranslation();
   const x = useMotionValue(0);
   const deleteOpacity = useTransform(x, [-90, -25, 25, 90], [0.9, 0, 0, 0.9]);
 
@@ -132,7 +130,7 @@ const FlowItemCard = memo(function FlowItemCard({
                   {item.title}
                 </motion.div>
               </AnimatePresence>
-              <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || t.today || "Today"}</div>
+              <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || "Today"}</div>
             </div>
             <div
               className={item.type === "income" ? incomeTextClass : expenseTextClass}
@@ -161,7 +159,6 @@ export function Flow() {
   const [floatingItem, setFloatingItem] = useState<Transaction | null>(null);
   const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
-  const { t, translate } = useTranslation();
 
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -189,17 +186,17 @@ export function Flow() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className={`${textColor} ${pageTitleClass}`}>{t.flow}</h1>
-        <div className={`${subtextColor} ${pageSubtitleClass}`}>{t.flowSubtitle || "Your spending timeline • Swipe left on any item to remove"}</div>
+        <h1 className={`${textColor} ${pageTitleClass}`}>Flow</h1>
+        <div className={`${subtextColor} ${pageSubtitleClass}`}>Your spending timeline • Swipe left on any item to remove</div>
       </motion.div>
 
       {flowItems.length === 0 ? (
         <div className={`text-center py-20 border rounded-3xl p-8 backdrop-blur-xl ${
           isLight ? "bg-white/90 border-slate-200 shadow-md" : "bg-white/5 border-white/10"
         }`}>
-          <div className={`${textColor} text-lg mb-2 font-bold`}>{t.noTimelineActivity || "No timeline activity yet"}</div>
+          <div className={`${textColor} text-lg mb-2 font-bold`}>No timeline activity yet</div>
           <div className={`${subtextColor} text-xs`}>
-            {t.tapToRecordExpense || 'Tap the + button below to record an expense!'}
+            Tap the <span className="text-[#16A34A] font-bold">+</span> button below to record an expense!
           </div>
         </div>
       ) : (
@@ -247,7 +244,7 @@ export function Flow() {
             transition={{ delay: 0.5 }}
             className={`mt-8 text-center ${subtextColor} tracking-tight text-xs font-semibold`}
           >
-            {translate("totalSpentInView", { amount: `${currencySymbols[currency]}${totalSpent.toLocaleString()}` }) || `Total spent in view: ${currencySymbols[currency]}${totalSpent.toLocaleString()}`}
+            Total spent in view: {currencySymbols[currency]}{totalSpent.toLocaleString()}
           </motion.div>
         </div>
       )}
@@ -314,7 +311,7 @@ export function Flow() {
                       }`}
                     >
                       <CatIcon className="w-6 h-6 mb-1.5" />
-                      <span className="text-xs font-semibold">{t[cat] || cat}</span>
+                      <span className="text-xs font-semibold">{cat}</span>
                     </motion.button>
                   );
                 })}
@@ -328,14 +325,14 @@ export function Flow() {
                   className="mt-4 pt-4 border-t border-white/10"
                 >
                   <div className="text-xs mb-2 font-medium tracking-tight opacity-70">
-                    {t.newCustomCategoryName || "New Custom Category Name"}
+                    New Custom Category Name
                   </div>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={customCategoryName}
                       onChange={(e) => setCustomCategoryName(e.target.value)}
-                      placeholder={t.customCategoryPlaceholder || "e.g. Gym, Pets, Subscriptions..."}
+                      placeholder="e.g. Gym, Pets, Subscriptions..."
                       className={`flex-1 rounded-xl px-3 py-2 text-sm border outline-none ${
                         isLight
                           ? "bg-slate-50 border-slate-300 text-slate-900"
@@ -356,7 +353,7 @@ export function Flow() {
                       }}
                       className="px-4 py-2 bg-[#16A34A] disabled:opacity-40 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
                     >
-                      {t.addAndApply || "Add & Apply"}
+                      Add & Apply
                     </button>
                   </div>
                   <button
@@ -369,7 +366,7 @@ export function Flow() {
                     }}
                     className="w-full text-center text-[11px] opacity-60 hover:opacity-100 mt-2 underline cursor-pointer"
                   >
-                    {t.useDefaultOther || 'Use default "Other" without new category'}
+                    Use default "Other" without new category
                   </button>
                 </motion.div>
               )}
