@@ -4,6 +4,7 @@ import { GlassIcon } from "./GlassIcon";
 import { useState } from "react";
 import { useBudgetStore, currencySymbols } from "../../store/useBudgetStore";
 import { getCombinedCategories, getCategoryMeta } from "../../utils/categoryConfig";
+import { useTranslation } from "../../utils/translations";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [customName, setCustomName] = useState("");
   const { addTransaction, currency, customCategories, addCustomCategory } = useBudgetStore();
+  const { t } = useTranslation();
   const combinedCategories = getCombinedCategories(customCategories);
   const isOtherSelected = combinedCategories[selectedCategory] === "Other";
 
@@ -32,7 +34,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     addTransaction({
-      title: `${catLabel} Expense`,
+      title: `${catLabel} ${t.expenseTitle || 'Expense'}`,
       amount: num,
       category: catLabel,
       time: timeStr,
@@ -83,7 +85,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </button>
 
               <div className="mb-8">
-                <div className="text-white/60 mb-2 tracking-tight">Add Expense</div>
+                <div className="text-white/60 mb-2 tracking-tight">{t.addExpense || 'Add Expense'}</div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-white/40 text-4xl">{currencySymbols[currency]}</span>
                   <input
@@ -114,7 +116,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </div>
 
               <div className="mb-8">
-                <div className="text-white/60 mb-4 tracking-tight">Category</div>
+                <div className="text-white/60 mb-4 tracking-tight">{t.category || 'Category'}</div>
                 <div className="grid grid-cols-4 gap-4">
                   {combinedCategories.map((catLabel, index) => {
                     const meta = getCategoryMeta(catLabel);
@@ -153,14 +155,14 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   className="mt-4 mb-6 overflow-hidden"
                 >
                   <div className="text-white/60 text-xs mb-2 tracking-tight font-medium">
-                    New Custom Category
+                    {t.newCustomCategory || 'New Custom Category'}
                   </div>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={customName}
                       onChange={(e) => setCustomName(e.target.value)}
-                      placeholder="e.g. Gym, Pets, Subscriptions..."
+                      placeholder={t.customCategoryPlaceholder || 'e.g. Gym, Pets, Subscriptions...'}
                       className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none placeholder:text-white/30 focus:border-white/40"
                     />
                     <button
@@ -177,7 +179,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       }}
                       className="px-4 py-3 bg-[#22C55E] disabled:bg-white/10 disabled:text-white/30 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
                     >
-                      Add & Select
+                      {t.addAndSelect || 'Add & Select'}
                     </button>
                   </div>
                 </motion.div>
@@ -199,7 +201,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   }
                 `}
               >
-                Add Expense
+                {t.addExpense || 'Add Expense'}
               </motion.button>
             </div>
           </motion.div>
