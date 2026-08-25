@@ -12,6 +12,8 @@ interface LanguageRegionModalProps {
 
 const languages = [
   { code: 'en' as LanguageCode, name: "English", nativeName: "English", flag: "🇺🇸" },
+  { code: 'te' as LanguageCode, name: "Telugu", nativeName: "తెలుగు", flag: "🇮🇳" },
+  { code: 'hi' as LanguageCode, name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳" },
   { code: 'ar' as LanguageCode, name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
   { code: 'zh' as LanguageCode, name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
   { code: 'kw' as LanguageCode, name: "Cornish", nativeName: "Kernewek", flag: "🇬🇧" },
@@ -21,7 +23,6 @@ const languages = [
   { code: 'de' as LanguageCode, name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
   { code: 'el' as LanguageCode, name: "Greek", nativeName: "Ελληνικά", flag: "🇬🇷" },
   { code: 'he' as LanguageCode, name: "Hebrew", nativeName: "עברית", flag: "🇮🇱" },
-  { code: 'hi' as LanguageCode, name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳" },
   { code: 'it' as LanguageCode, name: "Italian", nativeName: "Italiano", flag: "🇮🇹" },
   { code: 'ja' as LanguageCode, name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
   { code: 'kk' as LanguageCode, name: "Kazakh", nativeName: "Қазақша", flag: "🇰🇿" },
@@ -31,7 +32,6 @@ const languages = [
   { code: 'ru' as LanguageCode, name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
   { code: 'es' as LanguageCode, name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
   { code: 'tl' as LanguageCode, name: "Tagalog", nativeName: "Tagalog", flag: "🇵🇭" },
-  { code: 'te' as LanguageCode, name: "Telugu", nativeName: "తెలుగు", flag: "🇮🇳" },
   { code: 'vi' as LanguageCode, name: "Vietnamese", nativeName: "Tiếng Việt", flag: "🇻🇳" },
 ];
 
