@@ -103,6 +103,7 @@ export function Profile() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [latestVersion, setLatestVersion] = useState(appVersion);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [updateNotes, setUpdateNotes] = useState("");
 
   const checkForUpdates = async () => {
     setCheckingUpdate(true);
@@ -112,6 +113,7 @@ export function Profile() {
          const data = await response.json();
          const currentV = parseInt(appVersion.replace(/\./g, ''));
          const latestV = parseInt(data.version.replace(/\./g, ''));
+         if (data.notes) setUpdateNotes(data.notes);
          if (latestV > currentV) {
             setUpdateAvailable(true);
             setLatestVersion(data.version);
@@ -236,24 +238,7 @@ export function Profile() {
           },
         ]
       : []),
-    {
-      title: "App & Version",
-      items: [
-        {
-          icon: CloudDownload,
-          label: `Version ${appVersion}`,
-          badge: checkingUpdate ? "Checking..." : (updateAvailable ? `Update to v${latestVersion}` : "Up to date"),
-          glow: updateAvailable ? "gold" : "blue",
-          action: () => {
-            if (updateAvailable) {
-               window.open("https://cozify-finance.vercel.app/", "_blank");
-            } else {
-               checkForUpdates();
-            }
-          }
-        }
-      ]
-    },
+
     {
       title: t.account,
       items: [
@@ -293,6 +278,25 @@ export function Profile() {
           action: () => setActiveModal("language-region"),
         },
       ],
+    },
+    {
+      title: "App & Version",
+      items: [
+        {
+          icon: CloudDownload,
+          label: `Version ${appVersion}`,
+          description: checkingUpdate ? "Checking for updates..." : (updateAvailable ? `New: ${updateNotes}` : (updateNotes ? `Latest: ${updateNotes}` : "Up to date")),
+          badge: checkingUpdate ? "Checking..." : (updateAvailable ? `Update to v${latestVersion}` : "Up to date"),
+          glow: updateAvailable ? "gold" : "blue",
+          action: () => {
+            if (updateAvailable) {
+               window.open("https://cozify-finance.vercel.app/", "_blank");
+            } else {
+               checkForUpdates();
+            }
+          }
+        }
+      ]
     },
     {
       title: t.support,
@@ -678,11 +682,18 @@ export function Profile() {
                       glow={item.glow}
                       asChild
                     />{" "}
-                    <span
-                      className={`${textColor} tracking-tight font-bold text-sm`}
-                    >
-                      {item.label}
-                    </span>{" "}
+                    <div className="flex flex-col items-start text-left">
+                      <span
+                        className={`${textColor} tracking-tight font-bold text-sm`}
+                      >
+                        {item.label}
+                      </span>
+                      {"description" in item && item.description && (
+                        <span className={`${subtextColor} text-[10px] mt-0.5 leading-tight opacity-80`}>
+                          {item.description}
+                        </span>
+                      )}
+                    </div>{" "}
                     {"badge" in item && item.badge && (
                       <span 
                         className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border"
