@@ -237,8 +237,6 @@ export const useBudgetStore = create<BudgetState>()(
             dailyBudget: payload.dailyBudget ?? 2000,
             transactions: merged,
             customCategories: Array.isArray(payload.customCategories) ? payload.customCategories : [],
-            ...(prefs.theme ? { theme: prefs.theme } : {}),
-            ...(prefs.colorMode ? { colorMode: prefs.colorMode } : {}),
             ...(prefs.currency ? { currency: prefs.currency } : {}),
             ...(prefs.language ? { language: prefs.language } : {}),
             ...(prefs.budgetViewMode ? { budgetViewMode: prefs.budgetViewMode } : {}),
