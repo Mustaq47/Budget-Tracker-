@@ -318,11 +318,14 @@ export function Insights() {
     });
 
     const categoryData = Object.entries(categoryMap)
-      .map(([name, value]) => ({
-        name,
-        value,
-        color: getCategoryMeta(name).color,
-      }))
+      .map(([name, value]) => {
+        const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+        return {
+          name: translateDynamic(capitalized),
+          value,
+          color: getCategoryMeta(name).color,
+        };
+      })
       .sort((a, b) => b.value - a.value);
 
     const topCategory = categoryData.length > 0 ? categoryData[0] : null;
@@ -499,7 +502,7 @@ export function Insights() {
   };
 
   return (
-    <div className="min-h-screen px-6 pt-12 pb-24">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -533,7 +536,7 @@ export function Insights() {
               flex-1 py-2 rounded-xl tracking-tight font-bold text-xs transition-all duration-300 cursor-pointer
               ${
                 period === p
-                  ? "bg-gradient-to-r from-[#16A34A] via-[#2563EB] to-[#F59E0B] text-white shadow-md scale-[1.02]"
+                  ? "bg-primary text-white shadow-md scale-[1.02]"
                   : isLight
                   ? "text-slate-600 hover:bg-slate-200/60"
                   : "text-white/60 hover:bg-white/5"
@@ -1224,7 +1227,7 @@ export function Insights() {
                     setSelectedWeekReport(null);
                     setActiveModal(null);
                   }}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#16A34A] to-[#2563EB] text-white font-bold text-xs shadow-lg"
+                  className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-xs shadow-lg"
                 >
                   Close Report
                 </button>

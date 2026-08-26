@@ -103,7 +103,7 @@ export function Home() {
   ];
   const recentTransactions = transactions.slice(0, 5);
   return (
-    <div className="min-h-screen px-6 pt-12">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       {" "}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -149,7 +149,7 @@ export function Home() {
           <img
             src={cozifyLogo}
             alt="coZify"
-            className={`h-12 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"}`}
+            className={`h-12 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-default"}`}
           />{" "}
         </div>{" "}
       </motion.div>{" "}

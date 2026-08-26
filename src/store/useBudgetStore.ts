@@ -221,10 +221,13 @@ export const useBudgetStore = create<BudgetState>()(
           });
 
           // 2. Format cloud transactions and restore title if missing
-          const cloudTx = (Array.isArray(payload.transactions) ? payload.transactions : []).map((t) => ({
-            ...t,
-            title: t.title || `${t.category} ${t.type === "income" ? "Income" : "Expense"}`,
-          }));
+          const cloudTx = (Array.isArray(payload.transactions) ? payload.transactions : []).map((t) => {
+            const defaultLabel = t.type === "income" ? "Income" : "Expense";
+            return {
+              ...t,
+              title: t.title || (t.category === defaultLabel ? t.category : `${t.category} ${defaultLabel}`),
+            };
+          });
 
           // 3. Merge and deduplicate
           const seenIds = new Set(cloudTx.map((t) => t.id));

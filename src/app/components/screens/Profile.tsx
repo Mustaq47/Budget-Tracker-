@@ -295,7 +295,7 @@ export function Profile() {
     },
   ];
   return (
-    <div className="min-h-screen px-6 pt-12">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       {" "}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -365,7 +365,7 @@ export function Profile() {
                   e.stopPropagation();
                   navigate("/login");
                 }}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
               >
                 {" "}
                 {t.signInBtn}{" "}
@@ -537,7 +537,7 @@ export function Profile() {
               <button
                 onClick={handleBackupNow}
                 disabled={isSyncing || !isAuthenticated}
-                className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${isAuthenticated ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]" : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"}`}
+                className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${isAuthenticated ? "bg-primary text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]" : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"}`}
               >
                 {" "}
                 {isSyncing ? (
@@ -563,7 +563,7 @@ export function Profile() {
             </div>{" "}
             {/* Sync Feedback Message */}{" "}
             {syncStatus && (
-              <div className="text-center text-xs font-semibold text-[#00E5FF] pt-1">
+              <div className="text-center text-xs font-semibold text-primary pt-1">
                 {" "}
                 {syncStatus}{" "}
               </div>
@@ -654,7 +654,7 @@ export function Profile() {
           <img
             src={cozifyLogo}
             alt="coZify Brand Logo"
-            className={`h-16 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"}`}
+            className={`h-16 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-default"}`}
           />{" "}
         </div>{" "}
         <div className="flex items-center gap-2">

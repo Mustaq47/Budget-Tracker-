@@ -11,36 +11,36 @@ interface LanguageRegionModalProps {
 }
 
 const languages = [
-  { code: 'en' as LanguageCode, name: "English", nativeName: "English", flag: "🇺🇸" },
-  { code: 'te' as LanguageCode, name: "Telugu", nativeName: "తెలుగు", flag: "🇮🇳" },
-  { code: 'hi' as LanguageCode, name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳" },
-  { code: 'ar' as LanguageCode, name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
-  { code: 'zh' as LanguageCode, name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
-  { code: 'kw' as LanguageCode, name: "Cornish", nativeName: "Kernewek", flag: "🇬🇧" },
-  { code: 'cs' as LanguageCode, name: "Czech", nativeName: "Čeština", flag: "🇨🇿" },
-  { code: 'nl' as LanguageCode, name: "Dutch", nativeName: "Nederlands", flag: "🇳🇱" },
-  { code: 'fr' as LanguageCode, name: "French", nativeName: "Français", flag: "🇫🇷" },
-  { code: 'de' as LanguageCode, name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
-  { code: 'el' as LanguageCode, name: "Greek", nativeName: "Ελληνικά", flag: "🇬🇷" },
-  { code: 'he' as LanguageCode, name: "Hebrew", nativeName: "עברית", flag: "🇮🇱" },
-  { code: 'it' as LanguageCode, name: "Italian", nativeName: "Italiano", flag: "🇮🇹" },
-  { code: 'ja' as LanguageCode, name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
-  { code: 'kk' as LanguageCode, name: "Kazakh", nativeName: "Қазақша", flag: "🇰🇿" },
-  { code: 'ko' as LanguageCode, name: "Korean", nativeName: "한국어", flag: "🇰🇷" },
-  { code: 'pl' as LanguageCode, name: "Polish", nativeName: "Polski", flag: "🇵🇱" },
-  { code: 'pt' as LanguageCode, name: "Portuguese", nativeName: "Português", flag: "🇵🇹" },
-  { code: 'ru' as LanguageCode, name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
-  { code: 'es' as LanguageCode, name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
-  { code: 'tl' as LanguageCode, name: "Tagalog", nativeName: "Tagalog", flag: "🇵🇭" },
-  { code: 'vi' as LanguageCode, name: "Vietnamese", nativeName: "Tiếng Việt", flag: "🇻🇳" },
+  { code: 'en' as LanguageCode, name: "English", nativeName: "English", flag: "us" },
+  { code: 'te' as LanguageCode, name: "Telugu", nativeName: "తెలుగు", flag: "in" },
+  { code: 'hi' as LanguageCode, name: "Hindi", nativeName: "हिन्दी", flag: "in" },
+  { code: 'ar' as LanguageCode, name: "Arabic", nativeName: "العربية", flag: "sa" },
+  { code: 'zh' as LanguageCode, name: "Chinese", nativeName: "中文", flag: "cn" },
+  { code: 'kw' as LanguageCode, name: "Cornish", nativeName: "Kernewek", flag: "gb" },
+  { code: 'cs' as LanguageCode, name: "Czech", nativeName: "Čeština", flag: "cz" },
+  { code: 'nl' as LanguageCode, name: "Dutch", nativeName: "Nederlands", flag: "nl" },
+  { code: 'fr' as LanguageCode, name: "French", nativeName: "Français", flag: "fr" },
+  { code: 'de' as LanguageCode, name: "German", nativeName: "Deutsch", flag: "de" },
+  { code: 'el' as LanguageCode, name: "Greek", nativeName: "Ελληνικά", flag: "gr" },
+  { code: 'he' as LanguageCode, name: "Hebrew", nativeName: "עברית", flag: "il" },
+  { code: 'it' as LanguageCode, name: "Italian", nativeName: "Italiano", flag: "it" },
+  { code: 'ja' as LanguageCode, name: "Japanese", nativeName: "日本語", flag: "jp" },
+  { code: 'kk' as LanguageCode, name: "Kazakh", nativeName: "Қазақша", flag: "kz" },
+  { code: 'ko' as LanguageCode, name: "Korean", nativeName: "한국어", flag: "kr" },
+  { code: 'pl' as LanguageCode, name: "Polish", nativeName: "Polski", flag: "pl" },
+  { code: 'pt' as LanguageCode, name: "Portuguese", nativeName: "Português", flag: "pt" },
+  { code: 'ru' as LanguageCode, name: "Russian", nativeName: "Русский", flag: "ru" },
+  { code: 'es' as LanguageCode, name: "Spanish", nativeName: "Español", flag: "es" },
+  { code: 'tl' as LanguageCode, name: "Tagalog", nativeName: "Tagalog", flag: "ph" },
+  { code: 'vi' as LanguageCode, name: "Vietnamese", nativeName: "Tiếng Việt", flag: "vn" },
 ];
 
 const currencies = [
-  { code: 'INR' as CurrencyCode, symbol: "₹", name: "Indian Rupee", flag: "🇮🇳" },
-  { code: 'USD' as CurrencyCode, symbol: "$", name: "US Dollar", flag: "🇺🇸" },
-  { code: 'EUR' as CurrencyCode, symbol: "€", name: "Euro", flag: "🇪🇺" },
-  { code: 'GBP' as CurrencyCode, symbol: "£", name: "British Pound", flag: "🇬🇧" },
-  { code: 'JPY' as CurrencyCode, symbol: "¥", name: "Japanese Yen", flag: "🇯🇵" },
+  { code: 'INR' as CurrencyCode, symbol: "₹", name: "Indian Rupee", flag: "in" },
+  { code: 'USD' as CurrencyCode, symbol: "$", name: "US Dollar", flag: "us" },
+  { code: 'EUR' as CurrencyCode, symbol: "€", name: "Euro", flag: "eu" },
+  { code: 'GBP' as CurrencyCode, symbol: "£", name: "British Pound", flag: "gb" },
+  { code: 'JPY' as CurrencyCode, symbol: "¥", name: "Japanese Yen", flag: "jp" },
 ];
 
 export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProps) {
@@ -80,7 +80,7 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto"
           >
-            <div className="backdrop-blur-[60px] bg-gradient-to-b from-white/12 via-white/8 to-[#0B0914] border-t border-white/20 rounded-t-[48px] p-7 shadow-[0_-10px_50px_rgba(123,97,255,0.35),0_-4px_20px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto">
+            <div className="backdrop-blur-[60px] bg-gradient-to-b from-white/12 via-white/8 to-[#0B0914] border-t border-white/20 rounded-t-[48px] p-7 shadow-default max-h-[90vh] overflow-y-auto">
               
               <div className="w-12 h-1.5 rounded-full bg-white/25 mx-auto mb-5" />
 
@@ -92,7 +92,7 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
               </button>
 
               <div className="flex items-center gap-3.5 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7B61FF] via-[#00E5FF] to-[#FF4D8D] flex items-center justify-center shadow-[0_0_25px_rgba(123,97,255,0.5)]">
+                <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-default">
                   <Globe size={24} className="text-white" />
                 </div>
                 <div>
@@ -116,11 +116,11 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
                         onClick={() => handleSelectLanguage(lang.code, lang.name)}
                         className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-1.5 cursor-pointer text-center relative overflow-hidden ${
                           isSelected
-                            ? "bg-white/12 border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                            ? "bg-white/12 border-white/30 shadow-default"
                             : "bg-white/5 border-white/10 hover:bg-white/8"
                         }`}
                       >
-                        <span className="text-2xl">{lang.flag}</span>
+                        <img src={`https://flagcdn.com/w40/${lang.flag}.png`} className="w-8 rounded-sm shadow-sm" alt={`${lang.name} flag`} />
                         <div>
                           <div className="text-white text-xs font-bold">{lang.name}</div>
                           <div className="text-white/40 text-[9px]">{lang.nativeName}</div>
@@ -151,16 +151,16 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
                         onClick={() => handleSelectCurrency(curr.code, curr.symbol)}
                         className={`w-full p-3.5 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${
                           isSelected
-                            ? "bg-white/12 border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                            ? "bg-white/12 border-white/30 shadow-default"
                             : "bg-white/5 border-white/10 hover:bg-white/8 hover:border-white/15"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-xl w-6 h-6 flex items-center justify-center">{curr.flag}</span>
+                          <img src={`https://flagcdn.com/w20/${curr.flag}.png`} className="w-5 rounded-[2px] shadow-sm" alt={`${curr.name} flag`} />
                           <span className="text-white text-sm font-bold">{curr.name} ({curr.code})</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[#00E5FF] text-sm font-extrabold">{curr.symbol}</span>
+                          <span className="text-primary text-sm font-extrabold">{curr.symbol}</span>
                           {isSelected ? (
                             <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
                               <Check size={12} className="text-white stroke-[3]" />
@@ -176,7 +176,7 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
               </div>
 
               {toastMsg && (
-                <div className="text-center text-xs font-semibold text-[#00E5FF] mb-4 flex items-center justify-center gap-1.5 animate-pulse">
+                <div className="text-center text-xs font-semibold text-primary mb-4 flex items-center justify-center gap-1.5 animate-pulse">
                   <Sparkles size={14} /> {toastMsg}
                 </div>
               )}
@@ -184,7 +184,7 @@ export function LanguageRegionModal({ isOpen, onClose }: LanguageRegionModalProp
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="w-full py-4 rounded-2xl font-black text-xs bg-gradient-to-r from-[#7B61FF] via-[#00E5FF] to-[#FF4D8D] text-white shadow-[0_0_25px_rgba(123,97,255,0.5)] flex items-center justify-center gap-2 cursor-pointer hover:opacity-95 transition-all"
+                className="w-full py-4 rounded-2xl font-black text-xs bg-primary text-white shadow-default flex items-center justify-center gap-2 cursor-pointer hover:opacity-95 transition-all"
               >
                 Apply Preferences
               </button>

@@ -33,8 +33,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+    const defaultLabel = t.expenseTitle || 'Expense';
     addTransaction({
-      title: `${catLabel} ${t.expenseTitle || 'Expense'}`,
+      title: catLabel === defaultLabel ? catLabel : `${catLabel} ${defaultLabel}`,
       amount: num,
       category: catLabel,
       time: timeStr,
@@ -74,7 +75,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               border-t border-white/20
               rounded-t-[48px]
               p-8
-              shadow-[0_-8px_40px_rgba(123,97,255,0.4),0_-4px_20px_rgba(0,0,0,0.6)]
+              shadow-default
             "
             >
               <button
@@ -177,7 +178,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                         const index = updated.indexOf(trimmed);
                         if (index !== -1) setSelectedCategory(index);
                       }}
-                      className="px-4 py-3 bg-[#22C55E] disabled:bg-white/10 disabled:text-white/30 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                      className="px-4 py-3 bg-success disabled:bg-white/10 disabled:text-white/30 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
                     >
                       {t.addAndSelect || 'Add & Select'}
                     </button>
@@ -196,7 +197,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   tracking-tight cursor-pointer
                   ${
                     amount
-                      ? "bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white shadow-[0_0_30px_rgba(123,97,255,0.6)]"
+                      ? "bg-primary text-white shadow-default"
                       : "bg-white/5 text-white/30 border border-white/10"
                   }
                 `}

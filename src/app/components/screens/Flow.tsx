@@ -71,13 +71,13 @@ const FlowItemCard = memo(function FlowItemCard({
         style={{ opacity: deleteOpacity }}
         className="absolute inset-y-0 left-4 flex items-center justify-start pointer-events-none z-0"
       >
-        <Trash2 className="w-5 h-5 text-[#EF4444]" />
+        <Trash2 className="w-5 h-5 text-error" />
       </motion.div>
       <motion.div
         style={{ opacity: deleteOpacity }}
         className="absolute inset-y-0 right-4 flex items-center justify-end pointer-events-none z-0"
       >
-        <Trash2 className="w-5 h-5 text-[#EF4444]" />
+        <Trash2 className="w-5 h-5 text-error" />
       </motion.div>
 
       <motion.div
@@ -183,7 +183,7 @@ export function Flow() {
   }, [flowItems, currency]);
 
   return (
-    <div className="min-h-screen px-6 pt-12">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -199,15 +199,15 @@ export function Flow() {
         }`}>
           <div className={`${textColor} text-lg mb-2 font-bold`}>No timeline activity yet</div>
           <div className={`${subtextColor} text-xs`}>
-            Tap the <span className="text-[#16A34A] font-bold">+</span> button below to record an expense!
+            Tap the <span className="text-success font-bold">+</span> button below to record an expense!
           </div>
         </div>
       ) : (
         <div className="relative pb-8">
           <div className="absolute left-[27px] top-0 bottom-0 w-[2px]">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#16A34A] via-[#3B82F6] to-[#06B6D4] opacity-20" />
+            <div className="absolute inset-0 bg-primary opacity-20" />
             <motion.div
-              className="absolute inset-0 bg-gradient-to-b from-[#16A34A] via-[#3B82F6] to-[#06B6D4]"
+              className="absolute inset-0 bg-primary"
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
@@ -307,7 +307,7 @@ export function Flow() {
                       }}
                       className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#16A34A] border-[#16A34A] text-white shadow-lg font-bold"
+                          ? "bg-success border-[#16A34A] text-white shadow-lg font-bold"
                           : isLight
                             ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
                             : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10"
@@ -354,7 +354,7 @@ export function Flow() {
                         setCustomCategoryName("");
                         setFloatingItem(null);
                       }}
-                      className="px-4 py-2 bg-[#16A34A] disabled:opacity-40 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                      className="px-4 py-2 bg-success disabled:opacity-40 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
                     >
                       Add & Apply
                     </button>
