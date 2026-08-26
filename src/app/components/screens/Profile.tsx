@@ -1,5 +1,5 @@
 import cozifyLogo from "../../../assets/cozify-logo.png";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
@@ -27,6 +27,8 @@ import {
   Users,
   FileText,
   MessageSquareHeart,
+  Smartphone,
+  Info,
 } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
@@ -55,6 +57,7 @@ import { FeedbackModal } from "../modals/FeedbackModal";
 import { HelpCenterModal } from "../modals/HelpCenterModal";
 import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
 import { TermsConditionsModal } from "../modals/TermsConditionsModal";
+import { AppVersionModal } from "../modals/AppVersionModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
@@ -100,37 +103,6 @@ export function Profile() {
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const [isAccountSwitcherOpen, setIsAccountSwitcherOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
-  const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [latestVersion, setLatestVersion] = useState(appVersion);
-  const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const [updateNotes, setUpdateNotes] = useState("");
-
-  const checkForUpdates = async () => {
-    setCheckingUpdate(true);
-    try {
-      const response = await fetch(`https://cozify-finance.vercel.app/version.json?t=${new Date().getTime()}`);
-      if (response.ok) {
-         const data = await response.json();
-         const currentV = parseInt(appVersion.replace(/\./g, ''));
-         const latestV = parseInt(data.version.replace(/\./g, ''));
-         if (data.notes) setUpdateNotes(data.notes);
-         if (latestV > currentV) {
-            setUpdateAvailable(true);
-            setLatestVersion(data.version);
-         } else {
-            setUpdateAvailable(false);
-         }
-      }
-    } catch (err) {
-      console.warn("Failed to check for updates:", err);
-    } finally {
-      setCheckingUpdate(false);
-    }
-  };
-
-  useEffect(() => {
-    checkForUpdates();
-  }, [appVersion]);
   const accountLongPressHandlers = useLongPress({
     onLongPress: () => setIsAccountSwitcherOpen(true),
     onClick: () => setIsUserProfileOpen(true),
@@ -238,7 +210,6 @@ export function Profile() {
           },
         ]
       : []),
-
     {
       title: t.account,
       items: [
@@ -283,20 +254,19 @@ export function Profile() {
       title: "App & Version",
       items: [
         {
-          icon: CloudDownload,
-          label: `Version ${appVersion}`,
-          description: checkingUpdate ? "Checking for updates..." : (updateAvailable ? `New: ${updateNotes}` : (updateNotes ? `Latest: ${updateNotes}` : "Up to date")),
-          badge: checkingUpdate ? "Checking..." : (updateAvailable ? `Update to v${latestVersion}` : "Up to date"),
-          glow: updateAvailable ? "gold" : "blue",
-          action: () => {
-            if (updateAvailable) {
-               window.open("https://cozify-finance.vercel.app/", "_blank");
-            } else {
-               checkForUpdates();
-            }
-          }
-        }
-      ]
+          icon: Smartphone,
+          label: "coZify Version",
+          badge: `v${appVersion}`,
+          glow: "blue" as const,
+          action: () => setActiveModal("app-version" as any),
+        },
+        {
+          icon: Info,
+          label: "About coZify",
+          glow: "purple" as const,
+          action: () => setActiveModal("app-version" as any),
+        },
+      ],
     },
     {
       title: t.support,
@@ -682,18 +652,11 @@ export function Profile() {
                       glow={item.glow}
                       asChild
                     />{" "}
-                    <div className="flex flex-col items-start text-left">
-                      <span
-                        className={`${textColor} tracking-tight font-bold text-sm`}
-                      >
-                        {item.label}
-                      </span>
-                      {"description" in item && item.description && (
-                        <span className={`${subtextColor} text-[10px] mt-0.5 leading-tight opacity-80`}>
-                          {item.description}
-                        </span>
-                      )}
-                    </div>{" "}
+                    <span
+                      className={`${textColor} tracking-tight font-bold text-sm`}
+                    >
+                      {item.label}
+                    </span>{" "}
                     {"badge" in item && item.badge && (
                       <span 
                         className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border"
@@ -789,6 +752,10 @@ export function Profile() {
       />{" "}
       <TermsConditionsModal
         isOpen={activeModal === "terms-conditions"}
+        onClose={() => setActiveModal(null)}
+      />{" "}
+      <AppVersionModal
+        isOpen={activeModal === "app-version"}
         onClose={() => setActiveModal(null)}
       />{" "}
     </div>
