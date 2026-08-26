@@ -1,5 +1,5 @@
 import cozifyLogo from "../../../assets/cozify-logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
@@ -100,6 +100,35 @@ export function Profile() {
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const [isAccountSwitcherOpen, setIsAccountSwitcherOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [latestVersion, setLatestVersion] = useState(appVersion);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+
+  const checkForUpdates = async () => {
+    setCheckingUpdate(true);
+    try {
+      const response = await fetch(`https://cozify-finance.vercel.app/version.json?t=${new Date().getTime()}`);
+      if (response.ok) {
+         const data = await response.json();
+         const currentV = parseInt(appVersion.replace(/\./g, ''));
+         const latestV = parseInt(data.version.replace(/\./g, ''));
+         if (latestV > currentV) {
+            setUpdateAvailable(true);
+            setLatestVersion(data.version);
+         } else {
+            setUpdateAvailable(false);
+         }
+      }
+    } catch (err) {
+      console.warn("Failed to check for updates:", err);
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
+  useEffect(() => {
+    checkForUpdates();
+  }, [appVersion]);
   const accountLongPressHandlers = useLongPress({
     onLongPress: () => setIsAccountSwitcherOpen(true),
     onClick: () => setIsUserProfileOpen(true),
@@ -207,6 +236,24 @@ export function Profile() {
           },
         ]
       : []),
+    {
+      title: "App & Version",
+      items: [
+        {
+          icon: CloudDownload,
+          label: `Version ${appVersion}`,
+          badge: checkingUpdate ? "Checking..." : (updateAvailable ? `Update to v${latestVersion}` : "Up to date"),
+          glow: updateAvailable ? "gold" : "blue",
+          action: () => {
+            if (updateAvailable) {
+               window.open("https://cozify-finance.vercel.app/", "_blank");
+            } else {
+               checkForUpdates();
+            }
+          }
+        }
+      ]
+    },
     {
       title: t.account,
       items: [
