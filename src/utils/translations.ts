@@ -1509,19 +1509,24 @@ export const translations = {
 export function useTranslation() {
   const language = useBudgetStore((state) => state.language) || "en";
   const rawDict = (translations as any)[language] || translations.en;
+  const enDict = translations.en;
 
   const t = new Proxy(rawDict, {
     get(target, prop: string) {
       if (prop in target && target[prop] !== undefined && target[prop] !== "") {
         return target[prop];
       }
-      if (prop in translations.en) {
-        return (translations.en as any)[prop];
+      if (prop in enDict) {
+        return (enDict as any)[prop];
       }
       return prop;
     },
   });
 
+  /**
+   * Translate a static key with optional interpolation params.
+   * e.g. translate("bestDays", { days: 5 }) => "Best: 5 days"
+   */
   const translate = (key: string, params?: Record<string, string | number>) => {
     let str = t[key];
     if (params) {
@@ -1532,5 +1537,52 @@ export function useTranslation() {
     return str;
   };
 
-  return { t, translate, language };
+  /**
+   * Translate arbitrary English text dynamically at display time.
+   * Finds known English words/phrases in the text and replaces them
+   * with their translations from the current language dictionary.
+   * 
+   * Strategy: Build a reverse lookup (English value → translated value)
+   * from the dictionary, then replace longest matches first.
+   * 
+   * This handles:
+   * - Transaction titles like "Food Expense" → "ఆహారం ఖర్చు"
+   * - Category names like "Shopping" → "షాపింగ్"
+   * - Any combination of known words
+   */
+  const translateDynamic = (text: string): string => {
+    if (!text || language === "en") return text;
+
+    // Build reverse map: English string → translated string
+    // Only include keys where the translation differs from English
+    const reverseMap: Array<[string, string]> = [];
+    for (const key in enDict) {
+      const enVal = (enDict as any)[key];
+      const localVal = rawDict[key];
+      if (
+        localVal &&
+        localVal !== enVal &&
+        localVal !== "" &&
+        typeof enVal === "string" &&
+        typeof localVal === "string"
+      ) {
+        reverseMap.push([enVal, localVal]);
+      }
+    }
+
+    // Sort by length descending so longer phrases match first
+    // e.g. "Shopping Expense" before "Shopping"
+    reverseMap.sort((a, b) => b[0].length - a[0].length);
+
+    let result = text;
+    for (const [enVal, localVal] of reverseMap) {
+      if (result.includes(enVal)) {
+        result = result.split(enVal).join(localVal);
+      }
+    }
+
+    return result;
+  };
+
+  return { t, translate, translateDynamic, language };
 }

@@ -16,7 +16,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [customName, setCustomName] = useState("");
   const { addTransaction, currency, customCategories, addCustomCategory } = useBudgetStore();
-  const { t } = useTranslation();
+  const { t, translateDynamic } = useTranslation();
   const combinedCategories = getCombinedCategories(customCategories);
   const isOtherSelected = combinedCategories[selectedCategory] === "Other";
 
@@ -139,7 +139,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                             selectedCategory === index ? "text-white font-semibold" : "text-white/50"
                           }`}
                         >
-                          {catLabel}
+                          {translateDynamic(catLabel)}
                         </span>
                       </button>
                     );

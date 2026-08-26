@@ -90,7 +90,7 @@ export function Insights() {
     setActiveModal,
   } = useBudgetStore();
   
-  const { t, translate } = useTranslation();
+  const { t, translate, translateDynamic } = useTranslation();
 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [tempBudgetInput, setTempBudgetInput] = useState("");
@@ -1195,12 +1195,12 @@ export function Insights() {
                                 }`}
                               >
                                 <div>
-                                  <div className="font-bold text-xs">
-                                    {tx.title}
-                                  </div>
-                                  <div className="text-[10px] opacity-60">
-                                    {tx.category || "Other"} • {tx.date || "N/A"}
-                                  </div>
+                                    <div className={`font-bold text-sm tracking-tight ${activeTheme.textColor}`}>
+                                      {translateDynamic(tx.title)}
+                                    </div>
+                                    <div className={`text-xs ${activeTheme.subtextColor}`}>
+                                      {translateDynamic(tx.category || "Other")} • {tx.date || "N/A"}
+                                    </div>
                                 </div>
                                 <div className="font-extrabold text-xs text-rose-400">
                                   -{currencySymbol}

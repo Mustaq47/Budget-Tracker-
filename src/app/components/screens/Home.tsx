@@ -47,7 +47,7 @@ export function Home() {
     setLastBudgetSetMonth,
     hasCompletedOnboarding,
   } = useBudgetStore();
-  const { t } = useTranslation();
+  const { t, translateDynamic } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -352,7 +352,7 @@ export function Home() {
                     <div
                       className={`${textColor} tracking-tight font-bold text-sm`}
                     >
-                      {transaction.title}
+                      {translateDynamic(transaction.title)}
                     </div>{" "}
                     <div className={`${subtextColor} text-xs tracking-tight`}>
                       {transaction.time || "Today"}

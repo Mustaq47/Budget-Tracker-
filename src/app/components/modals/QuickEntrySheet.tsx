@@ -24,10 +24,10 @@ type EntryMode = "general" | "trip" | "goal";
 
 export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const { addTransaction, theme, colorMode, currency } = useBudgetStore();
+  const { t, translateDynamic } = useTranslation();
   const { trips, updateTripSpent } = useTripsStore();
   const { goals, contributeToGoal } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
-  const { t } = useTranslation();
 
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -289,7 +289,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                       : isLight ? "border-slate-200 text-slate-600 bg-white" : "border-white/10 text-white/70 bg-white/5"
                       }`}
                   >
-                    {t[cat] || cat}
+                    {translateDynamic(cat)}
                   </button>
                 ))}
               </div>

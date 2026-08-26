@@ -179,7 +179,7 @@ import { useTranslation } from "../../../utils/translations";
 
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { transactions, addTransaction, currency, theme, colorMode, setActiveModal, dailyBudget, setDailyBudget } = useBudgetStore();
-  const { t, translate } = useTranslation();
+  const { t, translate, translateDynamic } = useTranslation();
   const { trips, updateTripSpent } = useTripsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
@@ -511,7 +511,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                               }
                             </div>
                             <div>
-                              <div className="font-bold text-sm">{tx.title}</div>
+                              <div className="font-bold text-sm">{translateDynamic(tx.title)}</div>
                               <div className={`text-[10px] ${isLight ? "text-slate-500" : "text-white/40"}`}>{tx.date} • {tx.time}</div>
                             </div>
                           </div>
