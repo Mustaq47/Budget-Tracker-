@@ -214,6 +214,8 @@ export function Insights() {
     } else if (period === "month") {
       // Monthly Insights - 4 Weeks breakdown
       const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
       const monthName = t[monthsOfYear[currentMonth]] || monthsOfYear[currentMonth];
 
       periodTitle = translate("monthlySpendingBreakdown", { month: monthName }) || `${monthName} Spending by Week`;
