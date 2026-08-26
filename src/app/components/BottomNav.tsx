@@ -101,7 +101,7 @@ export function BottomNav() {
                 -mt-8
                 w-16 h-16
                 rounded-full
-                bg-gradient-to-br from-[#16A34A] to-[#3B82F6]
+                bg-gradient-to-br ${activeTheme.accentGradient}
                 flex items-center justify-center
                 shadow-xl
                 border-4 ${isLight ? "border-slate-100" : "border-[#0a0a1f]"}

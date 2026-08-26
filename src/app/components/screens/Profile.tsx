@@ -449,7 +449,14 @@ export function Profile() {
         >
           {" "}
           <span>Data Storage & Cloud Backup</span>{" "}
-          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 font-bold border border-emerald-500/30 flex items-center gap-1">
+          <span 
+            className="text-[10px] px-2.5 py-0.5 rounded-full font-bold border flex items-center gap-1"
+            style={{ 
+              color: activeTheme.primaryColor, 
+              backgroundColor: `${activeTheme.primaryColor}33`,
+              borderColor: `${activeTheme.primaryColor}4D`
+            }}
+          >
             {" "}
             <HardDrive size={10} /> Local-First Storage{" "}
           </span>{" "}
@@ -465,9 +472,9 @@ export function Profile() {
               {" "}
               <div className="flex items-center gap-3">
                 {" "}
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#16A34A]/20 to-[#3B82F6]/20 border border-emerald-500/20 flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${activeTheme.accentGradient} opacity-80 flex items-center justify-center`}>
                   {" "}
-                  <ShieldCheck size={20} className="text-emerald-500" />{" "}
+                  <ShieldCheck size={20} className="text-white drop-shadow-md" />{" "}
                 </div>{" "}
                 <div>
                   {" "}
@@ -523,7 +530,8 @@ export function Profile() {
                     }
                   }
                 }}
-                className={`w-12 h-6 rounded-full transition-colors relative p-1 cursor-pointer ${isCloudBackupEnabled ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/15"}`}
+                className={`w-12 h-6 rounded-full transition-colors relative p-1 cursor-pointer ${!isCloudBackupEnabled ? (isLight ? "bg-slate-300" : "bg-white/15") : ""}`}
+                style={isCloudBackupEnabled ? { backgroundColor: activeTheme.primaryColor } : {}}
               >
                 {" "}
                 <div
@@ -537,7 +545,8 @@ export function Profile() {
               <button
                 onClick={handleBackupNow}
                 disabled={isSyncing || !isAuthenticated}
-                className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${isAuthenticated ? "bg-primary text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]" : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"}`}
+                className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${isAuthenticated ? "text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]" : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"}`}
+                style={isAuthenticated ? { background: `linear-gradient(to bottom right, ${activeTheme.primaryColor}, ${activeTheme.secondaryColor})` } : {}}
               >
                 {" "}
                 {isSyncing ? (
@@ -628,7 +637,14 @@ export function Profile() {
                       {item.label}
                     </span>{" "}
                     {"badge" in item && item.badge && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-purple-500/15 border border-purple-500/25 text-purple-400">
+                      <span 
+                        className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border"
+                        style={{ 
+                          color: activeTheme.primaryColor, 
+                          backgroundColor: `${activeTheme.primaryColor}26`, 
+                          borderColor: `${activeTheme.primaryColor}40` 
+                        }}
+                      >
                         {" "}
                         {item.badge}{" "}
                       </span>
