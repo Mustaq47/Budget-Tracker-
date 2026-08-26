@@ -25,6 +25,7 @@ import { getCategoryMeta, getCombinedCategories } from "../../../utils/categoryC
 import { formatCurrency } from "../../../utils/formatters";
 import { calculateDineroTotal } from "../../../utils/dineroUtils";
 import { useLongPress } from "../../../utils/useLongPress";
+import { useTranslation } from "../../../utils/translations";
 
 interface FlowItemCardProps {
   item: Transaction;
@@ -52,6 +53,7 @@ const FlowItemCard = memo(function FlowItemCard({
   const longPressHandlers = useLongPress({ onLongPress, vibrateMs: 30 });
   const x = useMotionValue(0);
   const deleteOpacity = useTransform(x, [-90, -25, 25, 90], [0.9, 0, 0, 0.9]);
+  const { translateDynamic } = useTranslation();
 
   return (
     <motion.div
@@ -127,7 +129,7 @@ const FlowItemCard = memo(function FlowItemCard({
                   transition={{ duration: 0.18, ease: "easeInOut" }}
                   className={`${textColor} tracking-tight font-bold text-sm`}
                 >
-                  {item.title}
+                  {translateDynamic(item.title)}
                 </motion.div>
               </AnimatePresence>
               <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || "Today"}</div>
@@ -155,6 +157,7 @@ const FlowItemCard = memo(function FlowItemCard({
 
 export function Flow() {
   const { transactions, theme, colorMode, currency, updateTransactionCategory, deleteTransaction, customCategories, addCustomCategory } = useBudgetStore();
+  const { translateDynamic } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const [floatingItem, setFloatingItem] = useState<Transaction | null>(null);
   const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
@@ -311,7 +314,7 @@ export function Flow() {
                       }`}
                     >
                       <CatIcon className="w-6 h-6 mb-1.5" />
-                      <span className="text-xs font-semibold">{cat}</span>
+                      <span className="text-xs font-semibold">{translateDynamic(cat)}</span>
                     </motion.button>
                   );
                 })}
