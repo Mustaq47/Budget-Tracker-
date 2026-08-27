@@ -69,6 +69,7 @@ export type QuickActionModal =
   | 'terms-conditions'
   | 'feedback'
   | 'report'
+  | 'app-version'
   | null;
 export type AppTheme =
   | 'material-design'

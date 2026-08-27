@@ -62,7 +62,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
       
       setDailyBudget(newBudget);
       addTransaction({
-        title: budgetTitle.trim() || "Budget Allowance Added",
+        title: budgetTitle.trim() || "Funds Added",
         amount: val,
         category: "Income",
         type: "income",
@@ -163,7 +163,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`${subtextColor} text-xs tracking-tight mb-1`}>{t.targetLimit || "Target Limit"}</div>
+                    <div className={`${subtextColor} text-xs tracking-tight mb-1`}>{t.targetLimit || "Monthly Limit"}</div>
                     <div className={`${textColor} text-lg font-bold tracking-tight`}>
                       {currencySymbols[currency]}
                       {dailyBudget.toLocaleString()}
@@ -210,7 +210,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       : "text-white/60 hover:text-white"
                   }`}
                 >
-                  <Plus size={14} /> {t.addToBudget || "Add to Budget"}
+                  <Plus size={14} /> {t.addToBudget || "Add Funds"}
                 </button>
                 <button
                   type="button"
@@ -223,7 +223,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                       : "text-white/60 hover:text-white"
                   }`}
                 >
-                  <Sliders size={14} /> {t.setTargetLimit || "Set Target Limit"}
+                  <Sliders size={14} /> {t.setTargetLimit || "Update Limit"}
                 </button>
               </div>
 
@@ -232,7 +232,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 <form onSubmit={handleAddDirectAmount} className="space-y-5">
                   <div>
                     <label className={`block text-xs font-bold mb-2 ${isLight ? "text-slate-700" : "text-white/80"}`}>
-                      {t.amountToAddToBudget || "Amount to Add to Current Budget"}
+                      {t.amountToAddToBudget || "Amount to Add"}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-[#FF4D8D] text-2xl font-black">{currencySymbols[currency]}</span>
@@ -254,7 +254,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                   {/* Quick Add Chips */}
                   <div>
                     <div className={`${subtextColor} text-xs mb-2 font-medium flex items-center gap-1`}>
-                      <Sparkles size={12} className="text-[#FF4D8D]" /> {t.quickAdditionChips || "Quick Addition Chips"}
+                      <Sparkles size={12} className="text-[#FF4D8D]" /> {t.quickAdditionChips || "Quick Add"}
                     </div>
                     <div className="grid grid-cols-5 gap-1.5">
                       {quickAddPresets.map((amt) => (
@@ -305,7 +305,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                         : "bg-white/10 text-white/30 cursor-not-allowed border border-white/5"
                     }`}
                   >
-                    <Plus size={18} /> {t.addToMonthlyBudgetLimit || "Add to Monthly Budget Limit"}
+                    <Plus size={18} /> {t.addToMonthlyBudgetLimit || "Add Funds"}
                   </motion.button>
                 </form>
               )}
@@ -315,7 +315,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                 <form onSubmit={handleSaveTarget} className="space-y-5">
                   <div>
                     <label className={`block text-xs font-bold mb-2 ${isLight ? "text-slate-700" : "text-white/80"}`}>
-                      {t.newTargetBudgetLimit || "New Target Budget Limit"}
+                      {t.newTargetBudgetLimit || "New Monthly Limit"}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-[#00E5FF] text-2xl font-black">{currencySymbols[currency]}</span>
@@ -336,7 +336,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
                   {/* Preset Chips */}
                   <div>
-                    <div className={`${subtextColor} text-xs mb-2 font-medium`}>{t.quickTargetPresets || "Quick Target Presets"}</div>
+                    <div className={`${subtextColor} text-xs mb-2 font-medium`}>{t.quickTargetPresets || "Quick Presets"}</div>
                     <div className="grid grid-cols-4 gap-2">
                       {presetBudgets.map((preset) => (
                         <button
@@ -364,7 +364,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
                     whileTap={{ scale: 0.98 }}
                     className="w-full py-4 rounded-2xl font-black text-xs bg-gradient-to-r from-[#00E5FF] to-[#7B61FF] text-white shadow-[0_0_25px_rgba(0,229,255,0.5)] flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Check size={18} /> {t.saveNewTargetLimit || "Save New Target Limit"}
+                    <Check size={18} /> {t.saveNewTargetLimit || "Save Limit"}
                   </motion.button>
                 </form>
               )}

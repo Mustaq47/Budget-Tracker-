@@ -305,7 +305,7 @@ export function Home() {
           ))}{" "}
         </div>{" "}
       </GlassCard>{" "}
-      <GlassCard glow glowColor="purple">
+      <GlassCard>
         {" "}
         <div className={`${subtextColor} ${sectionTitleClass}`}>
           {t.recentActivity || "Recent Activity"}

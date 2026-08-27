@@ -260,12 +260,7 @@ export function Profile() {
           glow: "blue" as const,
           action: () => setActiveModal("app-version" as any),
         },
-        {
-          icon: Info,
-          label: "About coZify",
-          glow: "purple" as const,
-          action: () => setActiveModal("app-version" as any),
-        },
+
       ],
     },
     {
@@ -331,8 +326,6 @@ export function Profile() {
       </motion.div>{" "}
       <GlassCard
         className="mb-6 cursor-pointer select-none active:scale-[0.99] transition-all"
-        glow
-        glowColor="purple"
         onClick={() => setIsUserProfileOpen(true)}
         {...accountLongPressHandlers}
       >
@@ -482,7 +475,7 @@ export function Profile() {
             <HardDrive size={10} /> Local-First Storage{" "}
           </span>{" "}
         </div>{" "}
-        <GlassCard glow glowColor="blue">
+        <GlassCard>
           {" "}
           <div className="space-y-4">
             {" "}

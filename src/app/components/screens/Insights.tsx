@@ -566,7 +566,7 @@ export function Insights() {
               }}
               title="Click or hold to edit monthly budget limit"
             >
-              <GlassCard className="mb-6 p-5" glow glowColor="blue">
+              <GlassCard className="mb-6 p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-emerald-400" />
@@ -653,7 +653,7 @@ export function Insights() {
           )}
 
           {/* Main Analytics Bar Chart Card */}
-          <GlassCard className="mb-6" glow glowColor="purple">
+          <GlassCard className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className={`${subtextColor} font-bold text-sm block`}>
@@ -799,7 +799,7 @@ export function Insights() {
           </GlassCard>
 
           {/* Category Pie Chart Card */}
-          <GlassCard className="mb-6" glow glowColor="blue">
+          <GlassCard className="mb-6">
             <div className="flex items-center justify-between mb-6">
               <span className={`${subtextColor} tracking-tight font-semibold`}>
                 Spending by Category

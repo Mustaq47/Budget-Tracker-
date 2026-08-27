@@ -5,6 +5,7 @@ import { useGoalsStore } from "../../../store/useGoalsStore";
 import { X, Check, Zap, Plane, Wallet } from "lucide-react";
 import { useState } from "react";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { getCombinedCategories } from "../../../utils/categoryConfig";
 import confetti from "canvas-confetti";
 import { BottomSheet } from "../BottomSheet";
 import { useTranslation } from "../../../utils/translations";
@@ -23,7 +24,7 @@ const GOAL_CATEGORIES = ["Deposit", "Salary Bonus", "Transfer", "Gift"];
 type EntryMode = "general" | "trip" | "goal";
 
 export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
-  const { addTransaction, theme, colorMode, currency } = useBudgetStore();
+  const { addTransaction, theme, colorMode, currency, customCategories, addCustomCategory } = useBudgetStore();
   const { t, translateDynamic } = useTranslation();
   const { trips, updateTripSpent } = useTripsStore();
   const { goals, contributeToGoal } = useGoalsStore();
@@ -37,6 +38,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const [entryMode, setEntryMode] = useState<EntryMode>("general");
   const [amount, setAmount] = useState<number | "">("");
   const [category, setCategory] = useState<string>("Food");
+  const [customName, setCustomName] = useState<string>("");
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
 
@@ -91,16 +93,23 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
     } else if (entryMode === "general") {
+      let finalCategory = category;
+      if (category === "Other" && customName.trim()) {
+        finalCategory = customName.trim();
+        addCustomCategory(finalCategory);
+      }
+      
       addTransaction({
-        title: category,
+        title: finalCategory,
         amount: Number(amount),
-        category: category,
+        category: finalCategory,
         type: "expense",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
     }
 
     setAmount("");
+    setCustomName("");
     setSelectedTripId(null);
     setSelectedGoalId(null);
     onClose();
@@ -109,7 +118,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const getActiveCategories = () => {
     if (entryMode === "trip") return TRIP_CATEGORIES;
     if (entryMode === "goal") return GOAL_CATEGORIES;
-    return GENERAL_CATEGORIES;
+    return getCombinedCategories(customCategories);
   };
 
   const isSubmitDisabled =
@@ -293,6 +302,47 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                   </button>
                 ))}
               </div>
+              
+              {/* Custom Category Input for 'Other' */}
+              {entryMode === "general" && category === "Other" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="px-1 mt-2"
+                >
+                  <div className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${subtextColor}`}>
+                    {t.newCustomCategory || 'New Custom Category'}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                      placeholder={t.customCategoryPlaceholder || 'e.g. Gym, Pets, Subscriptions...'}
+                      className={`flex-1 rounded-xl px-4 py-3 text-sm outline-none border transition-colors ${
+                        isLight 
+                          ? "bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-emerald-500" 
+                          : "bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500/50"
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      disabled={!customName.trim()}
+                      onClick={() => {
+                        const trimmed = customName.trim();
+                        if (!trimmed) return;
+                        addCustomCategory(trimmed);
+                        setCategory(trimmed);
+                        setCustomName("");
+                      }}
+                      className="px-4 py-3 bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                    >
+                      {t.addAndSelect || 'Add & Select'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </AnimatePresence>

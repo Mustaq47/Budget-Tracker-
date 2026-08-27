@@ -20,19 +20,14 @@ interface AppVersionModalProps {
   onClose: () => void;
 }
 
-const UPDATE_CHECK_URL = "https://cozify-finance.vercel.app/";
+const UPDATE_CHECK_URL = "https://raw.githubusercontent.com/Mustaq47/Budget-Tracker-/main/package.json";
+const DOWNLOAD_URL = "https://cozify-finance.vercel.app/";
 
 async function fetchLatestVersion(): Promise<string | null> {
   try {
-    const res = await fetch(UPDATE_CHECK_URL, { mode: "cors" });
-    const html = await res.text();
-    // Try to extract version from meta tag or page content
-    const metaMatch = html.match(/data-version="([^"]+)"/);
-    if (metaMatch) return metaMatch[1];
-    // Fallback: look for version pattern like v1.0.4 or 1.0.4
-    const versionMatch = html.match(/v?(\d+\.\d+\.\d+)/);
-    if (versionMatch) return versionMatch[1];
-    return null;
+    const res = await fetch(UPDATE_CHECK_URL, { cache: "no-store" });
+    const data = await res.json();
+    return data.version || null;
   } catch {
     return null;
   }
@@ -91,7 +86,7 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
   }, [isOpen]);
 
   const handleDownloadUpdate = () => {
-    window.open(UPDATE_CHECK_URL, "_blank");
+    window.open(DOWNLOAD_URL, "_blank");
   };
 
   if (!isOpen) return null;
@@ -125,7 +120,8 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 380 }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-[32px] p-6 pb-10 ${isLight ? "bg-white" : "bg-[#151520]"}`}
+            className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-[32px] p-6 pb-10 ${activeTheme.bgClass}`}
+            style={{ borderTop: `2px solid ${activeTheme.primaryColor}40` }}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -158,7 +154,7 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
             </div>
 
             {/* Version Badge */}
-            <GlassCard className="mb-4" glow glowColor="blue">
+            <GlassCard className="mb-4" glow>
               <div className="flex items-center gap-4">
                 <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center"
@@ -343,6 +339,43 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
                     </motion.div>
                   )}
 
+                  {/* Result: Error */}
+                  {hasChecked && checkError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-3"
+                    >
+                      <div
+                        className={`flex items-center gap-3 p-3 rounded-2xl border ${isLight ? "bg-slate-100 border-slate-200" : "bg-white/5 border-white/10"}`}
+                      >
+                        <Info
+                          size={20}
+                          className={isLight ? "text-slate-500" : "text-white/50"}
+                        />
+                        <div>
+                          <div className={`text-sm font-bold ${textColor}`}>
+                            Could not check for updates
+                          </div>
+                          <div className={`text-xs ${subtextColor}`}>
+                            Visit the website to manually check.
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleDownloadUpdate}
+                        className="w-full py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border transition-all cursor-pointer hover:scale-[1.01]"
+                        style={{
+                          background: `linear-gradient(to right, ${activeTheme.primaryColor}, ${activeTheme.secondaryColor})`,
+                          color: "white",
+                          borderColor: "transparent",
+                        }}
+                      >
+                        <ExternalLink size={16} />
+                        Visit cozify-finance.vercel.app
+                      </button>
+                    </motion.div>
+                  )}
 
                 </div>
               </GlassCard>
