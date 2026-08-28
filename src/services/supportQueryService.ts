@@ -101,14 +101,15 @@ export async function submitSupportTicket(payload: {
     // ignore
   }
 
-  // 2. Save cloud
+  // 2. Fire and Forget to Firestore
   try {
-    await setDoc(doc(db, "support_queries", ticketId), {
+    setDoc(doc(db, "support_queries", ticketId), {
       ...newTicket,
+      createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    });
-  } catch {
-    // ignore
+    }).catch(e => console.warn("[SupportQueryService] Cloud submit delayed/offline:", e));
+  } catch (e) {
+    console.error("[SupportQueryService] Sync setup failed:", e);
   }
 
   return newTicket;
@@ -148,15 +149,15 @@ export async function replyToSupportTicket(
     // ignore
   }
 
-  // 2. Save cloud
+  // 2. Fire and forget to Firestore
   try {
-    await updateDoc(doc(db, "support_queries", ticketId), {
+    updateDoc(doc(db, "support_queries", ticketId), {
+      reply: updatedTicket.reply,
       status: "RESOLVED",
       updatedAt: serverTimestamp(),
-      reply: updatedTicket.reply,
-    });
-  } catch {
-    // ignore
+    }).catch(e => console.warn("[SupportQueryService] Cloud reply delayed/offline:", e));
+  } catch (e) {
+    console.error("[SupportQueryService] Firestore sync offline:", e);
   }
 
   return updatedTicket;

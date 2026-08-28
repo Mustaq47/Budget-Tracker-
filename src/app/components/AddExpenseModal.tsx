@@ -4,6 +4,7 @@ import { GlassIcon } from "./GlassIcon";
 import { useState } from "react";
 import { useBudgetStore, currencySymbols } from "../../store/useBudgetStore";
 import { getCombinedCategories, getCategoryMeta } from "../../utils/categoryConfig";
+import { useTranslation } from "../../utils/translations";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [customName, setCustomName] = useState("");
   const { addTransaction, currency, customCategories, addCustomCategory } = useBudgetStore();
+  const { t, translateDynamic } = useTranslation();
   const combinedCategories = getCombinedCategories(customCategories);
   const isOtherSelected = combinedCategories[selectedCategory] === "Other";
 
@@ -31,8 +33,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+    const defaultLabel = t.expenseTitle || 'Expense';
     addTransaction({
-      title: `${catLabel} Expense`,
+      title: catLabel === defaultLabel ? catLabel : `${catLabel} ${defaultLabel}`,
       amount: num,
       category: catLabel,
       time: timeStr,
@@ -72,7 +75,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               border-t border-white/20
               rounded-t-[48px]
               p-8
-              shadow-[0_-8px_40px_rgba(123,97,255,0.4),0_-4px_20px_rgba(0,0,0,0.6)]
+              shadow-default
             "
             >
               <button
@@ -83,7 +86,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </button>
 
               <div className="mb-8">
-                <div className="text-white/60 mb-2 tracking-tight">Add Expense</div>
+                <div className="text-white/60 mb-2 tracking-tight">{t.addExpense || 'Add Expense'}</div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-white/40 text-4xl">{currencySymbols[currency]}</span>
                   <input
@@ -114,7 +117,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </div>
 
               <div className="mb-8">
-                <div className="text-white/60 mb-4 tracking-tight">Category</div>
+                <div className="text-white/60 mb-4 tracking-tight">{t.category || 'Category'}</div>
                 <div className="grid grid-cols-4 gap-4">
                   {combinedCategories.map((catLabel, index) => {
                     const meta = getCategoryMeta(catLabel);
@@ -137,7 +140,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                             selectedCategory === index ? "text-white font-semibold" : "text-white/50"
                           }`}
                         >
-                          {catLabel}
+                          {translateDynamic(catLabel)}
                         </span>
                       </button>
                     );
@@ -153,14 +156,14 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   className="mt-4 mb-6 overflow-hidden"
                 >
                   <div className="text-white/60 text-xs mb-2 tracking-tight font-medium">
-                    New Custom Category
+                    {t.newCustomCategory || 'New Custom Category'}
                   </div>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={customName}
                       onChange={(e) => setCustomName(e.target.value)}
-                      placeholder="e.g. Gym, Pets, Subscriptions..."
+                      placeholder={t.customCategoryPlaceholder || 'e.g. Gym, Pets, Subscriptions...'}
                       className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm outline-none placeholder:text-white/30 focus:border-white/40"
                     />
                     <button
@@ -175,9 +178,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                         const index = updated.indexOf(trimmed);
                         if (index !== -1) setSelectedCategory(index);
                       }}
-                      className="px-4 py-3 bg-[#22C55E] disabled:bg-white/10 disabled:text-white/30 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                      className="px-4 py-3 bg-success disabled:bg-white/10 disabled:text-white/30 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
                     >
-                      Add & Select
+                      {t.addAndSelect || 'Add & Select'}
                     </button>
                   </div>
                 </motion.div>
@@ -194,12 +197,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   tracking-tight cursor-pointer
                   ${
                     amount
-                      ? "bg-gradient-to-r from-[#7B61FF] to-[#FF4D8D] text-white shadow-[0_0_30px_rgba(123,97,255,0.6)]"
+                      ? "bg-primary text-white shadow-default"
                       : "bg-white/5 text-white/30 border border-white/10"
                   }
                 `}
               >
-                Add Expense
+                {t.addExpense || 'Add Expense'}
               </motion.button>
             </div>
           </motion.div>

@@ -27,6 +27,8 @@ import {
   Users,
   FileText,
   MessageSquareHeart,
+  Smartphone,
+  Info,
 } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
@@ -55,6 +57,7 @@ import { FeedbackModal } from "../modals/FeedbackModal";
 import { HelpCenterModal } from "../modals/HelpCenterModal";
 import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
 import { TermsConditionsModal } from "../modals/TermsConditionsModal";
+import { AppVersionModal } from "../modals/AppVersionModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
@@ -87,6 +90,9 @@ export function Profile() {
     currency,
     language,
     savedAccounts,
+    appVersion,
+    autoCheckUpdates,
+    setAutoCheckUpdates,
   } = useBudgetStore();
   const { trips, tripsCount, setTrips } = useTripsStore();
   const { goals, setGoals } = useGoalsStore();
@@ -239,17 +245,31 @@ export function Profile() {
           action: () => setIsDesignModalOpen(true),
         },
         {
-          icon: Plane,
-          label: "Trips",
-          glow: "gold" as const,
-          action: () => setActiveModal("trips"),
-        },
-        {
           icon: Globe,
           label: t.languageRegion,
           glow: "purple" as const,
           action: () => setActiveModal("language-region"),
         },
+      ],
+    },
+    {
+      title: "App & Version",
+      items: [
+        {
+          icon: Smartphone,
+          label: "coZify Version",
+          badge: `v${appVersion}`,
+          glow: "blue" as const,
+          action: () => setActiveModal("app-version" as any),
+        },
+        {
+          icon: RefreshCw,
+          label: "Auto-Check for Updates",
+          isToggle: true,
+          toggleState: autoCheckUpdates,
+          glow: "purple" as const,
+          action: () => setAutoCheckUpdates(!autoCheckUpdates),
+        }
       ],
     },
     {
@@ -300,7 +320,7 @@ export function Profile() {
     },
   ];
   return (
-    <div className="min-h-screen px-6 pt-12">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       {" "}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -315,8 +335,6 @@ export function Profile() {
       </motion.div>{" "}
       <GlassCard
         className="mb-6 cursor-pointer select-none active:scale-[0.99] transition-all"
-        glow
-        glowColor="purple"
         onClick={() => setIsUserProfileOpen(true)}
         {...accountLongPressHandlers}
       >
@@ -370,7 +388,7 @@ export function Profile() {
                   e.stopPropagation();
                   navigate("/login");
                 }}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer"
               >
                 {" "}
                 {t.signInBtn}{" "}
@@ -454,12 +472,19 @@ export function Profile() {
         >
           {" "}
           <span>Data Storage & Cloud Backup</span>{" "}
-          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 font-bold border border-emerald-500/30 flex items-center gap-1">
+          <span 
+            className="text-[10px] px-2.5 py-0.5 rounded-full font-bold border flex items-center gap-1"
+            style={{ 
+              color: activeTheme.primaryColor, 
+              backgroundColor: `${activeTheme.primaryColor}33`,
+              borderColor: `${activeTheme.primaryColor}4D`
+            }}
+          >
             {" "}
             <HardDrive size={10} /> Local-First Storage{" "}
           </span>{" "}
         </div>{" "}
-        <GlassCard glow glowColor="blue">
+        <GlassCard>
           {" "}
           <div className="space-y-4">
             {" "}
@@ -470,9 +495,9 @@ export function Profile() {
               {" "}
               <div className="flex items-center gap-3">
                 {" "}
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#16A34A]/20 to-[#3B82F6]/20 border border-emerald-500/20 flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${activeTheme.accentGradient} opacity-80 flex items-center justify-center`}>
                   {" "}
-                  <ShieldCheck size={20} className="text-emerald-500" />{" "}
+                  <ShieldCheck size={20} className="text-white drop-shadow-md" />{" "}
                 </div>{" "}
                 <div>
                   {" "}
@@ -528,7 +553,8 @@ export function Profile() {
                     }
                   }
                 }}
-                className={`w-12 h-6 rounded-full transition-colors relative p-1 cursor-pointer ${isCloudBackupEnabled ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/15"}`}
+                className={`w-12 h-6 rounded-full transition-colors relative p-1 cursor-pointer ${!isCloudBackupEnabled ? (isLight ? "bg-slate-300" : "bg-white/15") : ""}`}
+                style={isCloudBackupEnabled ? { backgroundColor: activeTheme.primaryColor } : {}}
               >
                 {" "}
                 <div
@@ -542,7 +568,8 @@ export function Profile() {
               <button
                 onClick={handleBackupNow}
                 disabled={isSyncing || !isAuthenticated}
-                className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${isAuthenticated ? "bg-gradient-to-r from-[#16A34A] to-[#3B82F6] text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]" : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"}`}
+                className={`py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${isAuthenticated ? "text-white border-white/20 shadow-md cursor-pointer hover:scale-[1.02]" : "bg-slate-200/50 text-slate-400 border-slate-300 cursor-not-allowed"}`}
+                style={isAuthenticated ? { background: `linear-gradient(to bottom right, ${activeTheme.primaryColor}, ${activeTheme.secondaryColor})` } : {}}
               >
                 {" "}
                 {isSyncing ? (
@@ -568,7 +595,7 @@ export function Profile() {
             </div>{" "}
             {/* Sync Feedback Message */}{" "}
             {syncStatus && (
-              <div className="text-center text-xs font-semibold text-[#00E5FF] pt-1">
+              <div className="text-center text-xs font-semibold text-primary pt-1">
                 {" "}
                 {syncStatus}{" "}
               </div>
@@ -633,16 +660,34 @@ export function Profile() {
                       {item.label}
                     </span>{" "}
                     {"badge" in item && item.badge && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-purple-500/15 border border-purple-500/25 text-purple-400">
+                      <span 
+                        className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border"
+                        style={{ 
+                          color: activeTheme.primaryColor, 
+                          backgroundColor: `${activeTheme.primaryColor}26`, 
+                          borderColor: `${activeTheme.primaryColor}40` 
+                        }}
+                      >
                         {" "}
                         {item.badge}{" "}
                       </span>
                     )}{" "}
                   </div>{" "}
-                  <ChevronRight
-                    size={18}
-                    className={isLight ? "text-slate-400" : "text-white/40"}
-                  />{" "}
+                  {"isToggle" in item ? (
+                    <div
+                      className={`w-10 h-5 rounded-full transition-colors relative p-0.5 cursor-pointer ${!item.toggleState ? (isLight ? "bg-slate-300" : "bg-white/15") : ""}`}
+                      style={item.toggleState ? { backgroundColor: activeTheme.primaryColor } : {}}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full bg-white transition-transform ${item.toggleState ? "translate-x-5" : "translate-x-0"}`}
+                      />
+                    </div>
+                  ) : (
+                    <ChevronRight
+                      size={18}
+                      className={isLight ? "text-slate-400" : "text-white/40"}
+                    />
+                  )}
                 </motion.button>
               ))}{" "}
             </motion.div>{" "}
@@ -659,14 +704,14 @@ export function Profile() {
           <img
             src={cozifyLogo}
             alt="coZify Brand Logo"
-            className={`h-16 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"}`}
+            className={`h-16 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-default"}`}
           />{" "}
         </div>{" "}
         <div className="flex items-center gap-2">
           {" "}
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[11px] uppercase tracking-wider shadow-sm">
             {" "}
-            v1.0.0{" "}
+            v{appVersion}{" "}
           </span>{" "}
           <span
             className={`${subtextColor} text-xs font-semibold tracking-tight`}
@@ -720,6 +765,10 @@ export function Profile() {
       />{" "}
       <TermsConditionsModal
         isOpen={activeModal === "terms-conditions"}
+        onClose={() => setActiveModal(null)}
+      />{" "}
+      <AppVersionModal
+        isOpen={activeModal === "app-version"}
         onClose={() => setActiveModal(null)}
       />{" "}
     </div>

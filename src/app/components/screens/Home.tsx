@@ -47,7 +47,7 @@ export function Home() {
     setLastBudgetSetMonth,
     hasCompletedOnboarding,
   } = useBudgetStore();
-  const { t } = useTranslation();
+  const { t, translateDynamic } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
@@ -64,13 +64,13 @@ export function Home() {
   }, [hasCompletedOnboarding, lastBudgetSetMonth, setLastBudgetSetMonth]);
 
   const {
-    dailyAllowance,
-    monthlyLimit,
-    spentToday,
-    remainingToday,
+    allowance,
+    spent,
+    remaining,
     percentage,
     status,
     feedback,
+    label,
   } = useDailyBudget();
   const isOverBudget = status === "danger";
   const circumference = 2 * Math.PI * 140;
@@ -78,32 +78,32 @@ export function Home() {
   const quickActions = [
     {
       icon: Wallet,
-      label: "Wallet",
+      label: t.wallet || "Wallet",
       glow: "purple" as const,
       action: () => setActiveModal("wallet"),
     },
     {
       icon: Plane,
-      label: "Trips",
+      label: t.trips || "Trips",
       glow: "gold" as const,
       action: () => setActiveModal("trips"),
     },
     {
       icon: DollarSign,
-      label: "Budget",
+      label: t.budget || "Budget",
       glow: "pink" as const,
       action: () => setActiveModal("budget"),
     },
     {
       icon: Zap,
-      label: "Goals",
+      label: t.goals || "Goals",
       glow: "blue" as const,
       action: () => setActiveModal("goals"),
     },
   ];
   const recentTransactions = transactions.slice(0, 5);
   return (
-    <div className="min-h-screen px-6 pt-12">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       {" "}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -149,7 +149,7 @@ export function Home() {
           <img
             src={cozifyLogo}
             alt="coZify"
-            className={`h-12 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]"}`}
+            className={`h-12 w-auto object-contain transition-all duration-300 ${isLight ? "drop-shadow-sm" : "invert hue-rotate-180 brightness-110 drop-shadow-default"}`}
           />{" "}
         </div>{" "}
       </motion.div>{" "}
@@ -229,21 +229,21 @@ export function Home() {
             <div
               className={`${subtextColor} mb-2 tracking-tight font-semibold`}
             >
-              Safe to Spend Today
+              {label}
             </div>
             <motion.div
               className={`${isOverBudget ? "text-red-500" : textColor} text-5xl tracking-tighter mb-2 font-black`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              {formatCompactCurrency(remainingToday, currencySymbols[currency])}
+              {formatCompactCurrency(remaining, currencySymbols[currency])}
             </motion.div>
             <div
               className={`${subtextColor} tracking-tight text-sm font-medium`}
             >
-              Spent:{" "}
-              {formatCompactCurrency(spentToday, currencySymbols[currency])} /{" "}
-              {formatCompactCurrency(dailyAllowance, currencySymbols[currency])}
+              {t.spent || "Spent"}:{" "}
+              {formatCompactCurrency(spent, currencySymbols[currency])} /{" "}
+              {formatCompactCurrency(allowance, currencySymbols[currency])}
             </div>
             <motion.div
               className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
@@ -256,7 +256,7 @@ export function Home() {
               animate={status === "danger" ? { scale: [1, 1.05, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              {status === "danger" ? "⚠️ Budget Exceeded" : feedback}
+              {status === "danger" ? (t.budgetExceeded || "⚠️ Budget Exceeded") : feedback}
             </motion.div>
           </motion.div>{" "}
           <motion.div
@@ -276,7 +276,7 @@ export function Home() {
       <GlassCard className="mb-6">
         {" "}
         <div className={`${subtextColor} ${sectionTitleClass}`}>
-          Quick Actions
+          {t.quickActions || "Quick Actions"}
         </div>{" "}
         <div className="grid grid-cols-4 gap-4">
           {" "}
@@ -305,19 +305,17 @@ export function Home() {
           ))}{" "}
         </div>{" "}
       </GlassCard>{" "}
-      <GlassCard glow glowColor="purple">
+      <GlassCard>
         {" "}
         <div className={`${subtextColor} ${sectionTitleClass}`}>
-          Recent Activity
+          {t.recentActivity || "Recent Activity"}
         </div>{" "}
         {recentTransactions.length === 0 ? (
           <div
             className={`py-8 text-center ${subtextColor} text-sm tracking-tight`}
           >
             {" "}
-            No recent activity yet. Tap{" "}
-            <span className="text-[#16A34A] font-bold">+</span> to add your
-            first transaction.{" "}
+            {t.noRecentActivity || "No recent activity yet. Tap + to add your first transaction."}{" "}
           </div>
         ) : (
           <motion.div 
@@ -354,7 +352,7 @@ export function Home() {
                     <div
                       className={`${textColor} tracking-tight font-bold text-sm`}
                     >
-                      {transaction.title}
+                      {translateDynamic(transaction.title)}
                     </div>{" "}
                     <div className={`${subtextColor} text-xs tracking-tight`}>
                       {transaction.time || "Today"}

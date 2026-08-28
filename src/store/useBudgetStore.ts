@@ -69,6 +69,7 @@ export type QuickActionModal =
   | 'terms-conditions'
   | 'feedback'
   | 'report'
+  | 'app-version'
   | null;
 export type AppTheme =
   | 'material-design'
@@ -112,8 +113,14 @@ interface BudgetState {
   bestStreak: number;
   hasCompletedOnboarding: boolean;
   lastBudgetSetMonth: string | null;
+  budgetViewMode: 'daily' | 'monthly';
+  appVersion: string;
+  autoCheckUpdates: boolean;
 
   // Actions
+  setAppVersion: (version: string) => void;
+  setAutoCheckUpdates: (val: boolean) => void;
+  setBudgetViewMode: (mode: 'daily' | 'monthly') => void;
   setHasAcceptedTerms: (accepted: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
   setLastBudgetSetMonth: (month: string) => void;
@@ -177,7 +184,13 @@ export const useBudgetStore = create<BudgetState>()(
       bestStreak: 0,
       hasCompletedOnboarding: false,
       lastBudgetSetMonth: null,
+      budgetViewMode: 'daily',
+      appVersion: '1.0.4',
+      autoCheckUpdates: true,
 
+      setAppVersion: (appVersion) => set({ appVersion }),
+      setAutoCheckUpdates: (autoCheckUpdates) => set({ autoCheckUpdates }),
+      setBudgetViewMode: (budgetViewMode) => set({ budgetViewMode }),
       setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
       setLastBudgetSetMonth: (lastBudgetSetMonth) => set({ lastBudgetSetMonth }),
@@ -213,10 +226,13 @@ export const useBudgetStore = create<BudgetState>()(
           });
 
           // 2. Format cloud transactions and restore title if missing
-          const cloudTx = (Array.isArray(payload.transactions) ? payload.transactions : []).map((t) => ({
-            ...t,
-            title: t.title || `${t.category} ${t.type === "income" ? "Income" : "Expense"}`,
-          }));
+          const cloudTx = (Array.isArray(payload.transactions) ? payload.transactions : []).map((t) => {
+            const defaultLabel = t.type === "income" ? "Income" : "Expense";
+            return {
+              ...t,
+              title: t.title || (t.category === defaultLabel ? t.category : `${t.category} ${defaultLabel}`),
+            };
+          });
 
           // 3. Merge and deduplicate
           const seenIds = new Set(cloudTx.map((t) => t.id));
@@ -229,10 +245,10 @@ export const useBudgetStore = create<BudgetState>()(
             dailyBudget: payload.dailyBudget ?? 2000,
             transactions: merged,
             customCategories: Array.isArray(payload.customCategories) ? payload.customCategories : [],
-            ...(prefs.theme ? { theme: prefs.theme } : {}),
-            ...(prefs.colorMode ? { colorMode: prefs.colorMode } : {}),
             ...(prefs.currency ? { currency: prefs.currency } : {}),
             ...(prefs.language ? { language: prefs.language } : {}),
+            ...(prefs.budgetViewMode ? { budgetViewMode: prefs.budgetViewMode } : {}),
+            ...(prefs.appVersion ? { appVersion: prefs.appVersion } : {}),
           };
         }),
 
@@ -326,6 +342,8 @@ export const useBudgetStore = create<BudgetState>()(
         if (typeof window !== 'undefined' && window.localStorage) {
           try {
             window.localStorage.removeItem('budtrack-storage-v2');
+            window.localStorage.removeItem('cozify_iam_role_assignments');
+            window.localStorage.removeItem('cozify_support_tickets_cache');
           } catch (_) { }
         }
       },
@@ -463,6 +481,8 @@ export const useBudgetStore = create<BudgetState>()(
         language: state.language,
         lastBudgetSetMonth: state.lastBudgetSetMonth,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        budgetViewMode: state.budgetViewMode,
+        appVersion: state.appVersion,
       }),
       migrate: (persistedState: any) => {
         if (persistedState && persistedState.theme) {

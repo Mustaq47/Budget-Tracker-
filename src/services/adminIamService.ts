@@ -178,13 +178,13 @@ export async function assignAdminRole(
 
   // 2. Save to Firestore
   try {
-    await setDoc(doc(db, "iam_roles", assignmentId), {
+    setDoc(doc(db, "iam_roles", assignmentId), {
       email: cleanEmail,
       role,
       grantedBy: grantedByEmail,
       grantedAt: newAssignment.grantedAt,
       updatedAt: serverTimestamp(),
-    });
+    }).catch(e => console.warn("[IAM] Firestore sync delayed/offline:", e));
   } catch (e) {
     console.warn("[IAM] Firestore sync offline/unreachable:", e);
   }
@@ -218,8 +218,8 @@ export async function revokeAdminRole(email: string): Promise<boolean> {
 
   // 2. Remove from Firestore
   try {
-    await deleteDoc(doc(db, "iam_roles", assignmentId));
-    await deleteDoc(doc(db, "iam_roles", legacyAssignmentId));
+    deleteDoc(doc(db, "iam_roles", assignmentId)).catch(e => console.warn("[IAM] Delete offline:", e));
+    deleteDoc(doc(db, "iam_roles", legacyAssignmentId)).catch(e => console.warn("[IAM] Legacy delete offline:", e));
   } catch (e) {
     console.warn("[IAM] Firestore delete offline:", e);
   }

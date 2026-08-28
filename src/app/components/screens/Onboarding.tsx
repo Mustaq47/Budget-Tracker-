@@ -17,7 +17,7 @@ export function Onboarding() {
   
   const [step, setStep] = useState(1);
   const [budget, setBudget] = useState(2000);
-  const [goalName, setGoalName] = useState("Emergency Fund");
+  const [goalName, setGoalName] = useState(t.emergencyFund || "Emergency Fund");
   const [goalAmount, setGoalAmount] = useState<number | string>(10000);
   
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -74,8 +74,8 @@ export function Onboarding() {
                   <Coins className="text-emerald-500 w-8 h-8" />
                 </div>
               </div>
-              <h2 className={`${textColor} text-3xl font-black text-center mb-4 tracking-tighter`}>Set Your Budget</h2>
-              <p className={`${subtextColor} text-center mb-8`}>How much do you want to safely spend per month?</p>
+              <h2 className={`${textColor} text-3xl font-black text-center mb-4 tracking-tighter`}>{t.setYourBudget || "Set Your Budget"}</h2>
+              <p className={`${subtextColor} text-center mb-8`}>{t.budgetQuestion || "How much do you want to safely spend per month?"}</p>
               
               <GlassCard className="p-6">
                 <div className="text-center mb-4">
@@ -103,12 +103,12 @@ export function Onboarding() {
                   <Target className="text-amber-500 w-8 h-8" />
                 </div>
               </div>
-              <h2 className={`${textColor} text-3xl font-black text-center mb-4 tracking-tighter`}>First Savings Goal</h2>
-              <p className={`${subtextColor} text-center mb-8`}>What are you saving up for?</p>
+              <h2 className={`${textColor} text-3xl font-black text-center mb-4 tracking-tighter`}>{t.firstSavingsGoal || "First Savings Goal"}</h2>
+              <p className={`${subtextColor} text-center mb-8`}>{t.savingQuestion || "What are you saving up for?"}</p>
               
               <GlassCard className="p-6 space-y-6">
                 <div>
-                  <label className={`${subtextColor} text-sm font-medium mb-2 block`}>Goal Name</label>
+                  <label className={`${subtextColor} text-sm font-medium mb-2 block`}>{t.goalName || "Goal Name"}</label>
                   <input 
                     type="text" 
                     value={goalName}
@@ -117,7 +117,7 @@ export function Onboarding() {
                   />
                 </div>
                 <div>
-                  <label className={`${subtextColor} text-sm font-medium mb-2 block`}>Target Amount ({currencySymbols[currency]})</label>
+                  <label className={`${subtextColor} text-sm font-medium mb-2 block`}>{t.targetAmount || "Target Amount"} ({currencySymbols[currency]})</label>
                   <input 
                     type="number" 
                     value={goalAmount}
@@ -136,17 +136,17 @@ export function Onboarding() {
                   <CheckCircle2 className="text-blue-500 w-10 h-10" />
                 </div>
               </div>
-              <h2 className={`${textColor} text-3xl font-black text-center mb-4 tracking-tighter`}>You're All Set!</h2>
-              <p className={`${subtextColor} text-center mb-8`}>coZify is ready to help you track, manage, and grow your wealth.</p>
+              <h2 className={`${textColor} text-3xl font-black text-center mb-4 tracking-tighter`}>{t.allSet || "You're All Set!"}</h2>
+              <p className={`${subtextColor} text-center mb-8`}>{t.onboardingReadyMsg || "coZify is ready to help you track, manage, and grow your wealth."}</p>
               
               <GlassCard className="p-6">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-800">
-                    <span className={subtextColor}>Monthly Budget</span>
+                    <span className={subtextColor}>{t.monthlyBudget || "Monthly Budget"}</span>
                     <span className={`${textColor} font-bold`}>{currencySymbols[currency]}{budget.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className={subtextColor}>Primary Goal</span>
+                    <span className={subtextColor}>{t.primaryGoal || "Primary Goal"}</span>
                     <span className={`${textColor} font-bold`}>{goalName}</span>
                   </div>
                 </div>
@@ -165,11 +165,11 @@ export function Onboarding() {
         
         {step < 3 ? (
           <button onClick={handleNext} className="px-8 py-4 bg-[#16A34A] text-white rounded-full font-bold shadow-lg shadow-green-500/30 flex items-center gap-2 transition-transform active:scale-95">
-            Continue <ChevronRight size={20} />
+            {t.continue || "Continue"} <ChevronRight size={20} />
           </button>
         ) : (
           <button onClick={handleComplete} className="px-8 py-4 bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-transform active:scale-95">
-            Start Tracking <CheckCircle2 size={20} />
+            {t.startTracking || "Start Tracking"} <CheckCircle2 size={20} />
           </button>
         )}
       </div>

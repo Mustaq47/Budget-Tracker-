@@ -112,17 +112,17 @@ export async function syncUserProfileToFirestore(user: {
       payload.avgIncomePerTransaction = 0;
     }
 
-    await setDoc(userRef, payload, { merge: true });
+    setDoc(userRef, payload, { merge: true }).catch(e => console.warn("[AdminMonitoring] Offline user profile sync:", e));
 
     // Also write to special_emails collection
     if (payload.email) {
       const specialEmailRef = doc(db, "special_emails", payload.email);
-      await setDoc(specialEmailRef, {
+      setDoc(specialEmailRef, {
         email: payload.email,
         uid: payload.uid,
         lastLoginAt: nowIso,
         updatedAt: serverTimestamp(),
-      }, { merge: true });
+      }, { merge: true }).catch(e => console.warn("[AdminMonitoring] Offline special email sync:", e));
     }
   } catch (err) {
     if (import.meta.env.DEV) {
@@ -159,7 +159,7 @@ export async function getMonitoredUsers(): Promise<UserStatusSummary[]> {
           uid: docSnap.id,
           lastLoginAt: data.lastLoginAt || new Date().toISOString(),
           updatedAt: serverTimestamp(),
-        }, { merge: true });
+        }, { merge: true }).catch(() => {});
       } catch (_) {}
 
       usersMap.set(email, {

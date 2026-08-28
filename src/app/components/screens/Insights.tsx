@@ -38,6 +38,7 @@ import { categoryColors, monthsOfYear, getCategoryMeta } from "../../../utils/ca
 import { parseLocalDate } from "../../../utils/formatters";
 import { InsightsWidget } from "./InsightsWidget";
 import { calculateDineroTotal } from "../../../utils/dineroUtils";
+import { useTranslation } from "../../../utils/translations";
 
 // Custom Glassmorphic Tooltip for Recharts
 interface CustomTooltipProps {
@@ -88,6 +89,8 @@ export function Insights() {
     setDailyBudget,
     setActiveModal,
   } = useBudgetStore();
+  
+  const { t, translate, translateDynamic } = useTranslation();
 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [tempBudgetInput, setTempBudgetInput] = useState("");
@@ -158,10 +161,10 @@ export function Insights() {
     let periodExpenses: Transaction[] = [];
 
     if (period === "week") {
-      periodTitle = "Weekly Spending Breakdown";
-      periodSubtitle = "Daily spending across the week";
-      statLabel1 = "Total Spent This Week";
-      statLabel2 = "Daily Average";
+      periodTitle = t.weeklySpendingBreakdown || "Weekly Spending Breakdown";
+      periodSubtitle = t.weeklySpendingSubtitle || "Daily spending across the week";
+      statLabel1 = t.totalSpentThisWeek || "Total Spent This Week";
+      statLabel2 = t.dailyAverage || "Daily Average";
 
       const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       const weeklyMap: Record<string, number> = {
@@ -211,14 +214,14 @@ export function Insights() {
     } else if (period === "month") {
       // Monthly Insights - 4 Weeks breakdown
       const now = new Date();
-      const monthName = now.toLocaleString("default", { month: "long" });
-      const currentYear = now.getFullYear();
       const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const monthName = t[monthsOfYear[currentMonth]] || monthsOfYear[currentMonth];
 
-      periodTitle = `${monthName} Spending by Week`;
-      periodSubtitle = `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
-      statLabel1 = `Total Spent in ${monthName}`;
-      statLabel2 = "Weekly Average";
+      periodTitle = translate("monthlySpendingBreakdown", { month: monthName }) || `${monthName} Spending by Week`;
+      periodSubtitle = translate("monthlySpendingSubtitle", { month: monthName, year: currentYear }) || `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
+      statLabel1 = translate("totalSpentInMonth", { month: monthName }) || `Total Spent in ${monthName}`;
+      statLabel2 = t.weeklyAverage || "Weekly Average";
 
       const weeklyBuckets = [
         { name: "Wk 1 (1-7)", amount: 0 },
@@ -259,10 +262,10 @@ export function Insights() {
       const now = new Date();
       const currentYear = now.getFullYear();
 
-      periodTitle = "Annual Spending by Month";
-      periodSubtitle = `12-Month spending trajectory for ${currentYear}`;
-      statLabel1 = "Total Spent This Year";
-      statLabel2 = "Monthly Average";
+      periodTitle = t.annualSpendingBreakdown || "Annual Spending by Month";
+      periodSubtitle = translate("annualSpendingSubtitle", { year: currentYear }) || `12-Month spending trajectory for ${currentYear}`;
+      statLabel1 = t.totalSpentThisYear || "Total Spent This Year";
+      statLabel2 = t.monthlyAverage || "Monthly Average";
 
       const annualMap: Record<string, number> = {};
       monthsOfYear.forEach((m) => (annualMap[m] = 0));
@@ -315,11 +318,14 @@ export function Insights() {
     });
 
     const categoryData = Object.entries(categoryMap)
-      .map(([name, value]) => ({
-        name,
-        value,
-        color: getCategoryMeta(name).color,
-      }))
+      .map(([name, value]) => {
+        const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+        return {
+          name: translateDynamic(capitalized),
+          value,
+          color: getCategoryMeta(name).color,
+        };
+      })
       .sort((a, b) => b.value - a.value);
 
     const topCategory = categoryData.length > 0 ? categoryData[0] : null;
@@ -496,7 +502,7 @@ export function Insights() {
   };
 
   return (
-    <div className="min-h-screen px-6 pt-12 pb-24">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -507,7 +513,7 @@ export function Insights() {
             <h1
               className={`${textColor} ${pageTitleClass}`}
             >
-              Insights
+              {t.insights}
             </h1>
             <div className={`${subtextColor} ${pageSubtitleClass}`}>
               {periodSubtitle}
@@ -530,14 +536,14 @@ export function Insights() {
               flex-1 py-2 rounded-xl tracking-tight font-bold text-xs transition-all duration-300 cursor-pointer
               ${
                 period === p
-                  ? "bg-gradient-to-r from-[#16A34A] via-[#2563EB] to-[#F59E0B] text-white shadow-md scale-[1.02]"
+                  ? "bg-primary text-white shadow-md scale-[1.02]"
                   : isLight
                   ? "text-slate-600 hover:bg-slate-200/60"
                   : "text-white/60 hover:bg-white/5"
               }
             `}
           >
-            {p.charAt(0).toUpperCase() + p.slice(1)}
+            {t[p] || (p.charAt(0).toUpperCase() + p.slice(1))}
           </button>
         ))}
       </div>
@@ -560,7 +566,7 @@ export function Insights() {
               }}
               title="Click or hold to edit monthly budget limit"
             >
-              <GlassCard className="mb-6 p-5" glow glowColor="blue">
+              <GlassCard className="mb-6 p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-emerald-400" />
@@ -647,7 +653,7 @@ export function Insights() {
           )}
 
           {/* Main Analytics Bar Chart Card */}
-          <GlassCard className="mb-6" glow glowColor="purple">
+          <GlassCard className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className={`${subtextColor} font-bold text-sm block`}>
@@ -793,7 +799,7 @@ export function Insights() {
           </GlassCard>
 
           {/* Category Pie Chart Card */}
-          <GlassCard className="mb-6" glow glowColor="blue">
+          <GlassCard className="mb-6">
             <div className="flex items-center justify-between mb-6">
               <span className={`${subtextColor} tracking-tight font-semibold`}>
                 Spending by Category
@@ -1194,12 +1200,12 @@ export function Insights() {
                                 }`}
                               >
                                 <div>
-                                  <div className="font-bold text-xs">
-                                    {tx.title}
-                                  </div>
-                                  <div className="text-[10px] opacity-60">
-                                    {tx.category || "Other"} • {tx.date || "N/A"}
-                                  </div>
+                                    <div className={`font-bold text-sm tracking-tight ${activeTheme.textColor}`}>
+                                      {translateDynamic(tx.title)}
+                                    </div>
+                                    <div className={`text-xs ${activeTheme.subtextColor}`}>
+                                      {translateDynamic(tx.category || "Other")} • {tx.date || "N/A"}
+                                    </div>
                                 </div>
                                 <div className="font-extrabold text-xs text-rose-400">
                                   -{currencySymbol}
@@ -1221,7 +1227,7 @@ export function Insights() {
                     setSelectedWeekReport(null);
                     setActiveModal(null);
                   }}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#16A34A] to-[#2563EB] text-white font-bold text-xs shadow-lg"
+                  className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-xs shadow-lg"
                 >
                   Close Report
                 </button>

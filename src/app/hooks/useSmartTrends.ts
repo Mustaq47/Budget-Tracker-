@@ -5,7 +5,7 @@ import { useTranslation } from "../../utils/translations";
 
 export function useSmartTrends() {
   const { transactions, currentStreak, bestStreak, currency } = useBudgetStore();
-  const { t } = useTranslation();
+  const { t, translate } = useTranslation();
 
   return useMemo(() => {
     const expenses = transactions.filter((t) => t.type === "expense");
@@ -39,8 +39,9 @@ export function useSmartTrends() {
     
     const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
     if (sortedCategories.length > 0) {
-      const biggestText = t.biggestExpense || "Your biggest expense category is {category}.";
-      insights.push(biggestText.replace("{category}", sortedCategories[0][0]));
+      const topCat = sortedCategories[0][0];
+      const translatedCat = t[topCat] || topCat;
+      insights.push(translate("biggestExpense", { category: translatedCat }) || `Your biggest expense category is ${translatedCat}.`);
     }
 
     return {

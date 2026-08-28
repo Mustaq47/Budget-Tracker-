@@ -5,8 +5,10 @@ import { useGoalsStore } from "../../../store/useGoalsStore";
 import { X, Check, Zap, Plane, Wallet } from "lucide-react";
 import { useState } from "react";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { getCombinedCategories } from "../../../utils/categoryConfig";
 import confetti from "canvas-confetti";
 import { BottomSheet } from "../BottomSheet";
+import { useTranslation } from "../../../utils/translations";
 
 
 interface QuickEntrySheetProps {
@@ -22,7 +24,8 @@ const GOAL_CATEGORIES = ["Deposit", "Salary Bonus", "Transfer", "Gift"];
 type EntryMode = "general" | "trip" | "goal";
 
 export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
-  const { addTransaction, theme, colorMode, currency } = useBudgetStore();
+  const { addTransaction, theme, colorMode, currency, customCategories, addCustomCategory } = useBudgetStore();
+  const { t, translateDynamic } = useTranslation();
   const { trips, updateTripSpent } = useTripsStore();
   const { goals, contributeToGoal } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
@@ -35,6 +38,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const [entryMode, setEntryMode] = useState<EntryMode>("general");
   const [amount, setAmount] = useState<number | "">("");
   const [category, setCategory] = useState<string>("Food");
+  const [customName, setCustomName] = useState<string>("");
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
 
@@ -89,16 +93,23 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
     } else if (entryMode === "general") {
+      let finalCategory = category;
+      if (category === "Other" && customName.trim()) {
+        finalCategory = customName.trim();
+        addCustomCategory(finalCategory);
+      }
+      
       addTransaction({
-        title: category,
+        title: finalCategory,
         amount: Number(amount),
-        category: category,
+        category: finalCategory,
         type: "expense",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
     }
 
     setAmount("");
+    setCustomName("");
     setSelectedTripId(null);
     setSelectedGoalId(null);
     onClose();
@@ -107,7 +118,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   const getActiveCategories = () => {
     if (entryMode === "trip") return TRIP_CATEGORIES;
     if (entryMode === "goal") return GOAL_CATEGORIES;
-    return GENERAL_CATEGORIES;
+    return getCombinedCategories(customCategories);
   };
 
   const isSubmitDisabled =
@@ -124,7 +135,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight} className="!p-0 !pt-0">
       <div className="pt-1 pb-4 px-6 flex justify-between items-center shrink-0">
-        <h3 className={`${textColor} text-2xl font-black tracking-tight`}>Add Entry</h3>
+        <h3 className={`${textColor} text-2xl font-black tracking-tight`}>{t.addEntry || "Add Entry"}</h3>
         <button
           onClick={onClose}
           className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors z-10 ${isLight ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700" : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"}`}
@@ -142,7 +153,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${entryMode === "general" ? `${activeSegmentBg} ${textColor}` : `${subtextColor} hover:${textColor}`
               }`}
           >
-            <Wallet size={16} /> General
+            <Wallet size={16} /> {t.general || "General"}
           </button>
           {(trips && trips.length > 0) && (
             <button
@@ -150,7 +161,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${entryMode === "trip" ? `${activeSegmentBg} text-amber-500` : `${subtextColor} hover:${textColor}`
                 }`}
             >
-              <Plane size={16} /> Trip
+              <Plane size={16} /> {t.trip || "Trip"}
             </button>
           )}
           {(goals && goals.length > 0) && (
@@ -159,7 +170,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${entryMode === "goal" ? `${activeSegmentBg} text-blue-500` : `${subtextColor} hover:${textColor}`
                 }`}
             >
-              <Zap size={16} /> Goal
+              <Zap size={16} /> {t.goal || "Goal"}
             </button>
           )}
         </div>
@@ -212,7 +223,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             {entryMode === "trip" && trips && (
               <div className="space-y-3">
                 <div className={`text-[11px] font-bold uppercase tracking-wider px-1 ${subtextColor}`}>
-                  Select Destination
+                  {t.selectDestination || "Select Destination"}
                 </div>
                 <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 px-1">
                   {trips.map(trip => (
@@ -242,7 +253,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             {entryMode === "goal" && goals && (
               <div className="space-y-3">
                 <div className={`text-[11px] font-bold uppercase tracking-wider px-1 ${subtextColor}`}>
-                  Target Goal
+                  {t.targetGoal || "Target Goal"}
                 </div>
                 <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 px-1">
                   {goals.map(goal => (
@@ -273,7 +284,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
             {/* Dynamic Categories */}
             <div className="space-y-3">
               <div className={`text-[11px] font-bold uppercase tracking-wider px-1 ${subtextColor}`}>
-                {entryMode === "general" ? "Expense Category" : entryMode === "trip" ? "Trip Category" : "Contribution Type"}
+                {entryMode === "general" ? (t.expenseCategory || "Expense Category") : entryMode === "trip" ? (t.tripCategory || "Trip Category") : (t.contributionType || "Contribution Type")}
               </div>
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-4 px-1">
                 {getActiveCategories().map((cat) => (
@@ -287,10 +298,51 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                       : isLight ? "border-slate-200 text-slate-600 bg-white" : "border-white/10 text-white/70 bg-white/5"
                       }`}
                   >
-                    {cat}
+                    {translateDynamic(cat)}
                   </button>
                 ))}
               </div>
+              
+              {/* Custom Category Input for 'Other' */}
+              {entryMode === "general" && category === "Other" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="px-1 mt-2"
+                >
+                  <div className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${subtextColor}`}>
+                    {t.newCustomCategory || 'New Custom Category'}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                      placeholder={t.customCategoryPlaceholder || 'e.g. Gym, Pets, Subscriptions...'}
+                      className={`flex-1 rounded-xl px-4 py-3 text-sm outline-none border transition-colors ${
+                        isLight 
+                          ? "bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-emerald-500" 
+                          : "bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500/50"
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      disabled={!customName.trim()}
+                      onClick={() => {
+                        const trimmed = customName.trim();
+                        if (!trimmed) return;
+                        addCustomCategory(trimmed);
+                        setCategory(trimmed);
+                        setCustomName("");
+                      }}
+                      className="px-4 py-3 bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                    >
+                      {t.addAndSelect || 'Add & Select'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -305,7 +357,7 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
                 : "bg-emerald-500 text-white shadow-emerald-500/30"
             }`}
         >
-          {entryMode === "goal" ? "Confirm Contribution" : entryMode === "trip" ? "Log Trip Expense" : "Add Expense"}
+          {entryMode === "goal" ? (t.confirmContribution || "Confirm Contribution") : entryMode === "trip" ? (t.logTripExpense || "Log Trip Expense") : (t.addExpense || "Add Expense")}
         </button>
       </div>
     </BottomSheet>

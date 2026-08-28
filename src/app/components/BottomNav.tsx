@@ -7,6 +7,7 @@ import { QuickEntrySheet } from "./modals/QuickEntrySheet";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAccessibleAnimation, SPRING_PHYSICS, FAST_SPRING } from "../utils/motionConfig";
+import { useTranslation } from "../../utils/translations";
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export function BottomNav() {
   const [showAddModal, setShowAddModal] = useState(false);
   const { activeModal, setActiveModal, theme, colorMode } = useBudgetStore();
   const isReducedMotion = useAccessibleAnimation();
+  const { t } = useTranslation();
 
   if (location.pathname === "/login" || location.pathname === "/onboarding" || location.pathname.startsWith("/admin")) {
     return null;
@@ -37,10 +39,10 @@ export function BottomNav() {
   };
 
   const tabs = [
-    { icon: Home, path: "/", label: "Home" },
-    { icon: TrendingUp, path: "/flow", label: "Flow" },
-    { icon: BarChart3, path: "/insights", label: "Insights" },
-    { icon: User, path: "/profile", label: "Profile" },
+    { icon: Home, path: "/", label: t.home },
+    { icon: TrendingUp, path: "/flow", label: t.flow },
+    { icon: BarChart3, path: "/insights", label: t.insights },
+    { icon: User, path: "/profile", label: t.profile },
   ];
 
   const navContainerBg = isLight
@@ -99,7 +101,7 @@ export function BottomNav() {
                 -mt-8
                 w-16 h-16
                 rounded-full
-                bg-gradient-to-br from-[#16A34A] to-[#3B82F6]
+                bg-gradient-to-br ${activeTheme.accentGradient}
                 flex items-center justify-center
                 shadow-xl
                 border-4 ${isLight ? "border-slate-100" : "border-[#0a0a1f]"}

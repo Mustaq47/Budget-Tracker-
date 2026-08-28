@@ -25,6 +25,7 @@ import { getCategoryMeta, getCombinedCategories } from "../../../utils/categoryC
 import { formatCurrency } from "../../../utils/formatters";
 import { calculateDineroTotal } from "../../../utils/dineroUtils";
 import { useLongPress } from "../../../utils/useLongPress";
+import { useTranslation } from "../../../utils/translations";
 
 interface FlowItemCardProps {
   item: Transaction;
@@ -52,6 +53,7 @@ const FlowItemCard = memo(function FlowItemCard({
   const longPressHandlers = useLongPress({ onLongPress, vibrateMs: 30 });
   const x = useMotionValue(0);
   const deleteOpacity = useTransform(x, [-90, -25, 25, 90], [0.9, 0, 0, 0.9]);
+  const { translateDynamic } = useTranslation();
 
   return (
     <motion.div
@@ -69,13 +71,13 @@ const FlowItemCard = memo(function FlowItemCard({
         style={{ opacity: deleteOpacity }}
         className="absolute inset-y-0 left-4 flex items-center justify-start pointer-events-none z-0"
       >
-        <Trash2 className="w-5 h-5 text-[#EF4444]" />
+        <Trash2 className="w-5 h-5 text-error" />
       </motion.div>
       <motion.div
         style={{ opacity: deleteOpacity }}
         className="absolute inset-y-0 right-4 flex items-center justify-end pointer-events-none z-0"
       >
-        <Trash2 className="w-5 h-5 text-[#EF4444]" />
+        <Trash2 className="w-5 h-5 text-error" />
       </motion.div>
 
       <motion.div
@@ -127,7 +129,7 @@ const FlowItemCard = memo(function FlowItemCard({
                   transition={{ duration: 0.18, ease: "easeInOut" }}
                   className={`${textColor} tracking-tight font-bold text-sm`}
                 >
-                  {item.title}
+                  {translateDynamic(item.title)}
                 </motion.div>
               </AnimatePresence>
               <div className={`${subtextColor} text-xs tracking-tight mt-0.5`}>{item.time || "Today"}</div>
@@ -155,6 +157,7 @@ const FlowItemCard = memo(function FlowItemCard({
 
 export function Flow() {
   const { transactions, theme, colorMode, currency, updateTransactionCategory, deleteTransaction, customCategories, addCustomCategory } = useBudgetStore();
+  const { translateDynamic } = useTranslation();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const [floatingItem, setFloatingItem] = useState<Transaction | null>(null);
   const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
@@ -180,7 +183,7 @@ export function Flow() {
   }, [flowItems, currency]);
 
   return (
-    <div className="min-h-screen px-6 pt-12">
+    <div className="min-h-screen px-6 pt-12 pb-32">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -196,15 +199,15 @@ export function Flow() {
         }`}>
           <div className={`${textColor} text-lg mb-2 font-bold`}>No timeline activity yet</div>
           <div className={`${subtextColor} text-xs`}>
-            Tap the <span className="text-[#16A34A] font-bold">+</span> button below to record an expense!
+            Tap the <span className="text-success font-bold">+</span> button below to record an expense!
           </div>
         </div>
       ) : (
         <div className="relative pb-8">
           <div className="absolute left-[27px] top-0 bottom-0 w-[2px]">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#16A34A] via-[#3B82F6] to-[#06B6D4] opacity-20" />
+            <div className="absolute inset-0 bg-primary opacity-20" />
             <motion.div
-              className="absolute inset-0 bg-gradient-to-b from-[#16A34A] via-[#3B82F6] to-[#06B6D4]"
+              className="absolute inset-0 bg-primary"
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
@@ -304,14 +307,14 @@ export function Flow() {
                       }}
                       className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#16A34A] border-[#16A34A] text-white shadow-lg font-bold"
+                          ? "bg-success border-[#16A34A] text-white shadow-lg font-bold"
                           : isLight
                             ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
                             : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10"
                       }`}
                     >
                       <CatIcon className="w-6 h-6 mb-1.5" />
-                      <span className="text-xs font-semibold">{cat}</span>
+                      <span className="text-xs font-semibold">{translateDynamic(cat)}</span>
                     </motion.button>
                   );
                 })}
@@ -351,7 +354,7 @@ export function Flow() {
                         setCustomCategoryName("");
                         setFloatingItem(null);
                       }}
-                      className="px-4 py-2 bg-[#16A34A] disabled:opacity-40 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
+                      className="px-4 py-2 bg-success disabled:opacity-40 text-white rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer"
                     >
                       Add & Apply
                     </button>

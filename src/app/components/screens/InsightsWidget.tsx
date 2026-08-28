@@ -25,7 +25,7 @@ export function InsightsWidget() {
     <div className="mb-6 space-y-4">
       {/* Streaks Widget */}
       {trends.currentStreak > 0 && (
-        <GlassCard glow glowColor="pink" className="p-4 flex items-center justify-between">
+        <GlassCard className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.4)]">
               <Flame className="text-white w-5 h-5" />
@@ -58,7 +58,7 @@ export function InsightsWidget() {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ delay: index * 0.1 }}
             >
-              <GlassCard glow glowColor="blue" className="p-4 flex items-start gap-3 relative">
+              <GlassCard className="p-4 flex items-start gap-3 relative">
                 <div className={`p-2 rounded-xl ${isLight ? "bg-blue-50 text-blue-500" : "bg-blue-500/20 text-blue-400"}`}>
                   <Sparkles className="w-4 h-4" />
                 </div>
