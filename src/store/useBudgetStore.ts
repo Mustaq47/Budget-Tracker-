@@ -115,9 +115,11 @@ interface BudgetState {
   lastBudgetSetMonth: string | null;
   budgetViewMode: 'daily' | 'monthly';
   appVersion: string;
+  autoCheckUpdates: boolean;
 
   // Actions
   setAppVersion: (version: string) => void;
+  setAutoCheckUpdates: (val: boolean) => void;
   setBudgetViewMode: (mode: 'daily' | 'monthly') => void;
   setHasAcceptedTerms: (accepted: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
@@ -183,9 +185,11 @@ export const useBudgetStore = create<BudgetState>()(
       hasCompletedOnboarding: false,
       lastBudgetSetMonth: null,
       budgetViewMode: 'daily',
-      appVersion: '1.0.3',
+      appVersion: '1.0.4',
+      autoCheckUpdates: true,
 
       setAppVersion: (appVersion) => set({ appVersion }),
+      setAutoCheckUpdates: (autoCheckUpdates) => set({ autoCheckUpdates }),
       setBudgetViewMode: (budgetViewMode) => set({ budgetViewMode }),
       setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),

@@ -14,33 +14,11 @@ import {
 import { GlassCard } from "../GlassCard";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
+import { fetchLatestVersion, compareVersions, DOWNLOAD_URL } from "../../../utils/versionCheck";
 
 interface AppVersionModalProps {
   isOpen: boolean;
   onClose: () => void;
-}
-
-const UPDATE_CHECK_URL = "https://raw.githubusercontent.com/Mustaq47/Budget-Tracker-/main/package.json";
-const DOWNLOAD_URL = "https://cozify-finance.vercel.app/";
-
-async function fetchLatestVersion(): Promise<string | null> {
-  try {
-    const res = await fetch(UPDATE_CHECK_URL, { cache: "no-store" });
-    const data = await res.json();
-    return data.version || null;
-  } catch {
-    return null;
-  }
-}
-
-function compareVersions(current: string, latest: string): number {
-  const c = current.split(".").map(Number);
-  const l = latest.split(".").map(Number);
-  for (let i = 0; i < 3; i++) {
-    if ((l[i] || 0) > (c[i] || 0)) return 1;  // update available
-    if ((l[i] || 0) < (c[i] || 0)) return -1; // current is newer
-  }
-  return 0; // same
 }
 
 export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {

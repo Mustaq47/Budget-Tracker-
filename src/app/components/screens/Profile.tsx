@@ -91,6 +91,8 @@ export function Profile() {
     language,
     savedAccounts,
     appVersion,
+    autoCheckUpdates,
+    setAutoCheckUpdates,
   } = useBudgetStore();
   const { trips, tripsCount, setTrips } = useTripsStore();
   const { goals, setGoals } = useGoalsStore();
@@ -260,7 +262,13 @@ export function Profile() {
           glow: "blue" as const,
           action: () => setActiveModal("app-version" as any),
         },
-
+        {
+          icon: RefreshCw,
+          label: "Auto-Check for Updates",
+          badge: autoCheckUpdates ? "ON" : "OFF",
+          glow: "purple" as const,
+          action: () => setAutoCheckUpdates(!autoCheckUpdates),
+        }
       ],
     },
     {

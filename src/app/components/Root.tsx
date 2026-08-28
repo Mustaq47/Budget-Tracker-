@@ -11,9 +11,10 @@ import { pageTransition } from "../../utils/motion";
 import { useEffect } from "react";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useGoalsStore } from "../../store/useGoalsStore";
+import { fetchLatestVersion, compareVersions } from "../../utils/versionCheck";
 
 export function Root() {
-  const { theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, autoCheckUpdates, appVersion, setActiveModal } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const location = useLocation();
 
@@ -60,6 +61,24 @@ export function Root() {
       console.warn('Migration check failed:', e);
     }
   }, []);
+
+  // Auto-check for updates on launch
+  useEffect(() => {
+    if (!autoCheckUpdates) return;
+    
+    const checkUpdates = async () => {
+      const latest = await fetchLatestVersion();
+      if (latest && compareVersions(appVersion, latest) > 0) {
+        // Only prompt if we haven't already prompted recently (can be added later if needed)
+        // For now, just show the modal if there's a newer version
+        setActiveModal("app-version");
+      }
+    };
+    
+    // Slight delay so it doesn't block initial render
+    const timer = setTimeout(checkUpdates, 2000);
+    return () => clearTimeout(timer);
+  }, [autoCheckUpdates, appVersion, setActiveModal]);
 
   return (
     <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${activeTheme.bgClass}`}>

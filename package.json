@@ -1,6 +1,6 @@
 {
   "name": "cozify",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "coZify — Track • Manage • Grow",
   "main": "index.js",
   "scripts": {
