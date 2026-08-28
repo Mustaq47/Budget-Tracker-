@@ -248,7 +248,6 @@ export const useBudgetStore = create<BudgetState>()(
             ...(prefs.currency ? { currency: prefs.currency } : {}),
             ...(prefs.language ? { language: prefs.language } : {}),
             ...(prefs.budgetViewMode ? { budgetViewMode: prefs.budgetViewMode } : {}),
-            ...(prefs.appVersion ? { appVersion: prefs.appVersion } : {}),
           };
         }),
 
@@ -482,13 +481,17 @@ export const useBudgetStore = create<BudgetState>()(
         lastBudgetSetMonth: state.lastBudgetSetMonth,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         budgetViewMode: state.budgetViewMode,
-        appVersion: state.appVersion,
       }),
       migrate: (persistedState: any) => {
-        if (persistedState && persistedState.theme) {
-          const legacyThemes = ['cyber-neon', 'dark-theme', 'light-theme'];
-          if (legacyThemes.includes(persistedState.theme)) {
-            persistedState.theme = 'material-design';
+        if (persistedState) {
+          // Prevent persisted state from overriding the active code version
+          delete persistedState.appVersion;
+          
+          if (persistedState.theme) {
+            const legacyThemes = ['cyber-neon', 'dark-theme', 'light-theme'];
+            if (legacyThemes.includes(persistedState.theme)) {
+              persistedState.theme = 'material-design';
+            }
           }
         }
         return persistedState;

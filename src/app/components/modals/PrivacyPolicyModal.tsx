@@ -21,7 +21,7 @@ interface PrivacyPolicyModalProps {
 }
 
 export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps) {
-  const { theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, appVersion } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
 
@@ -115,7 +115,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
                     Privacy Policy
                   </h2>
                   <p className={`text-xs font-medium ${isLight ? "text-slate-500" : "text-white/60"}`}>
-                    coZify v1.0.0 • August 2026
+                    coZify v{appVersion} • August 2026
                   </p>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
             >
               <div className="flex items-center gap-1.5 text-[11px] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5" style={{ color: activeTheme.primaryColor }} />
-                <span>coZify v1.0.0 • Verified Local-First Charter</span>
+                <span>coZify v{appVersion} • Verified Local-First Charter</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
