@@ -9,8 +9,15 @@ export interface GlassCardProps extends HTMLMotionProps<"div"> {
   children: ReactNode;
   className?: string;
   glow?: boolean;
+  glowColor?: "purple" | "blue" | "pink" | "gold";
 }
 
+const glowColors = {
+  purple: "shadow-[0_0_30px_rgba(123,97,255,0.3)]",
+  blue: "shadow-[0_0_30px_rgba(0,229,255,0.3)]",
+  pink: "shadow-[0_0_30px_rgba(255,77,141,0.3)]",
+  gold: "shadow-[0_0_30px_rgba(255,209,102,0.3)]",
+};
 
 export function GlassCard({
   children,
