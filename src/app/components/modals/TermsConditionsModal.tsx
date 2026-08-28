@@ -21,7 +21,7 @@ interface TermsConditionsModalProps {
 }
 
 export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalProps) {
-  const { theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, appVersion } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
 
@@ -115,7 +115,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                     Terms & Conditions
                   </h2>
                   <p className={`text-xs font-medium ${isLight ? "text-slate-500" : "text-white/60"}`}>
-                    coZify v1.0.0 • August 2026
+                    coZify v{appVersion} • August 2026
                   </p>
                 </div>
               </div>
@@ -145,7 +145,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
               >
                 <span>DOC ID: CZ-TOS-2026</span>
                 <span>STATUS: ACTIVE AGREEMENT</span>
-                <span>v1.0.0</span>
+                <span>v{appVersion}</span>
               </div>
 
               {/* Legal Disclaimer Banner */}
@@ -273,7 +273,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
             >
               <div className="flex items-center gap-1.5 text-[11px] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5" style={{ color: activeTheme.primaryColor }} />
-                <span>coZify v1.0.0 • Verified Legal Charter</span>
+                <span>coZify v{appVersion} • Verified Legal Charter</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
