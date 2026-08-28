@@ -15,7 +15,7 @@ interface PrivacyModalProps {
 export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   const { 
     transactions, dailyBudget, wipeAllData,
-    theme, colorMode 
+    theme, colorMode, appVersion
   } = useBudgetStore();
   const { trips, wipeTrips } = useTripsStore();
   const { goals, wipeGoals } = useGoalsStore();
@@ -28,7 +28,7 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   const handleExportData = () => {
     try {
       const backupData = {
-        version: "1.0.0",
+        version: appVersion,
         exportDate: new Date().toISOString(),
         dailyBudget,
         transactions,

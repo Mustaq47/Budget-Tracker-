@@ -299,7 +299,7 @@ export function Profile() {
         {
           icon: FileText,
           label: "Terms & Conditions",
-          badge: "v1.0.0",
+          badge: `v${appVersion}`,
           glow: "blue" as const,
           action: () => setActiveModal("terms-conditions"),
         },
