@@ -265,7 +265,8 @@ export function Profile() {
         {
           icon: RefreshCw,
           label: "Auto-Check for Updates",
-          badge: autoCheckUpdates ? "ON" : "OFF",
+          isToggle: true,
+          toggleState: autoCheckUpdates,
           glow: "purple" as const,
           action: () => setAutoCheckUpdates(!autoCheckUpdates),
         }
@@ -672,10 +673,21 @@ export function Profile() {
                       </span>
                     )}{" "}
                   </div>{" "}
-                  <ChevronRight
-                    size={18}
-                    className={isLight ? "text-slate-400" : "text-white/40"}
-                  />{" "}
+                  {"isToggle" in item ? (
+                    <div
+                      className={`w-10 h-5 rounded-full transition-colors relative p-0.5 cursor-pointer ${!item.toggleState ? (isLight ? "bg-slate-300" : "bg-white/15") : ""}`}
+                      style={item.toggleState ? { backgroundColor: activeTheme.primaryColor } : {}}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full bg-white transition-transform ${item.toggleState ? "translate-x-5" : "translate-x-0"}`}
+                      />
+                    </div>
+                  ) : (
+                    <ChevronRight
+                      size={18}
+                      className={isLight ? "text-slate-400" : "text-white/40"}
+                    />
+                  )}
                 </motion.button>
               ))}{" "}
             </motion.div>{" "}
