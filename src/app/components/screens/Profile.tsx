@@ -379,6 +379,20 @@ export function Profile() {
             <div className={`${subtextColor} text-xs tracking-tight`}>
               {email}
             </div>{" "}
+            {(user?.phoneNumber || user?.age || user?.gender) && (
+              <div className="flex flex-wrap gap-1.5 mt-1.5 text-[10px]">
+                {user?.phoneNumber && (
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">
+                    {user.phoneNumber}
+                  </span>
+                )}
+                {(user?.age || user?.gender) && (
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-bold border border-blue-500/20">
+                    {user?.age ? `${user.age} yrs` : ""} {user?.gender ? `• ${user.gender}` : ""}
+                  </span>
+                )}
+              </div>
+            )}
           </div>{" "}
           <div className="flex items-center gap-2">
             {" "}

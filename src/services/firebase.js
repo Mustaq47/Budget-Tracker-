@@ -10,7 +10,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore } from "firebase/firestore";
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -74,18 +74,12 @@ if (missingKeys.length > 0) {
 export const app = initializeApp(firebaseConfig);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-// ─── PHASE 8 FIX: Offline Firestore Persistence ───
-if (typeof window !== 'undefined') {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('[Firestore] Multiple tabs open, offline persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('[Firestore] The current browser does not support all of the features required to enable persistence.');
-    }
-  });
-}
+// ─── OPTIMIZED FIX: Modern Offline Firestore Persistence ───
+export const db = typeof window !== 'undefined'
+  ? initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    })
+  : getFirestore(app);
 
 // ─── H-06 FIX: Firebase App Check (uncomment when reCAPTCHA v3 site key is set) ───
 // import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';

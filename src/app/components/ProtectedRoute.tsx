@@ -23,18 +23,19 @@ export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
     );
   }
 
-  if (!isAuthenticated) {
+  // Allow users to perform onboarding setup flow even before signing in
+  if (!hasCompletedOnboarding && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  if (!isAuthenticated && location.pathname !== "/login" && location.pathname !== "/onboarding") {
     // Sanitize current location path to prevent open redirect vulnerabilities
     const safeReturnPath = sanitizeReturnUrl(location.pathname);
     const returnParam = safeReturnPath !== "/" ? `?returnUrl=${encodeURIComponent(safeReturnPath)}` : "";
     return <Navigate to={`/login${returnParam}`} replace />;
   }
 
-  if (!hasCompletedOnboarding && location.pathname !== "/onboarding") {
-    return <Navigate to="/onboarding" replace />;
-  }
-
-  if (hasCompletedOnboarding && location.pathname === "/onboarding") {
+  if (hasCompletedOnboarding && isAuthenticated && location.pathname === "/onboarding") {
     return <Navigate to="/" replace />;
   }
 

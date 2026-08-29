@@ -7,6 +7,7 @@ interface Props {
   name?: string | null;
   className?: string;
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
+  style?: React.CSSProperties;
 }
 
 /**
@@ -20,6 +21,7 @@ export function SafeAvatar({
   name,
   className = "",
   size = "md",
+  style,
 }: Props) {
   const [hasError, setHasError] = useState(false);
 
@@ -47,14 +49,15 @@ export function SafeAvatar({
     return (
       <div
         className={`${sizeClass} rounded-full flex items-center justify-center font-extrabold tracking-tight select-none shrink-0 border border-white/10 shadow-lg overflow-hidden ${className}`}
-        style={
-          isGradient
+        style={{
+          ...(isGradient
             ? { background: src }
             : {
                 background:
                   "linear-gradient(135deg, rgba(22, 163, 74, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%)",
-              }
-        }
+              }),
+          ...style
+        }}
         aria-label={alt}
       >
         {initials && !isGradient ? (
@@ -77,6 +80,7 @@ export function SafeAvatar({
       decoding="async"
       fetchPriority="low"
       className={`${sizeClass} rounded-full object-cover border border-slate-200/80 dark:border-white/10 shrink-0 shadow-lg ${className}`}
+      style={style}
       referrerPolicy="no-referrer"
     />
   );

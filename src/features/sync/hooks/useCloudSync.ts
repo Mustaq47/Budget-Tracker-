@@ -47,12 +47,14 @@ export function useCloudSync() {
         if (userDoc.exists()) {
           const data = userDoc.data();
           
+          const localUser = useBudgetStore.getState().user;
+          // High Priority to Onboarding Data: Only pull from cloud if local is empty
           if (data.displayName || data.age || data.gender || data.photoURL) {
             useBudgetStore.getState().updateUserProfile({
-              ...(data.displayName ? { displayName: data.displayName } : {}),
-              ...(data.photoURL ? { photoURL: data.photoURL } : {}),
-              ...(data.age ? { age: data.age } : {}),
-              ...(data.gender ? { gender: data.gender } : {}),
+              ...(data.displayName && !localUser?.displayName ? { displayName: data.displayName } : {}),
+              ...(data.photoURL && !localUser?.photoURL ? { photoURL: data.photoURL } : {}),
+              ...(data.age && !localUser?.age ? { age: data.age } : {}),
+              ...(data.gender && !localUser?.gender ? { gender: data.gender } : {}),
             });
           }
 

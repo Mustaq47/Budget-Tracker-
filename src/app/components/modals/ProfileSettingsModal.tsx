@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, User, Check, Sparkles, Shield, Upload } from "lucide-react";
-import { useState } from "react";
+import { X, User, Check, Sparkles, Shield, Upload, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useBudgetStore } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
@@ -24,11 +24,24 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   
   const [name, setName] = useState(user?.displayName || "");
+  const [phone, setPhone] = useState(user?.phoneNumber || "");
   const [selectedAvatar, setSelectedAvatar] = useState(user?.photoURL || avatarPresets[0]);
   const [age, setAge] = useState(user?.age ? user.age.toString() : "");
   const [gender, setGender] = useState(user?.gender || "");
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Sync state if user changes in the background
+  useEffect(() => {
+    if (user) {
+      setName(user.displayName || "");
+      setPhone(user.phoneNumber || "");
+      setSelectedAvatar(user.photoURL || avatarPresets[0]);
+      setAge(user.age ? user.age.toString() : "");
+      setGender(user.gender || "");
+    }
+  }, [user]);
 
   const getAvatarStyle = (avatar: string) => {
     if (avatar.startsWith("data:image/") || avatar.startsWith("http://") || avatar.startsWith("https://")) {
@@ -63,11 +76,22 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   };
 
   const handleSave = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      setErrorMsg("Display Name is required");
+      setTimeout(() => setErrorMsg(""), 3000);
+      return;
+    }
+    const phoneClean = phone.replace(/[^0-9]/g, "");
+    if (!phoneClean || phoneClean.length !== 10) {
+      setErrorMsg("Mobile Number must be exactly 10 digits");
+      setTimeout(() => setErrorMsg(""), 3000);
+      return;
+    }
     updateUserProfile({
       displayName: name.trim(),
+      phoneNumber: phoneClean,
       photoURL: selectedAvatar,
-      age: age ? parseInt(age) : null,
+      age: age ? parseInt(age, 10) : null,
       gender: gender || null,
     });
     setSuccessMsg("Profile updated successfully!");
@@ -186,6 +210,18 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                   />
                 </div>
 
+                <div>
+                  <label className="text-white/60 text-xs font-bold ml-1 mb-2 block">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="e.g. 9876543210"
+                    maxLength={10}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all placeholder:text-white/20"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-white/60 text-xs font-bold ml-1 mb-2 block">Age</label>
@@ -195,22 +231,68 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                       value={age}
                       onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, ""))}
                       placeholder="Age"
+                      maxLength={3}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all placeholder:text-white/20"
                     />
                   </div>
 
                   <div>
                     <label className="text-white/60 text-xs font-bold ml-1 mb-2 block">Gender</label>
-                    <select
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white/80 text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all cursor-pointer [&>option]:bg-[#0B0914] [&>option]:text-white"
-                    >
-                      <option value="">Select</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowGenderDropdown(!showGenderDropdown)}
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white/80 text-sm font-bold tracking-tight outline-none focus:border-white/20 transition-all cursor-pointer flex items-center justify-between text-left"
+                      >
+                        <span>{gender || "Select"}</span>
+                        <ChevronDown
+                          size={16}
+                          className={`text-white/40 transition-transform duration-200 ${
+                            showGenderDropdown ? "rotate-180 text-white" : ""
+                          }`}
+                        />
+                      </button>
+
+                      <AnimatePresence>
+                        {showGenderDropdown && (
+                          <>
+                            {/* Backdrop overlay */}
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setShowGenderDropdown(false)}
+                            />
+                            <motion.div
+                              initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                              transition={{ duration: 0.15, ease: "easeOut" }}
+                              className="absolute z-20 left-0 right-0 mt-2 bg-[#12101F]/95 border border-white/10 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl overflow-hidden divide-y divide-white/5"
+                            >
+                              {["Male", "Female", "Other"].map((g) => (
+                                <button
+                                  key={g}
+                                  type="button"
+                                  onClick={() => {
+                                    setGender(g);
+                                    setShowGenderDropdown(false);
+                                  }}
+                                  className={`w-full px-4 py-3.5 text-left text-sm font-semibold transition-colors cursor-pointer flex items-center justify-between ${
+                                    gender === g
+                                      ? "text-[#00E5FF] bg-white/5"
+                                      : "text-white/70 hover:bg-white/5 hover:text-white"
+                                  }`}
+                                >
+                                  {g}
+                                  {gender === g && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E5FF]" />
+                                  )}
+                                </button>
+                              ))}
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
 

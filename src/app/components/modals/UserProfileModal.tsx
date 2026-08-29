@@ -160,6 +160,24 @@ export function UserProfileModal({
             {/* Account Details */}
             <div className={`p-4 rounded-2xl ${isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/5 border-white/10"
               } border mb-6 space-y-2.5 text-xs`}>
+              {user?.phoneNumber && (
+                <div className={`flex items-center justify-between ${isLight ? "text-slate-600" : "text-white/70"}`}>
+                  <span>Mobile Number</span>
+                  <span className={`font-bold ${isLight ? "text-slate-900" : "text-white"}`}>{user.phoneNumber}</span>
+                </div>
+              )}
+              {user?.age && (
+                <div className={`flex items-center justify-between ${isLight ? "text-slate-600" : "text-white/70"}`}>
+                  <span>Age</span>
+                  <span className={`font-bold ${isLight ? "text-slate-900" : "text-white"}`}>{user.age} yrs</span>
+                </div>
+              )}
+              {user?.gender && (
+                <div className={`flex items-center justify-between ${isLight ? "text-slate-600" : "text-white/70"}`}>
+                  <span>Gender</span>
+                  <span className={`font-bold ${isLight ? "text-slate-900" : "text-white"}`}>{user.gender}</span>
+                </div>
+              )}
               <div className={`flex items-center justify-between ${isLight ? "text-slate-600" : "text-white/70"}`}>
                 <span>Account Currency</span>
                 <span className={`font-bold ${isLight ? "text-slate-900" : "text-white"} uppercase`}>{currency}</span>

@@ -112,6 +112,7 @@ interface BudgetState {
   currentStreak: number;
   bestStreak: number;
   hasCompletedOnboarding: boolean;
+  hasCompletedProfileSetup: boolean;
   lastBudgetSetMonth: string | null;
   budgetViewMode: 'daily' | 'monthly';
   appVersion: string;
@@ -123,6 +124,7 @@ interface BudgetState {
   setBudgetViewMode: (mode: 'daily' | 'monthly') => void;
   setHasAcceptedTerms: (accepted: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
+  setHasCompletedProfileSetup: (completed: boolean) => void;
   setLastBudgetSetMonth: (month: string) => void;
   setStreaks: (current: number, best: number) => void;
   setUser: (user: UserProfile | null) => void;
@@ -170,7 +172,7 @@ export const useBudgetStore = create<BudgetState>()(
       activeModal: null,
       isCloudBackupEnabled: false,
       lastBackupTime: null,
-      theme: 'material-design',
+      theme: 'glassmorphism',
       colorMode: 'light',
       notificationSettings: {
         dailyReminder: false,
@@ -183,9 +185,10 @@ export const useBudgetStore = create<BudgetState>()(
       currentStreak: 0,
       bestStreak: 0,
       hasCompletedOnboarding: false,
+      hasCompletedProfileSetup: false,
       lastBudgetSetMonth: null,
       budgetViewMode: 'daily',
-      appVersion: '1.0.4',
+      appVersion: '1.0.6',
       autoCheckUpdates: true,
 
       setAppVersion: (appVersion) => set({ appVersion }),
@@ -193,6 +196,7 @@ export const useBudgetStore = create<BudgetState>()(
       setBudgetViewMode: (budgetViewMode) => set({ budgetViewMode }),
       setHasAcceptedTerms: (hasAcceptedTerms) => set({ hasAcceptedTerms }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
+      setHasCompletedProfileSetup: (hasCompletedProfileSetup) => set({ hasCompletedProfileSetup }),
       setLastBudgetSetMonth: (lastBudgetSetMonth) => set({ lastBudgetSetMonth }),
       setStreaks: (currentStreak, bestStreak) => set({ currentStreak, bestStreak }),
 
@@ -242,10 +246,10 @@ export const useBudgetStore = create<BudgetState>()(
           merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
           return {
-            dailyBudget: payload.dailyBudget ?? 2000,
+            dailyBudget: state.dailyBudget !== 2000 ? state.dailyBudget : (payload.dailyBudget ?? 2000),
             transactions: merged,
             customCategories: Array.isArray(payload.customCategories) ? payload.customCategories : [],
-            ...(prefs.currency ? { currency: prefs.currency } : {}),
+            ...(state.currency !== 'INR' ? { currency: state.currency } : (prefs.currency ? { currency: prefs.currency } : {})),
             ...(prefs.language ? { language: prefs.language } : {}),
             ...(prefs.budgetViewMode ? { budgetViewMode: prefs.budgetViewMode } : {}),
           };
@@ -422,9 +426,16 @@ export const useBudgetStore = create<BudgetState>()(
         })),
 
       updateUserProfile: (profile) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, ...profile } : null,
-        })),
+        set((state) => {
+          const existing = state.user || { uid: "guest_" + Date.now().toString(36) };
+          const updated = { ...existing, ...profile };
+          return {
+            user: updated,
+            savedAccounts: state.savedAccounts.some((a) => a.uid === updated.uid)
+              ? state.savedAccounts.map((a) => (a.uid === updated.uid ? updated : a))
+              : [...state.savedAccounts, updated],
+          };
+        }),
 
       addCustomCategory: (categoryName) => {
         const trimmed = categoryName.trim();
@@ -450,7 +461,7 @@ export const useBudgetStore = create<BudgetState>()(
           activeModal: null,
           isCloudBackupEnabled: false,
           lastBackupTime: null,
-          theme: 'material-design',
+          theme: 'glassmorphism',
           colorMode: 'light',
           notificationSettings: {
             dailyReminder: false,
@@ -480,6 +491,7 @@ export const useBudgetStore = create<BudgetState>()(
         language: state.language,
         lastBudgetSetMonth: state.lastBudgetSetMonth,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        hasCompletedProfileSetup: state.hasCompletedProfileSetup,
         budgetViewMode: state.budgetViewMode,
       }),
       migrate: (persistedState: any) => {

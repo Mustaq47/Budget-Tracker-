@@ -1,11 +1,12 @@
 {
   "name": "cozify",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "coZify — Track • Manage • Grow",
   "main": "index.js",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "build:apk": "node build_apk.js"
   },
   "keywords": [
     "budget",

@@ -50,6 +50,8 @@ export async function syncUserProfileToFirestore(user: {
   displayName?: string | null;
   photoURL?: string | null;
   phoneNumber?: string | null;
+  age?: number | null;
+  gender?: string | null;
   providerId?: string;
 }, currentTheme?: string) {
   if (!user?.uid) return;
@@ -83,6 +85,9 @@ export async function syncUserProfileToFirestore(user: {
       email: (user.email || `user_${user.uid}@cozify.local`).toLowerCase(),
       displayName: user.displayName || user.email?.split("@")[0] || "coZify User",
       photoURL: user.photoURL || null,
+      phoneNumber: user.phoneNumber || null,
+      age: user.age || null,
+      gender: user.gender || null,
       platform,
       authMethod,
       appVersion: APP_VERSION,

@@ -34,18 +34,23 @@ export function useAuthLifecycle() {
           // Do not hydrate store or navigate while Google OAuth is validating new/existing user tab rules
           return;
         }
-        // Hydrate store cleanly
-        setUser({
+        const currentUser = useBudgetStore.getState().user;
+        const mergedUser = {
           uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
-          photoURL: firebaseUser.photoURL,
-          phoneNumber: firebaseUser.phoneNumber,
-        });
+          email: firebaseUser.email || currentUser?.email,
+          displayName: firebaseUser.displayName || currentUser?.displayName || firebaseUser.email?.split("@")[0],
+          photoURL: firebaseUser.photoURL || currentUser?.photoURL,
+          phoneNumber: firebaseUser.phoneNumber || currentUser?.phoneNumber,
+          age: currentUser?.age,
+          gender: currentUser?.gender,
+        };
+        
+        // Hydrate store cleanly while preserving onboarding data
+        setUser(mergedUser);
 
         // Sync user profile to Cloud Firestore users collection (with current theme)
         try {
-          syncUserProfileToFirestore(firebaseUser, theme);
+          syncUserProfileToFirestore(mergedUser, theme);
         } catch (_) {}
 
         // Set up proactive ID Token refresh before 1-hour expiration

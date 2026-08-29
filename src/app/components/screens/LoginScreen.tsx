@@ -143,7 +143,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${activeTheme.bgClass} ${activeTheme.textColor}`}>
+    <div className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${activeTheme.bgClass} ${activeTheme.textColor}`} style={{ backgroundImage: 'url(/login-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Ambient Radial Glow 1 — matches Root.tsx */}
       <div 
         className="absolute inset-0 opacity-40 transition-all duration-700 pointer-events-none"
