@@ -69,7 +69,7 @@ export function MandatoryTermsModal() {
       icon: UserCheck,
       title: "7. Developer Contact",
       content:
-        "For any inquiries regarding these Terms & Conditions, contact the developer at mustaqsk47@gmail.com.",
+        "For any inquiries regarding these Terms & Conditions, contact the developer at support@cozify.app.",
     },
   ];
 

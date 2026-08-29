@@ -1,10 +1,15 @@
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
+import { useTripsStore } from "../../../store/useTripsStore";
+import { useGoalsStore } from "../../../store/useGoalsStore";
 import { useDailyBudget } from "../../hooks/useDailyBudget";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
-import { X, TrendingDown, Settings, List, Plus } from "lucide-react";
+import { X, Settings, List, Plus, ShieldCheck, Sparkles, Info } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "../../../utils/translations";
+import { computeSafeToSpend } from "../../../services/safeToSpendEngine";
+import { RAGFlowAnalyticsService } from "../../../services/ragflowAnalyticsService";
 
 interface SafeToSpendModalProps {
   isOpen: boolean;
@@ -12,7 +17,9 @@ interface SafeToSpendModalProps {
 }
 
 export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
-  const { theme, colorMode, currency, setActiveModal } = useBudgetStore();
+  const { theme, colorMode, currency, dailyBudget, transactions, setActiveModal, user } = useBudgetStore();
+  const { trips } = useTripsStore();
+  const { goals } = useGoalsStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -31,6 +38,30 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
   const isLight = !activeTheme.isDark;
   const textColor = activeTheme.textColor;
   const subtextColor = activeTheme.subtextColor;
+
+  const [aiExplanation, setAiExplanation] = useState<string>("");
+
+  // Calculate available balance deterministically (mocked/store derived)
+  const availableBalance = Math.max(0, dailyBudget - spent);
+
+  const smartResult = computeSafeToSpend(
+    availableBalance,
+    dailyBudget,
+    currency,
+    transactions,
+    goals,
+    trips
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      RAGFlowAnalyticsService.fetchSafeToSpendExplanation(smartResult)
+        .then(explanation => setAiExplanation(explanation))
+        .catch(() => setAiExplanation(""));
+    }
+  }, [isOpen, smartResult.recommendedLimit]);
+
+  const symbol = currencySymbols[currency] || '$';
 
   return (
     <AnimatePresence>
@@ -76,7 +107,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                   {label === "Safe to Spend Today" ? "Safe to Spend" : "Monthly Plan"}
                 </div>
                 <div className={`${status === "danger" ? "text-red-500" : textColor} text-5xl font-black tracking-tighter mb-2`}>
-                  {currencySymbols[currency]}{remaining.toLocaleString()}
+                  {symbol}{remaining.toLocaleString()}
                 </div>
                 <div
                   className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold ${
@@ -87,15 +118,15 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                       : "bg-emerald-500/20 text-emerald-600"
                   }`}
                 >
-                  {status === "danger" ? "⚠️ Budget Exceeded by " + currencySymbols[currency] + overspent.toLocaleString() : feedback}
+                  {status === "danger" ? "⚠️ Budget Exceeded by " + symbol + overspent.toLocaleString() : feedback}
                 </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="flex justify-between text-xs font-bold mb-2">
-                  <span className={subtextColor}>{t.spent || "Spent"}: {currencySymbols[currency]}{spent.toLocaleString()}</span>
-                  <span className={subtextColor}>{t.limit || "Limit"}: {currencySymbols[currency]}{allowance.toLocaleString()}</span>
+                  <span className={subtextColor}>{t.spent || "Spent"}: {symbol}{spent.toLocaleString()}</span>
+                  <span className={subtextColor}>{t.limit || "Limit"}: {symbol}{allowance.toLocaleString()}</span>
                 </div>
                 <div className={`w-full h-3 rounded-full overflow-hidden ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
                   <motion.div
@@ -111,6 +142,22 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                     }`}
                   />
                 </div>
+              </div>
+
+              {/* AI Explanation Box */}
+              {aiExplanation && (
+                <div className={`mb-6 p-4 rounded-2xl border text-xs leading-relaxed ${
+                  isLight ? "bg-purple-50/80 border-purple-200 text-purple-900" : "bg-purple-950/30 border-purple-500/20 text-purple-200"
+                }`}>
+                  <div className="flex items-center gap-1.5 font-bold mb-1.5 text-purple-400">
+                    <Sparkles size={14} /> AI Spending Insight
+                  </div>
+                  {aiExplanation}
+                </div>
+              )}
+
+              <div className={`text-[10px] text-center mb-6 flex items-center justify-center gap-1 font-medium ${subtextColor}`}>
+                <Info size={10} /> {smartResult.dataFreshness}
               </div>
 
               {/* Actions */}

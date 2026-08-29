@@ -77,9 +77,6 @@ export function GlassIcon({
       ? "bg-zinc-100 border-zinc-300 shadow-sm hover:bg-zinc-200"
       : "bg-zinc-800/80 border-zinc-700 shadow-sm hover:bg-zinc-700";
     themeIconColor = isLight ? "text-zinc-900" : "text-zinc-100";
-  } else if (theme === "gradient-theme") {
-    themeContainerStyle = "bg-zinc-900 border-2 border-orange-500 shadow-[2px_2px_0px_#f97316] rounded-xl";
-    themeIconColor = "text-orange-400";
   } else if (theme === "neumorphism") {
     themeContainerStyle = isLight
       ? "bg-[#E2E8F0] border border-white shadow-[4px_4px_8px_#CBD5E1,-4px_-4px_8px_#FFFFFF]"

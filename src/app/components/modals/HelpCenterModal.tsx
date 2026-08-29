@@ -133,7 +133,7 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
 
   const handleCopyEmail = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("mustaqsk47@gmail.com");
+      navigator.clipboard.writeText("support@cozify.app");
       setCopiedEmail(true);
       setTimeout(() => setCopiedEmail(false), 2500);
     }
@@ -450,7 +450,7 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                     <p
                       className={`text-[11px] ${isLight ? "text-slate-500" : "text-white/60"}`}
                     >
-                      Lead Developer: Mustaq • Direct technical assistance
+                      Technical Support • Rapid Assistance
                     </p>
                   </div>
                   {feedbackSent && (
@@ -467,14 +467,14 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <a
-                    href="mailto:mustaqsk47@gmail.com?subject=coZify%20App%20Support"
+                    href="mailto:support@cozify.app?subject=coZify%20App%20Support"
                     className="flex flex-col items-center justify-center py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md hover:opacity-90 transition-all cursor-pointer text-center"
                   >
                     <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <Mail className="w-3.5 h-3.5" /> Email Developer
+                      <Mail className="w-3.5 h-3.5" /> Email Support
                     </div>
                     <span className="text-[10px] text-white/90 font-normal mt-0.5">
-                      mustaqsk47@gmail.com
+                      support@cozify.app
                     </span>
                   </a>
                   <button
@@ -489,7 +489,7 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
                       <MessageSquare className="w-3.5 h-3.5" /> Copy Email
                     </div>
                     <span className="text-[10px] opacity-70 font-normal mt-0.5">
-                      mustaqsk47@gmail.com
+                      support@cozify.app
                     </span>
                   </button>
                 </div>

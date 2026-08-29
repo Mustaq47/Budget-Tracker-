@@ -68,7 +68,7 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
       icon: UserCheck,
       title: "7. Modifications & Developer Contact",
       content:
-        "We reserve the right to update these Terms & Conditions as the application evolves. For any legal inquiries, support requests, or questions regarding these terms, contact the developer via email at mustaqsk47@gmail.com.",
+        "We reserve the right to update these Terms & Conditions as the application evolves. For any legal inquiries, support requests, or questions regarding these terms, contact the developer via email at support@cozify.app.",
     },
   ];
 
@@ -250,11 +250,11 @@ export function TermsConditionsModal({ isOpen, onClose }: TermsConditionsModalPr
                       isLight ? "text-slate-500" : "text-white/60"
                     }`}
                   >
-                    Mustaq • mustaqsk47@gmail.com
+                    coZify Support • support@cozify.app
                   </p>
                 </div>
                 <a
-                  href="mailto:mustaqsk47@gmail.com?subject=coZify%20Terms%20and%20Conditions%20Inquiry"
+                  href="mailto:support@cozify.app?subject=coZify%20Terms%20and%20Conditions%20Inquiry"
                   className="px-4 py-2.5 rounded-xl text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
                   style={{ background: accentGradient }}
                 >

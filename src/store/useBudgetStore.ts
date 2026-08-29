@@ -32,6 +32,7 @@ export interface UserProfile {
   phoneNumber?: string | null;
   age?: number | null;
   gender?: string | null;
+  trialStartedAt?: number;
 }
 
 export interface Trip {
@@ -75,8 +76,7 @@ export type AppTheme =
   | 'material-design'
   | 'glassmorphism'
   | 'neumorphism'
-  | 'minimalist-theme'
-  | 'gradient-theme';
+  | 'minimalist-theme';
 
 export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY';
 export type LanguageCode = 'en' | 'te' | 'hi' | 'ar' | 'zh' | 'kw' | 'cs' | 'nl' | 'fr' | 'de' | 'el' | 'he' | 'it' | 'ja' | 'kk' | 'ko' | 'pl' | 'pt' | 'ru' | 'es' | 'tl' | 'vi';
@@ -427,7 +427,7 @@ export const useBudgetStore = create<BudgetState>()(
 
       updateUserProfile: (profile) =>
         set((state) => {
-          const existing = state.user || { uid: "guest_" + Date.now().toString(36) };
+          const existing = state.user || { uid: "trial_" + Date.now().toString(36) };
           const updated = { ...existing, ...profile };
           return {
             user: updated,

@@ -29,7 +29,7 @@ export function UserProfileModal({
 
   if (!isOpen) return null;
 
-  const displayName = user?.displayName || user?.email?.split("@")[0] || "Guest User";
+  const displayName = user?.displayName || user?.email?.split("@")[0] || "Trial User";
   const email = user?.email || user?.phoneNumber || "Not signed in";
   const currencySymbol = currencySymbols[currency] || currency;
 
@@ -186,12 +186,6 @@ export function UserProfileModal({
                 <span>Cloud Sync Status</span>
                 <span className={`font-bold ${isCloudBackupEnabled ? "text-emerald-500" : "text-white/50"}`}>
                   {isCloudBackupEnabled ? "Enabled" : "Offline / Manual"}
-                </span>
-              </div>
-              <div className={`flex items-center justify-between ${isLight ? "text-slate-600" : "text-white/70"}`}>
-                <span>User ID</span>
-                <span className={`font-mono text-[10px] ${isLight ? "text-slate-400" : "text-white/40"} truncate max-w-[150px]`}>
-                  {user?.uid || "local-device-user"}
                 </span>
               </div>
             </div>

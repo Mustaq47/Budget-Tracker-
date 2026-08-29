@@ -1,5 +1,5 @@
 import cozifyLogo from "../../../assets/cozify-logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { GlassCard } from "../GlassCard";
 import { GlassIcon } from "../GlassIcon";
@@ -29,6 +29,7 @@ import {
   MessageSquareHeart,
   Smartphone,
   Info,
+  Zap,
 } from "lucide-react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { useTripsStore } from "../../../store/useTripsStore";
@@ -110,10 +111,36 @@ export function Profile() {
     onClick: () => setIsUserProfileOpen(true),
     delayMs: 500,
   });
+
+  const [trialTimeLeft, setTrialTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (!user?.uid?.startsWith("trial_") || !user.trialStartedAt) return;
+    
+    const TRIAL_LIMIT_MS = 3 * 24 * 60 * 60 * 1000;
+    
+    const updateTimer = () => {
+      const remaining = user.trialStartedAt! + TRIAL_LIMIT_MS - Date.now();
+      if (remaining <= 0) {
+        setTrialTimeLeft("Expired");
+      } else {
+        const d = Math.floor(remaining / (1000 * 60 * 60 * 24));
+        const h = Math.floor((remaining / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((remaining / 1000 / 60) % 60);
+        const s = Math.floor((remaining / 1000) % 60);
+        setTrialTimeLeft(`${d}d ${h}h ${m}m ${s}s`);
+      }
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [user]);
+
   const displayName =
     user?.displayName ||
     user?.email?.split("@")[0] ||
-    (isAuthenticated ? "Authenticated User" : "Guest User");
+    (isAuthenticated ? "Authenticated User" : "Trial User");
   const email =
     user?.email ||
     user?.phoneNumber ||
@@ -364,7 +391,7 @@ export function Profile() {
             />{" "}
           </motion.div>{" "}
           <div
-            className="flex-1 cursor-pointer"
+            className="flex-1 cursor-pointer min-w-0"
             onClick={(e) => {
               e.stopPropagation();
               setIsUserProfileOpen(true);
@@ -372,11 +399,11 @@ export function Profile() {
           >
             {" "}
             <div
-              className={`${textColor} text-xl tracking-tight mb-1 capitalize font-bold`}
+              className={`${textColor} text-xl tracking-tight mb-1 capitalize font-bold truncate`}
             >
               {displayName}
             </div>{" "}
-            <div className={`${subtextColor} text-xs tracking-tight`}>
+            <div className={`${subtextColor} text-xs tracking-tight truncate`}>
               {email}
             </div>{" "}
             {(user?.phoneNumber || user?.age || user?.gender) && (
@@ -422,6 +449,28 @@ export function Profile() {
           </div>{" "}
         </div>{" "}
       </GlassCard>{" "}
+
+      {trialTimeLeft && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex flex-col items-center justify-center text-center shadow-sm"
+        >
+          <div className="text-orange-500 text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <Zap size={12} className="fill-orange-500" /> Trial Mode
+          </div>
+          <div className="text-orange-400 font-mono text-xl font-black tracking-tighter">
+            {trialTimeLeft}
+          </div>
+          <button 
+            onClick={() => navigate("/login")}
+            className="mt-2 text-[10px] font-bold text-orange-500 bg-orange-500/20 px-3 py-1 rounded-full hover:bg-orange-500/30 transition-colors"
+          >
+            Sign in to save data
+          </button>
+        </motion.div>
+      )}
+
       <GlassCard className="mb-6">
         <div className="grid grid-cols-4 gap-4 text-center">
           <div>
@@ -521,7 +570,7 @@ export function Profile() {
                   <div className={`${subtextColor} text-xs`}>
                     {" "}
                     {isCloudBackupEnabled
-                      ? "Backup Enabled to Firestore"
+                      ? "Cloud Sync Enabled"
                       : "Data stored only on user phone"}{" "}
                   </div>{" "}
                 </div>{" "}

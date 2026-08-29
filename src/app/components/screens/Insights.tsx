@@ -39,6 +39,10 @@ import { parseLocalDate } from "../../../utils/formatters";
 import { InsightsWidget } from "./InsightsWidget";
 import { calculateDineroTotal } from "../../../utils/dineroUtils";
 import { useTranslation } from "../../../utils/translations";
+import { buildAnalyticsMetrics } from "../../../services/analyticsContextBuilder";
+import { RAGFlowAnalyticsService } from "../../../services/ragflowAnalyticsService";
+import { EntitlementService } from "../../../features/auth/services/entitlementService";
+import { RAGFlowAnalyticsResponse } from "../../../types/analytics";
 
 // Custom Glassmorphic Tooltip for Recharts
 interface CustomTooltipProps {
@@ -88,9 +92,29 @@ export function Insights() {
     addTransaction,
     setDailyBudget,
     setActiveModal,
+    user,
   } = useBudgetStore();
   
   const { t, translate, translateDynamic } = useTranslation();
+
+  const entitlements = EntitlementService.getUserEntitlements(user);
+  const isAIEnabled = EntitlementService.isFeatureEnabled("AI_FINANCIAL_INSIGHTS", entitlements);
+
+  const analyticsMetrics = useMemo(() => {
+    return buildAnalyticsMetrics(transactions, dailyBudget, currency);
+  }, [transactions, dailyBudget, currency]);
+
+  const [aiResponse, setAiResponse] = useState<RAGFlowAnalyticsResponse | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAIEnabled) {
+      setAiLoading(true);
+      RAGFlowAnalyticsService.fetchAnalyticsInsights(analyticsMetrics)
+        .then(res => setAiResponse(res))
+        .finally(() => setAiLoading(false));
+    }
+  }, [analyticsMetrics, isAIEnabled]);
 
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [tempBudgetInput, setTempBudgetInput] = useState("");
@@ -161,9 +185,9 @@ export function Insights() {
     let periodExpenses: Transaction[] = [];
 
     if (period === "week") {
-      periodTitle = t.weeklySpendingBreakdown || "Weekly Spending Breakdown";
-      periodSubtitle = t.weeklySpendingSubtitle || "Daily spending across the week";
-      statLabel1 = t.totalSpentThisWeek || "Total Spent This Week";
+      periodTitle = t.weeklySpendingBreakdown || "This Week's Breakdown";
+      periodSubtitle = t.weeklySpendingSubtitle || "Daily spending pattern for this week";
+      statLabel1 = t.totalSpentThisWeek || "Spent This Week";
       statLabel2 = t.dailyAverage || "Daily Average";
 
       const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -218,9 +242,9 @@ export function Insights() {
       const currentYear = now.getFullYear();
       const monthName = t[monthsOfYear[currentMonth]] || monthsOfYear[currentMonth];
 
-      periodTitle = translate("monthlySpendingBreakdown", { month: monthName }) || `${monthName} Spending by Week`;
-      periodSubtitle = translate("monthlySpendingSubtitle", { month: monthName, year: currentYear }) || `4-Week cashflow trajectory for ${monthName} ${currentYear}`;
-      statLabel1 = translate("totalSpentInMonth", { month: monthName }) || `Total Spent in ${monthName}`;
+      periodTitle = translate("monthlySpendingBreakdown", { month: monthName }) || `${monthName} Breakdown`;
+      periodSubtitle = translate("monthlySpendingSubtitle", { month: monthName, year: currentYear }) || `Weekly expense flow for ${monthName} ${currentYear}`;
+      statLabel1 = translate("totalSpentInMonth", { month: monthName }) || `Spent in ${monthName}`;
       statLabel2 = t.weeklyAverage || "Weekly Average";
 
       const weeklyBuckets = [
@@ -262,9 +286,9 @@ export function Insights() {
       const now = new Date();
       const currentYear = now.getFullYear();
 
-      periodTitle = t.annualSpendingBreakdown || "Annual Spending by Month";
-      periodSubtitle = translate("annualSpendingSubtitle", { year: currentYear }) || `12-Month spending trajectory for ${currentYear}`;
-      statLabel1 = t.totalSpentThisYear || "Total Spent This Year";
+      periodTitle = t.annualSpendingBreakdown || "Yearly Overview";
+      periodSubtitle = translate("annualSpendingSubtitle", { year: currentYear }) || `Monthly spending breakdown for ${currentYear}`;
+      statLabel1 = t.totalSpentThisYear || "Spent This Year";
       statLabel2 = t.monthlyAverage || "Monthly Average";
 
       const annualMap: Record<string, number> = {};
@@ -661,7 +685,7 @@ export function Insights() {
                 </span>
                 {(period === "month" || period === "year") && (
                   <span className="text-[10px] text-blue-400 font-semibold block mt-0.5">
-                    Hold label or bar for {period === "month" ? "daily" : "weekly"} report
+                    Tap or hold any bar for a detailed breakdown
                   </span>
                 )}
               </div>
@@ -797,6 +821,57 @@ export function Insights() {
               </ResponsiveContainer>
             </div>
           </GlassCard>
+
+          {/* AI FINANCIAL ANALYSIS CARD */}
+          {aiResponse && (
+            <GlassCard className="mb-6 border-purple-500/20 bg-purple-950/10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  <h2 className={`font-bold text-base tracking-tight ${textColor}`}>
+                    AI Financial Analysis
+                  </h2>
+                </div>
+              </div>
+
+              <p className={`${subtextColor} text-xs leading-relaxed mb-4`}>
+                {aiResponse.summary}
+              </p>
+
+              {/* Key Insights & Recommendations */}
+              <div className="space-y-2">
+                {aiResponse.keyInsights.map((insight, idx) => (
+                  <div key={idx} className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 ${
+                    isLight ? 'bg-white/80 border-slate-200' : 'bg-white/5 border-white/10'
+                  }`}>
+                    <div className={`p-1.5 rounded-lg shrink-0 ${
+                      insight.severity === 'warning' ? 'bg-amber-500/20 text-amber-400' : 'bg-purple-500/20 text-purple-400'
+                    }`}>
+                      <AlertCircle size={14} />
+                    </div>
+                    <div>
+                      <div className={`font-bold ${textColor}`}>{insight.title}</div>
+                      <div className={`${subtextColor} text-[11px] mt-0.5`}>{insight.description}</div>
+                    </div>
+                  </div>
+                ))}
+
+                {aiResponse.recommendations.map((rec, idx) => (
+                  <div key={idx} className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 ${
+                    isLight ? 'bg-emerald-50/80 border-emerald-200' : 'bg-emerald-950/20 border-emerald-500/20'
+                  }`}>
+                    <div className="p-1.5 rounded-lg shrink-0 bg-emerald-500/20 text-emerald-400">
+                      <TrendingUp size={14} />
+                    </div>
+                    <div>
+                      <div className="font-bold text-emerald-400">{rec.title}</div>
+                      <div className={`${subtextColor} text-[11px] mt-0.5`}>{rec.description}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          )}
 
           {/* Category Pie Chart Card */}
           <GlassCard className="mb-6">

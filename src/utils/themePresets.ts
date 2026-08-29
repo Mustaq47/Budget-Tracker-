@@ -87,23 +87,6 @@ export const themeMap: Record<AppTheme, ThemeConfig> = {
     glowColor: 'rgba(22, 163, 74, 0.2)',
     swatchColors: ['#FFFFFF', '#16A34A', '#F59E0B'],
   },
-  'gradient-theme': {
-    id: 'gradient-theme',
-    name: '🌈 Gradient Theme',
-    subtitle: 'Vibrant color gradients with premium depth',
-    tag: 'Vibrant Gradient',
-    isDark: false,
-    textColor: 'text-[#111827]',
-    subtextColor: 'text-[#6B7280]',
-    bgClass: 'bg-[#F8FAFC]',
-    cardBg: 'bg-white/90 border-slate-200 text-[#111827] shadow-md rounded-[28px]',
-    accentGradient: 'from-[#16A34A] via-[#3B82F6] to-[#06B6D4]',
-    ringGradient: ['#16A34A', '#3B82F6', '#06B6D4'],
-    primaryColor: '#16A34A',
-    secondaryColor: '#06B6D4',
-    glowColor: 'rgba(22, 163, 74, 0.4)',
-    swatchColors: ['#F8FAFC', '#16A34A', '#3B82F6'],
-  },
 };
 
 /**
@@ -245,40 +228,6 @@ export function getActiveThemeConfig(theme: AppTheme, colorMode: 'dark' | 'light
         textColor: 'text-[#111827]',
         subtextColor: 'text-[#6B7280]',
         glowColor: 'rgba(22, 163, 74, 0.2)',
-      };
-    }
-  }
-
-  if (theme === 'gradient-theme') {
-    if (isDark) {
-      return {
-        ...base,
-        isDark: true,
-        bgClass: 'bg-[#0B0B1A]',
-        cardBg: 'bg-[#151528] border border-white/10 text-white rounded-[28px] shadow-lg shadow-[#06B6D4]/5',
-        primaryColor: '#4ADE80',
-        secondaryColor: '#06B6D4',
-        accentGradient: 'from-[#4ADE80] via-[#60A5FA] to-[#06B6D4]',
-        ringGradient: ['#4ADE80', '#60A5FA', '#06B6D4'],
-        swatchColors: ['#0B0B1A', '#4ADE80', '#60A5FA'],
-        textColor: 'text-white',
-        subtextColor: 'text-white/60',
-        glowColor: 'rgba(74, 222, 128, 0.4)',
-      };
-    } else {
-      return {
-        ...base,
-        isDark: false,
-        bgClass: 'bg-[#F8FAFC]',
-        cardBg: 'bg-white/90 border border-slate-200 text-[#111827] shadow-md rounded-[28px]',
-        primaryColor: '#16A34A',
-        secondaryColor: '#06B6D4',
-        accentGradient: 'from-[#16A34A] via-[#3B82F6] to-[#06B6D4]',
-        ringGradient: ['#16A34A', '#3B82F6', '#06B6D4'],
-        swatchColors: ['#F8FAFC', '#16A34A', '#3B82F6'],
-        textColor: 'text-[#111827]',
-        subtextColor: 'text-[#6B7280]',
-        glowColor: 'rgba(22, 163, 74, 0.4)',
       };
     }
   }

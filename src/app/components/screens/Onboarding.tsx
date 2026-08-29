@@ -154,10 +154,11 @@ export function Onboarding() {
   const handleCompleteGuest = async () => {
     // Setting a guest profile gives them a UID so `isAuthenticated` becomes true.
     useBudgetStore.getState().setUser({
-      uid: "guest_" + Date.now().toString(36),
-      displayName: name.trim() || "Guest",
+      uid: "trial_" + Date.now().toString(36),
+      displayName: name.trim() || "Trial",
       age: age ? parseInt(age) : null,
       gender: gender || null,
+      trialStartedAt: Date.now(),
     });
     setHasCompletedProfileSetup(true);
     setHasCompletedOnboarding(true);
@@ -691,7 +692,7 @@ export function Onboarding() {
             >
               <div style={{ backgroundColor: C.white, borderRadius: 30, padding: "20px 20px 24px", boxShadow: "0 20px 50px rgba(60, 140, 200, 0.08)" }}>
                 <p style={{ textAlign: "center", color: C.secondary, fontSize: 13, fontWeight: 500, lineHeight: 1.6, marginBottom: 16 }}>
-                  Sign in to sync your budget data across devices, or continue offline as a guest.
+                  Sign in to sync your budget data across devices, or continue offline as a trial user.
                 </p>
 
                 <button
@@ -752,7 +753,7 @@ export function Onboarding() {
                     fontFamily: "inherit",
                   }}
                 >
-                  Continue as Guest <ArrowRight size={14} />
+                  Continue as Trial <ArrowRight size={14} />
                 </button>
               </div>
             </motion.div>

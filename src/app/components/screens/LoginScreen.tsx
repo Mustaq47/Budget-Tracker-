@@ -26,7 +26,7 @@ export function LoginScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeModal, setActiveModal] = React.useState<"privacy" | "terms" | "help" | null>(null);
-  const { setUser, setHasAcceptedTerms, isAuthenticated, theme, colorMode } = useBudgetStore();
+  const { setUser, setHasAcceptedTerms, isAuthenticated, theme, colorMode, user } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const { checkRateLimit, recordFailedAttempt } = useAuthRateLimit();
 
@@ -34,16 +34,19 @@ export function LoginScreen() {
   const returnUrlParam = new URLSearchParams(location.search).get("returnUrl");
   const safeRedirectPath = sanitizeReturnUrl(returnUrlParam, "/");
 
+  const trialExpired = new URLSearchParams(location.search).get("trial_expired") === "true";
+
   // Check for pending Google redirect result on mount
   useEffect(() => {
     handleGoogleRedirectResult();
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    const isExpiredTrialUser = isAuthenticated && user?.uid?.startsWith("trial_") && trialExpired;
+    if (isAuthenticated && !isExpiredTrialUser) {
       navigate(safeRedirectPath, { replace: true });
     }
-  }, [isAuthenticated, navigate, safeRedirectPath]);
+  }, [isAuthenticated, navigate, safeRedirectPath, user, trialExpired]);
 
   const handleAuthSuccess = (userPayload: {
     uid: string;
@@ -159,6 +162,7 @@ export function LoginScreen() {
         }}
       />
 
+
       {/* Noise Texture */}
       <div
         className="absolute inset-0 opacity-[0.015] pointer-events-none"
@@ -167,7 +171,12 @@ export function LoginScreen() {
         }}
       />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {trialExpired && (
+          <div className="mx-6 mt-12 p-4 rounded-xl bg-red-500/90 border border-red-500 text-white text-sm font-bold text-center shadow-lg animate-pulse">
+            Your 3-day trial has expired. Please sign in or create an account to continue using coZify.
+          </div>
+        )}
         <UniversalLogin
           companyName="coZify"
           onEmailSignIn={handleEmailSignIn}

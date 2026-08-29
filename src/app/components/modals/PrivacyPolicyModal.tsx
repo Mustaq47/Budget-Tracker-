@@ -68,7 +68,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
       icon: UserCheck,
       title: "7. Developer & Privacy Contact",
       content:
-        "For any privacy inquiries, data requests, or support regarding this policy, please contact the developer directly via email at mustaqsk47@gmail.com.",
+        "For any privacy inquiries, data requests, or support regarding this policy, please contact the developer directly via email at support@cozify.app.",
     },
   ];
 
@@ -249,11 +249,11 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
                     </span>
                   </div>
                   <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-white/60"}`}>
-                    Mustaq • mustaqsk47@gmail.com
+                    coZify Support • support@cozify.app
                   </p>
                 </div>
                 <a
-                  href="mailto:mustaqsk47@gmail.com?subject=coZify%20Privacy%20Policy%20Inquiry"
+                  href="mailto:support@cozify.app?subject=coZify%20Privacy%20Policy%20Inquiry"
                   className="px-4 py-2.5 rounded-xl text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
                   style={{ background: accentGradient }}
                 >

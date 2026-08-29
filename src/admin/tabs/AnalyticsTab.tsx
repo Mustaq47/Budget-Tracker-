@@ -25,7 +25,6 @@ const THEME_COLORS: Record<string, string> = {
   "glassmorphism": "bg-sky-400",
   "neumorphism": "bg-purple-400",
   "minimalist-theme": "bg-slate-400",
-  "gradient-theme": "bg-blue-500",
   // Short aliases (legacy)
   dark: "bg-slate-800",
   light: "bg-amber-400",

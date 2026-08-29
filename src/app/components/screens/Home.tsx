@@ -246,13 +246,12 @@ export function Home() {
               {formatCompactCurrency(allowance, currencySymbols[currency])}
             </div>
             <motion.div
-              className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${
-                status === "danger"
+              className={`mt-4 px-4 py-2 rounded-full backdrop-blur-xl ${status === "danger"
                   ? "bg-red-500/20 text-red-600 border border-red-500/30 font-bold"
                   : status === "warning"
                     ? "bg-amber-500/20 text-amber-600 border border-amber-500/30 font-bold"
                     : "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 font-bold"
-              } tracking-tight text-xs`}
+                } tracking-tight text-xs`}
               animate={status === "danger" ? { scale: [1, 1.05, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             >
@@ -318,7 +317,7 @@ export function Home() {
             {t.noRecentActivity || "No recent activity yet. Tap + to add your first transaction."}{" "}
           </div>
         ) : (
-          <motion.div 
+          <motion.div
             className="space-y-3"
             variants={staggerContainer}
             initial="hidden"

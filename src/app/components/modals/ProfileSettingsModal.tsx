@@ -299,7 +299,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                 <div className="bg-white/5 border border-white/5 p-4 rounded-2xl flex items-center gap-3">
                   <Shield size={16} className="text-emerald-400" />
                   <div>
-                    <div className="text-white text-xs font-bold">Anonymous Guest Session</div>
+                    <div className="text-white text-xs font-bold">Anonymous Trial Session</div>
                     <div className="text-white/40 text-[10px]">Data resides locally on your phone storage</div>
                   </div>
                 </div>

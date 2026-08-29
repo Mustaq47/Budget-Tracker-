@@ -11,8 +11,17 @@ import { sanitizeReturnUrl } from "../../features/auth/hooks/useAuthSecurity";
  * 3. Sanitizes returnUrl to prevent Open Redirect vulnerabilities.
  */
 export function ProtectedRoute({ children }: { children?: React.ReactNode }) {
-  const { isAuthenticated, authLoading, hasCompletedOnboarding } = useBudgetStore();
+  const { isAuthenticated, authLoading, hasCompletedOnboarding, user } = useBudgetStore();
   const location = useLocation();
+
+  if (isAuthenticated && user?.uid?.startsWith("trial_") && user.trialStartedAt) {
+    const TRIAL_LIMIT_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+    if (Date.now() - user.trialStartedAt > TRIAL_LIMIT_MS) {
+      if (location.pathname !== "/login") {
+        return <Navigate to="/login?trial_expired=true" replace />;
+      }
+    }
+  }
 
   if (authLoading && !isAuthenticated) {
     return (
