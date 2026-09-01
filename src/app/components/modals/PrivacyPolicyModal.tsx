@@ -93,9 +93,18 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            dragSnapToOrigin
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             className={`relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border ${activeTheme.bgClass} ${
               isLight ? "border-slate-200 text-slate-800" : "border-white/10 text-white"
-            } backdrop-blur-2xl`}
+            } backdrop-blur-2xl touch-pan-y`}
           >
             {/* Header */}
             <div
@@ -119,17 +128,6 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
                   </p>
                 </div>
               </div>
-
-              <button
-                onClick={onClose}
-                className={`p-2 rounded-full border transition-colors cursor-pointer ${
-                  isLight
-                    ? "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
-                    : "bg-white/5 hover:bg-white/10 border-white/10 text-white/70"
-                }`}
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
 
             {/* Scrollable Content */}

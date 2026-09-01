@@ -252,17 +252,6 @@ export function GoalsModal({ isOpen, onClose }: GoalsModalProps) {
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight}>
-      <button
-        onClick={onClose}
-        className={`absolute top-5 right-6 w-9 h-9 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-colors z-10 ${
-          isLight
-            ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
-            : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"
-        }`}
-      >
-        <X size={18} />
-      </button>
-
       {/* Header */}
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">

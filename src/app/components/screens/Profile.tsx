@@ -59,6 +59,10 @@ import { HelpCenterModal } from "../modals/HelpCenterModal";
 import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
 import { TermsConditionsModal } from "../modals/TermsConditionsModal";
 import { AppVersionModal } from "../modals/AppVersionModal";
+import { BudgetModal } from "../modals/BudgetModal";
+import { WalletModal } from "../modals/WalletModal";
+import { TripsModal } from "../modals/TripsModal";
+import { GoalsModal } from "../modals/GoalsModal";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 
 import { pageTitleClass, pageSubtitleClass } from "../../../utils/uiTokens";
@@ -106,6 +110,10 @@ export function Profile() {
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const [isAccountSwitcherOpen, setIsAccountSwitcherOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isTripsModalOpen, setIsTripsModalOpen] = useState(false);
+  const [isGoalsModalOpen, setIsGoalsModalOpen] = useState(false);
   const accountLongPressHandlers = useLongPress({
     onLongPress: () => setIsAccountSwitcherOpen(true),
     onClick: () => setIsUserProfileOpen(true),
@@ -249,6 +257,13 @@ export function Profile() {
           action: () => setActiveModal("profile-settings"),
         },
         {
+          icon: Users,
+          label: "Switch Accounts & Profiles",
+          badge: savedAccounts.length > 1 ? `${savedAccounts.length} Saved` : undefined,
+          glow: "blue" as const,
+          action: () => setIsAccountSwitcherOpen(true),
+        },
+        {
           icon: Bell,
           label: t.notifications,
           glow: "blue" as const,
@@ -259,6 +274,38 @@ export function Profile() {
           label: t.privacySecurity,
           glow: "pink" as const,
           action: () => setActiveModal("privacy-security"),
+        },
+      ],
+    },
+    {
+      title: "Financial Management",
+      items: [
+        {
+          icon: Zap,
+          label: "Budget & Daily Limits",
+          badge: `${currencySymbols[currency]}${dailyBudget.toLocaleString()}`,
+          glow: "purple" as const,
+          action: () => setIsBudgetModalOpen(true),
+        },
+        {
+          icon: HardDrive,
+          label: "Liquidity Wallet",
+          glow: "pink" as const,
+          action: () => setIsWalletModalOpen(true),
+        },
+        {
+          icon: Plane,
+          label: "Travel Trips & Plans",
+          badge: tripsCount > 0 ? `${tripsCount} Active` : undefined,
+          glow: "blue" as const,
+          action: () => setIsTripsModalOpen(true),
+        },
+        {
+          icon: Zap,
+          label: "Savings Goals & Targets",
+          badge: goals.length > 0 ? `${goals.length} Active` : undefined,
+          glow: "purple" as const,
+          action: () => setIsGoalsModalOpen(true),
         },
       ],
     },
@@ -833,6 +880,22 @@ export function Profile() {
       <AppVersionModal
         isOpen={activeModal === "app-version"}
         onClose={() => setActiveModal(null)}
+      />{" "}
+      <BudgetModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+      />{" "}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+      />{" "}
+      <TripsModal
+        isOpen={isTripsModalOpen}
+        onClose={() => setIsTripsModalOpen(false)}
+      />{" "}
+      <GoalsModal
+        isOpen={isGoalsModalOpen}
+        onClose={() => setIsGoalsModalOpen(false)}
       />{" "}
     </div>
   );

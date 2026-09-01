@@ -12,7 +12,9 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore } from "firebase/firestore";
 import { 
-  getAuth, 
+  initializeAuth,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
   GoogleAuthProvider, 
   signInWithPopup, 
   signInWithRedirect,
@@ -73,7 +75,9 @@ if (missingKeys.length > 0) {
 // ─── Initialize Firebase ───
 export const app = initializeApp(firebaseConfig);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
-export const auth = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+});
 // ─── OPTIMIZED FIX: Modern Offline Firestore Persistence ───
 export const db = typeof window !== 'undefined'
   ? initializeFirestore(app, {

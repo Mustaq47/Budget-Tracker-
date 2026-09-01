@@ -37,19 +37,21 @@ export function DesignModal({ isOpen, onClose }: DesignModalProps) {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            dragSnapToOrigin
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
+            className="fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto touch-pan-y"
           >
             <div className="backdrop-blur-[60px] bg-gradient-to-b from-white/12 via-white/8 to-[#0B0914] border-t border-white/20 rounded-t-[48px] p-7 shadow-[0_-10px_50px_rgba(123,97,255,0.35),0_-4px_20px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto">
               
               {/* Top Drag Handle */}
-              <div className="w-12 h-1.5 rounded-full bg-white/25 mx-auto mb-5" />
-
-              <button
-                onClick={onClose}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/10 cursor-pointer hover:bg-white/20 transition-all"
-              >
-                <X size={18} className="text-white/80" />
-              </button>
+              <div className="w-12 h-1.5 rounded-full bg-white/25 mx-auto mb-5 touch-none cursor-grab active:cursor-grabbing" />
 
               {/* Header */}
               <div className="flex items-center gap-3.5 mb-6">

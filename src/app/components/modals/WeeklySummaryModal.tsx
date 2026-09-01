@@ -38,18 +38,24 @@ export function WeeklySummaryModal({ isOpen, onClose }: WeeklySummaryModalProps)
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 250 }}
-            className={`fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto p-6 rounded-t-[32px] ${activeTheme.bgClass} shadow-2xl border-t ${isLight ? "border-slate-200" : "border-white/10"}`}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            dragSnapToOrigin
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
+            className={`fixed bottom-0 left-0 right-0 z-[110] max-w-md mx-auto pointer-events-auto p-6 rounded-t-[32px] ${activeTheme.bgClass} shadow-2xl border-t ${isLight ? "border-slate-200" : "border-white/10"} touch-pan-y`}
           >
+            <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/20"} mx-auto mb-4 touch-none cursor-grab active:cursor-grabbing`} />
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
                   <Calendar size={20} />
                 </div>
-                <h3 className={`${textColor} text-xl font-bold tracking-tight`}>Weekly Review</h3>
               </div>
-              <button onClick={onClose} className={`p-2 rounded-full ${isLight ? "bg-slate-100" : "bg-white/10"} ${textColor}`}>
-                <X size={18} />
-              </button>
             </div>
             
             <div className={`p-5 rounded-2xl border mb-4 flex items-center justify-between ${isLight ? "bg-emerald-50 border-emerald-100" : "bg-emerald-500/10 border-emerald-500/20"}`}>

@@ -24,6 +24,7 @@
     "@capacitor/preferences": "^6.0.4",
     "@capacitor/splash-screen": "^6.0.0",
     "@capacitor/status-bar": "^6.0.0",
+    "@capacitor/text-zoom": "^6.0.4",
     "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",

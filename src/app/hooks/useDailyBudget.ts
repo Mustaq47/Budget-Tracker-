@@ -1,71 +1,74 @@
 import { useMemo, useEffect, useRef } from "react";
 import { useBudgetStore } from "../../store/useBudgetStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { useGoalsStore } from "../../store/useGoalsStore";
 import { useTranslation } from "../../utils/translations";
 import { NotificationEngine } from "../../services/notificationEngine";
-import { dinero, allocate, toDecimal } from 'dinero.js';
-import * as currencies from 'dinero.js/currencies';
-
-const getCurrencyObj = (cCode: string) => {
-  return (currencies as any)[cCode] || (currencies as any).USD;
-};
-
-const toSubunits = (amount: number, currencyObj: any) => {
-  const factor = currencyObj.base ** currencyObj.exponent;
-  return Math.round(amount * factor);
-};
+import { calculateSmartSpendingPlan } from "../../services/smartSpendingEngine";
 
 export function useDailyBudget() {
-  const { dailyBudget, transactions, currency, budgetViewMode } = useBudgetStore();
+  const {
+    dailyBudget,
+    transactions,
+    currency,
+    budgetViewMode,
+    rolloverPolicy,
+    emergencyBufferPercent
+  } = useBudgetStore();
+  const { trips } = useTripsStore();
+  const { goals } = useGoalsStore();
   const { t } = useTranslation();
   const _d = new Date();
-  const todayLocal = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
 
   const metrics = useMemo(() => {
-    const cObj = getCurrencyObj(currency);
-    const monthlyAmountSubunits = toSubunits(dailyBudget, cObj);
-    const monthlyDinero = dinero({ amount: monthlyAmountSubunits, currency: cObj });
+    const plan = calculateSmartSpendingPlan({
+      monthlyBudget: dailyBudget,
+      transactions,
+      goals,
+      trips,
+      currentDate: _d,
+      settings: {
+        rolloverPolicy: rolloverPolicy || 'distribute',
+        emergencyBufferPercent: emergencyBufferPercent || 10
+      },
+      currency
+    });
 
-    // Compute today's allowance using Dinero allocate
-    const daysInMonth = new Date(_d.getFullYear(), _d.getMonth() + 1, 0).getDate();
-    
-    // allocate returns an array of Dinero objects split by the ratios provided
-    const allocations = allocate(monthlyDinero, Array(daysInMonth).fill(1));
-    const dailyDinero = allocations[0]; // Safely allocated daily limit
-    const dailyAllowance = Number(toDecimal(dailyDinero)); 
+    const isMonthly = budgetViewMode === 'monthly';
 
-    // Calculate spent today safely using integer subunits, excluding trips and goals
-    const spentTodaySubunits = transactions
-      .filter((t) => t.type === "expense" && t.date === todayLocal && !t.tripId && t.category !== "Goal Contribution")
-      .reduce((sum, t) => sum + toSubunits(t.amount, cObj), 0);
-    const spentDinero = dinero({ amount: spentTodaySubunits, currency: cObj });
-    const spentToday = Number(toDecimal(spentDinero));
+    // Daily allowance is base daily allowance + rollover/overspend/behavioral adjustments
+    const dailyAllowance = Math.max(
+      0,
+      plan.baseDailyAllowance +
+        plan.rolloverAdjustment +
+        plan.overspendingAdjustment +
+        plan.behaviorAdjustment
+    );
 
-    const remainingToday = Math.max(0, dailyAllowance - spentToday);
-    const overspentToday = Math.max(0, spentToday - dailyAllowance);
-    const percentageToday = dailyAllowance > 0 ? Math.min(100, Math.round((spentToday / dailyAllowance) * 100)) : 0;
-    
-    // Calculate spent this month safely
-    const currentMonthPrefix = todayLocal.substring(0, 7);
-    const spentThisMonthSubunits = transactions
-      .filter((t) => t.type === "expense" && t.date.startsWith(currentMonthPrefix) && !t.tripId && t.category !== "Goal Contribution")
-      .reduce((sum, t) => sum + toSubunits(t.amount, cObj), 0);
-    const spentThisMonth = Number(toDecimal(dinero({ amount: spentThisMonthSubunits, currency: cObj })));
-
-    const remainingThisMonth = Math.max(0, dailyBudget - spentThisMonth);
-    const overspentMonth = Math.max(0, spentThisMonth - dailyBudget);
-    const percentageMonth = dailyBudget > 0 ? Math.min(100, Math.round((spentThisMonth / dailyBudget) * 100)) : 0;
+    const allowanceVal = isMonthly ? plan.totalBudget : dailyAllowance;
+    const spent = isMonthly ? plan.actualSpent : plan.spentToday;
+    const remaining = isMonthly ? plan.remainingBudget : plan.safeToSpendToday;
+    const overspent = isMonthly ? Math.max(0, plan.actualSpent - plan.totalBudget) : Math.max(0, plan.spentToday - dailyAllowance);
+    const percentage = isMonthly 
+      ? (plan.totalBudget > 0 ? Math.min(100, Math.round((plan.actualSpent / plan.totalBudget) * 100)) : 0)
+      : (dailyAllowance > 0 ? Math.min(100, Math.round((plan.spentToday / dailyAllowance) * 100)) : 0);
 
     // Dynamic feedback generation for Daily
     let feedbackToday = t.inControl || "✓ You're in control";
     let statusToday: "good" | "warning" | "danger" = "good";
 
+    const percentageToday = dailyAllowance > 0 ? Math.min(100, Math.round((plan.spentToday / dailyAllowance) * 100)) : 0;
+    const overspentToday = Math.max(0, plan.spentToday - dailyAllowance);
+
     if (percentageToday >= 100) {
-      feedbackToday = overspentToday > 0 ? (t.overTodayLimit || "⚠️ You're over today's limit") : (t.budgetReachedToday || "Budget reached for today");
+      feedbackToday = overspentToday > 0 
+        ? (t.overTodayLimit || "⚠️ You're over today's limit") 
+        : (t.budgetReachedToday || "Budget reached for today");
       statusToday = "danger";
     } else if (percentageToday >= 80) {
       feedbackToday = `Spent ${percentageToday}% of today's limit`;
       statusToday = "warning";
-    } else if (spentToday === 0) {
+    } else if (plan.spentToday === 0) {
       feedbackToday = t.readyToTrackDay || "Ready to track your day!";
       statusToday = "good";
     } else {
@@ -76,14 +79,18 @@ export function useDailyBudget() {
     // Dynamic feedback generation for Monthly
     let feedbackMonth = t.inControl || "✓ You're in control";
     let statusMonth: "good" | "warning" | "danger" = "good";
+    const percentageMonth = plan.totalBudget > 0 ? Math.min(100, Math.round((plan.actualSpent / plan.totalBudget) * 100)) : 0;
+    const overspentMonth = Math.max(0, plan.actualSpent - plan.totalBudget);
 
     if (percentageMonth >= 100) {
-      feedbackMonth = overspentMonth > 0 ? (t.overMonthLimit || "⚠️ You're over this month's limit") : (t.budgetReachedMonth || "Budget reached for this month");
+      feedbackMonth = overspentMonth > 0 
+        ? (t.overMonthLimit || "⚠️ You're over this month's limit") 
+        : (t.budgetReachedMonth || "Budget reached for this month");
       statusMonth = "danger";
     } else if (percentageMonth >= 80) {
       feedbackMonth = `Spent ${percentageMonth}% of month limit`;
       statusMonth = "warning";
-    } else if (spentThisMonth === 0) {
+    } else if (plan.actualSpent === 0) {
       feedbackMonth = t.readyToTrackMonth || "Ready to track your month!";
       statusMonth = "good";
     } else {
@@ -91,30 +98,26 @@ export function useDailyBudget() {
       statusMonth = "good";
     }
 
-    const isMonthly = budgetViewMode === 'monthly';
-    const allowance = isMonthly ? dailyBudget : dailyAllowance;
-    const spent = isMonthly ? spentThisMonth : spentToday;
-    const remaining = isMonthly ? remainingThisMonth : remainingToday;
-    const overspent = isMonthly ? overspentMonth : overspentToday;
-    const percentage = isMonthly ? percentageMonth : percentageToday;
     const feedback = isMonthly ? feedbackMonth : feedbackToday;
     const status = isMonthly ? statusMonth : statusToday;
-    const label = isMonthly ? (t.remainingThisMonth || "Remaining this Month") : (t.safeToSpendToday || "Safe to Spend Today");
+    const label = isMonthly 
+      ? (t.remainingThisMonth || "Remaining this Month") 
+      : (t.safeToSpendToday || "Safe to Spend Today");
 
     return {
-      dailyAllowance,   
-      monthlyLimit: dailyBudget,    
-      spentToday,
-      remainingToday,
+      dailyAllowance,
+      monthlyLimit: plan.totalBudget,
+      spentToday: plan.spentToday,
+      remainingToday: plan.safeToSpendToday,
       overspentToday,
       percentageToday,
-      spentThisMonth,
-      remainingThisMonth,
+      spentThisMonth: plan.actualSpent,
+      remainingThisMonth: plan.remainingBudget,
       overspentMonth,
       percentageMonth,
-      
-      // Active mode metrics
-      allowance,
+
+      // Active mode metrics (for UI)
+      allowance: allowanceVal,
       spent,
       remaining,
       overspent,
@@ -124,8 +127,31 @@ export function useDailyBudget() {
       label,
       currency,
       isMonthlyMode: isMonthly,
+
+      // Export new V2 engine metrics for safe disclosure
+      futureCommitments: plan.futureCommitments,
+      savingsCommitment: plan.savingsCommitment,
+      emergencyBuffer: plan.emergencyBuffer,
+      spendableAmount: plan.spendableAmount,
+      rolloverAdjustment: plan.rolloverAdjustment,
+      overspendingAdjustment: plan.overspendingAdjustment,
+      behaviorAdjustment: plan.behaviorAdjustment,
+      projectedMonthEnd: plan.projectedMonthEnd,
+      projectedRemaining: plan.projectedRemaining,
+      explanation: plan.explanation,
+      confidence: plan.confidence,
+      remainingDays: plan.remainingDays,
     };
-  }, [dailyBudget, transactions, todayLocal, currency, budgetViewMode]);
+  }, [
+    dailyBudget,
+    transactions,
+    currency,
+    budgetViewMode,
+    rolloverPolicy,
+    emergencyBufferPercent,
+    trips,
+    goals
+  ]);
 
   const prevSpent = useRef(metrics.spentToday);
 

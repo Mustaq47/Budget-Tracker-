@@ -112,7 +112,7 @@ export function Home() {
       >
         {" "}
         <div
-          className="flex items-center gap-4 cursor-pointer"
+          className="flex items-center gap-4 cursor-pointer flex-1 min-w-0 pr-4"
           onClick={() => {
             if (typeof navigator !== "undefined" && navigator.vibrate) {
               navigator.vibrate(30);
@@ -131,19 +131,19 @@ export function Home() {
             />{" "}
             <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-[#0a0a1f] rounded-full" />{" "}
           </div>{" "}
-          <div>
+          <div className="flex flex-col min-w-0 flex-1">
             {" "}
-            <div className={`${subtextColor} ${pageSubtitleClass} font-medium`}>
+            <div className={`${subtextColor} ${pageSubtitleClass} font-medium truncate`}>
               {t.welcome},
             </div>{" "}
-            <h1 className={`${textColor} ${pageTitleClass}`}>
+            <h1 className={`${textColor} ${pageTitleClass} truncate`}>
               {userName}
             </h1>{" "}
           </div>{" "}
         </div>{" "}
         <div
           onClick={() => navigate("/profile")}
-          className="cursor-pointer transition-all duration-300 hover:scale-105"
+          className="cursor-pointer transition-all duration-300 hover:scale-105 shrink-0"
         >
           {" "}
           <img

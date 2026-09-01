@@ -283,14 +283,6 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={resetAndClose}
-                    className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all ${
-                      isLight ? "bg-slate-100 hover:bg-slate-200 border-slate-200" : "bg-white/5 hover:bg-white/10 border-white/10"
-                    }`}
-                  >
-                    <X size={16} />
-                  </button>
                 </div>
 
                 {/* Hero Balance Card */}

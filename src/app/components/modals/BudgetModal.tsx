@@ -4,6 +4,7 @@ import { X, DollarSign, Check, Plus, Sliders, TrendingUp, Sparkles, Target } fro
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
 import { useTranslation } from "../../../utils/translations";
+import { useDailyBudget } from "../../hooks/useDailyBudget";
 import { BottomSheet } from "../BottomSheet";
 import { dinero, add, toDecimal } from 'dinero.js';
 import { getCurrencyObj, toSubunits, calculateDineroTotal } from "../../../utils/dineroUtils";
@@ -38,14 +39,22 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
     }
   }, [isOpen, dailyBudget]);
 
-  // Calculate spent this month for rendering (Optional context, but kept simple to avoid heavy logic)
-  const currentMonthPrefix = new Date().toISOString().substring(0, 7);
-  const spentThisMonthTxs = transactions
-    .filter((t) => t.type === "expense" && t.date.startsWith(currentMonthPrefix));
-  const spentThisMonth = calculateDineroTotal(spentThisMonthTxs, currency);
-
-  const remaining = Math.max(0, dailyBudget - spentThisMonth);
-  const spentPercent = Math.min(100, Math.round((spentThisMonth / (dailyBudget || 1)) * 100));
+  const {
+    spentThisMonth,
+    remainingThisMonth: remaining,
+    percentageMonth: spentPercent,
+    spentToday,
+    remainingToday,
+    percentageToday,
+    dailyAllowance,
+    futureCommitments,
+    savingsCommitment,
+    emergencyBuffer,
+    projectedMonthEnd,
+    projectedRemaining,
+    feedback,
+    status,
+  } = useDailyBudget();
 
   const handleAddDirectAmount = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +77,7 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
         type: "income",
         time: timeStr,
         glow: "blue",
+        isBudgetAdjustment: true,
       });
       setSpentInput("");
       setBudgetTitle("");
@@ -93,27 +103,16 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight}>
-      <button
-        onClick={onClose}
-        className={`absolute top-6 right-6 w-10 h-10 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-all z-10 ${
-          isLight
-            ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
-            : "bg-white/10 border-white/10 hover:bg-white/20 text-white/80"
-        }`}
-      >
-        <X size={18} />
-      </button>
-
       {/* Header */}
       <div className="flex items-center justify-between mb-5 pr-12">
         <div className="flex items-center gap-4">
           <GlassIcon icon={DollarSign} size="md" glow="pink" asChild />
           <div>
             <h2 className={`${textColor} text-2xl font-black tracking-tight`}>
-              {budgetViewMode === 'daily' ? (t.dailyBudget || 'Daily Budget') : (t.monthlyBudgetTitle || 'Monthly Budget')}
+              {budgetViewMode === 'daily' ? (t.dailyBudgetTitle || 'Daily Allowance') : (t.monthlyBudgetTitle || 'Monthly Master')}
             </h2>
             <div className={`${subtextColor} text-xs tracking-tight`}>
-              {budgetViewMode === 'daily' ? (t.manageDailyLimit || 'Manage Daily Limit & Expenses') : (t.manageMonthlyBudget || 'Manage Monthly Budget & Target')}
+              {budgetViewMode === 'daily' ? (t.manageDailyLimit || 'Pace your spending day by day') : (t.manageMonthlyBudget || 'Set your overarching limit for the month')}
             </div>
           </div>
         </div>
@@ -147,51 +146,135 @@ export function BudgetModal({ isOpen, onClose }: BudgetModalProps) {
 
 
               {/* Current Spent & Target Overview Card */}
-              <div
-                className={`p-5 rounded-3xl border mb-5 relative overflow-hidden ${
-                  isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
-                }`}
-              >
-                <div className="flex justify-between items-end mb-3">
-                  <div>
-                    <div className={`${subtextColor} text-xs tracking-tight mb-1 flex items-center gap-1`}>
-                      <TrendingUp size={12} className="text-[#FF4D8D]" /> {t.spentThisMonth || "Spent This Month"}
+              {budgetViewMode === 'daily' ? (
+                <div
+                  className={`p-5 rounded-3xl border mb-5 relative overflow-hidden ${
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                  }`}
+                >
+                  <div className="flex justify-between items-end mb-3">
+                    <div>
+                      <div className={`${subtextColor} text-xs tracking-tight mb-1 flex items-center gap-1`}>
+                        <TrendingUp size={12} className="text-[#FF4D8D]" /> Safe to Spend Today
+                      </div>
+                      <div className={`${textColor} text-3xl font-black tracking-tighter`}>
+                        {currencySymbols[currency]}
+                        {remainingToday.toLocaleString()}
+                      </div>
                     </div>
-                    <div className={`${textColor} text-3xl font-black tracking-tighter`}>
-                      {currencySymbols[currency]}
-                      {spentThisMonth.toLocaleString()}
+                    <div className="text-right">
+                      <div className={`${subtextColor} text-xs tracking-tight mb-1`}>Today's Limit</div>
+                      <div className={`${textColor} text-lg font-bold tracking-tight`}>
+                        {currencySymbols[currency]}
+                        {dailyAllowance.toLocaleString()}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className={`${subtextColor} text-xs tracking-tight mb-1`}>{t.targetLimit || "Monthly Limit"}</div>
-                    <div className={`${textColor} text-lg font-bold tracking-tight`}>
-                      {currencySymbols[currency]}
-                      {dailyBudget.toLocaleString()}
-                    </div>
+
+                  {/* Progress Bar */}
+                  <div className={`w-full h-2.5 rounded-full overflow-hidden mb-2 ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentageToday}%` }}
+                      transition={{ duration: 0.8 }}
+                      className={`h-full rounded-full ${
+                        percentageToday >= 100
+                          ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-[0_0_12px_rgba(239,68,68,0.8)]"
+                          : "bg-gradient-to-r from-[#00E5FF] to-[#7B61FF] shadow-[0_0_12px_rgba(0,229,255,0.8)]"
+                      }`}
+                    />
+                  </div>
+
+                  <div className={`flex justify-between text-[11px] font-medium ${subtextColor} mb-2`}>
+                    <span>{percentageToday}% spent today</span>
+                    <span>
+                      Spent Today: {currencySymbols[currency]}{spentToday.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className={`text-[11px] p-2.5 rounded-xl text-center border font-medium ${
+                    status === "danger"
+                      ? "bg-red-500/10 border-red-500/20 text-red-500"
+                      : status === "warning"
+                      ? "bg-amber-500/10 border-amber-500/20 text-amber-500"
+                      : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                  }`}>
+                    {feedback}
                   </div>
                 </div>
+              ) : (
+                <div
+                  className={`p-5 rounded-3xl border mb-5 relative overflow-hidden ${
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                  }`}
+                >
+                  <div className="flex justify-between items-end mb-3">
+                    <div>
+                      <div className={`${subtextColor} text-xs tracking-tight mb-1 flex items-center gap-1`}>
+                        <TrendingUp size={12} className="text-[#7B61FF]" /> {t.spentThisMonth || "Spent This Month"}
+                      </div>
+                      <div className={`${textColor} text-3xl font-black tracking-tighter`}>
+                        {currencySymbols[currency]}
+                        {spentThisMonth.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`${subtextColor} text-xs tracking-tight mb-1`}>{t.targetLimit || "Monthly Limit"}</div>
+                      <div className={`${textColor} text-lg font-bold tracking-tight`}>
+                        {currencySymbols[currency]}
+                        {dailyBudget.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Progress Bar */}
-                <div className={`w-full h-2.5 rounded-full overflow-hidden mb-2 ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${spentPercent}%` }}
-                    transition={{ duration: 0.8 }}
-                    className={`h-full rounded-full ${
-                      spentPercent >= 100
-                        ? "bg-gradient-to-r from-[#FF4D8D] to-red-500 shadow-[0_0_12px_rgba(255,77,141,0.8)]"
-                        : "bg-gradient-to-r from-[#00E5FF] to-[#7B61FF] shadow-[0_0_12px_rgba(0,229,255,0.8)]"
-                    }`}
-                  />
-                </div>
+                  {/* Progress Bar */}
+                  <div className={`w-full h-2.5 rounded-full overflow-hidden mb-2 ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${spentPercent}%` }}
+                      transition={{ duration: 0.8 }}
+                      className={`h-full rounded-full ${
+                        spentPercent >= 100
+                          ? "bg-gradient-to-r from-[#FF4D8D] to-red-500 shadow-[0_0_12px_rgba(255,77,141,0.8)]"
+                          : "bg-gradient-to-r from-[#00E5FF] to-[#7B61FF] shadow-[0_0_12px_rgba(0,229,255,0.8)]"
+                      }`}
+                    />
+                  </div>
 
-                <div className={`flex justify-between text-[11px] font-medium ${subtextColor}`}>
-                  <span>{spentPercent}% {t.spent || "spent"}</span>
-                  <span>
-                    {remaining > 0 ? `${currencySymbols[currency]}${remaining.toLocaleString()} ${t.remaining || "remaining"}` : (t.budgetExceeded || "Budget Exceeded!")}
-                  </span>
+                  <div className={`flex justify-between text-[11px] font-medium ${subtextColor} mb-3`}>
+                    <span>{spentPercent}% {t.spent || "spent"}</span>
+                    <span>
+                      {remaining > 0 ? `${currencySymbols[currency]}${remaining.toLocaleString()} ${t.remaining || "remaining"}` : (t.budgetExceeded || "Budget Exceeded!")}
+                    </span>
+                  </div>
+
+                  {/* Advanced metrics breakdown for transparency */}
+                  <div className={`p-3 rounded-2xl border text-[11px] space-y-1.5 ${isLight ? "bg-slate-100/50 border-slate-200/60" : "bg-white/5 border-white/10"}`}>
+                    <div className="flex justify-between items-center text-slate-400">
+                      <span>Emergency Buffer (Protected)</span>
+                      <span className={`${textColor} font-semibold font-mono`}>-{currencySymbols[currency]}{emergencyBuffer.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-400">
+                      <span>Savings Goals Reservation</span>
+                      <span className={`${textColor} font-semibold font-mono`}>-{currencySymbols[currency]}{savingsCommitment.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-400">
+                      <span>Future Commitments</span>
+                      <span className={`${textColor} font-semibold font-mono`}>-{currencySymbols[currency]}{futureCommitments.toLocaleString()}</span>
+                    </div>
+                    <hr className={isLight ? "border-slate-200" : "border-white/10"} />
+                    {projectedRemaining > 0 ? (
+                      <div className="text-emerald-500 font-medium text-center">
+                        Projected finish: {currencySymbols[currency]}{projectedRemaining.toLocaleString()} under budget
+                      </div>
+                    ) : (
+                      <div className="text-red-500 font-medium text-center">
+                        Projected finish: {currencySymbols[currency]}{Math.abs(dailyBudget - projectedMonthEnd).toLocaleString()} over budget
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Dual Tab Switcher */}
               <div

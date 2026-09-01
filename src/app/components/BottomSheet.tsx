@@ -30,10 +30,17 @@ export function BottomSheet({ isOpen, onClose, children, className = "", isLight
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={springConfig}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            dragSnapToOrigin
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             style={{ 
               willChange: "transform",
-              // Hardware acceleration
-              transform: "translate3d(0, y, 0)"
             }}
             className="fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto flex flex-col justify-end touch-pan-y"
           >

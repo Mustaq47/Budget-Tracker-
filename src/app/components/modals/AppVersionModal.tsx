@@ -97,10 +97,21 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 380 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            dragSnapToOrigin
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-[32px] p-6 pb-10 ${activeTheme.bgClass}`}
+            className={`fixed bottom-0 left-0 right-0 z-[110] max-w-lg mx-auto overflow-y-auto rounded-t-[32px] p-6 pb-10 ${activeTheme.bgClass} touch-pan-y`}
             style={{ borderTop: `2px solid ${activeTheme.primaryColor}40` }}
           >
+            {/* Top Drag Handle */}
+            <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/25"} mx-auto mb-4 touch-none cursor-grab active:cursor-grabbing`} />
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -120,15 +131,6 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className={`p-2 rounded-full transition-colors cursor-pointer ${isLight ? "hover:bg-slate-100" : "hover:bg-white/10"}`}
-              >
-                <X
-                  size={20}
-                  className={isLight ? "text-slate-500" : "text-white/60"}
-                />
-              </button>
             </div>
 
             {/* Version Badge */}

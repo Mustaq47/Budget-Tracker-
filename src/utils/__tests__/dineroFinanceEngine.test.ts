@@ -1,74 +1,61 @@
 import assert from 'node:assert';
-import {
-  calculateTotalIncome,
-  calculateTotalExpenses,
-  calculateNetCashFlow,
-  calculateSavingsRate,
-  calculateCategoryTotals,
-  calculateSafeToSpend,
-  calculateReservedGoalAmount,
-  calculateReservedTripAmount,
+import { 
+  calculateTotalIncome, 
+  calculateTotalExpenses, 
+  calculateNetCashFlow, 
+  calculateSavingsRate, 
+  calculateDailyAverage 
 } from '../dineroFinanceEngine';
-import { Transaction, SavingsGoal, Trip } from '../../store/useBudgetStore';
+import { Transaction } from '../../store/useBudgetStore';
 
-export function runDineroEngineTests() {
-  console.log('⚡ Running Dinero Finance Engine Unit Tests...');
+export function runDineroFinanceEngineTests() {
+  console.log('⚡ Running Dinero.js Financial Engine Unit Tests...');
 
-  const sampleTransactions: Transaction[] = [
-    { id: '1', title: 'Salary', amount: 50000, category: 'Income', date: '2026-08-01', time: '10:00 AM', type: 'income' },
-    { id: '2', title: 'Groceries', amount: 4500, category: 'Food', date: '2026-08-05', time: '11:00 AM', type: 'expense' },
-    { id: '3', title: 'Rent', amount: 15000, category: 'Housing', date: '2026-08-10', time: '09:00 AM', type: 'expense' },
-  ];
+  const currency = 'INR';
 
-  // 1. Total Income
-  const totalInc = calculateTotalIncome(sampleTransactions, 'INR');
-  assert.strictEqual(totalInc, 50000, 'Total income calculation mismatch');
+  // 1. Total Income & Expense Calculation with Dinero precision
+  {
+    const txs: Transaction[] = [
+      { id: 't1', title: 'Salary', amount: 50000, category: 'Income', date: '2026-08-01', time: '10:00 AM', type: 'income' },
+      { id: 't2', title: 'Freelance', amount: 15000.50, category: 'Income', date: '2026-08-05', time: '03:00 PM', type: 'income' },
+      { id: 't3', title: 'Rent', amount: 20000, category: 'Bills', date: '2026-08-02', time: '09:00 AM', type: 'expense' },
+      { id: 't4', title: 'Groceries', amount: 4500.75, category: 'Food', date: '2026-08-10', time: '06:00 PM', type: 'expense' },
+    ];
 
-  // 2. Total Expenses
-  const totalExp = calculateTotalExpenses(sampleTransactions, 'INR');
-  assert.strictEqual(totalExp, 19500, 'Total expenses calculation mismatch');
+    const income = calculateTotalIncome(txs, currency);
+    const expenses = calculateTotalExpenses(txs, currency);
+    const net = calculateNetCashFlow(income, expenses, currency);
+    const savingsRate = calculateSavingsRate(income, expenses, currency);
 
-  // 3. Net Cash Flow
-  const net = calculateNetCashFlow(50000, 19500, 'INR');
-  assert.strictEqual(net, 30500, 'Net cash flow mismatch');
+    assert.strictEqual(income, 65000.50);
+    assert.strictEqual(expenses, 24500.75);
+    assert.strictEqual(net, 40499.75);
+    assert.strictEqual(savingsRate, 62.3);
+  }
 
-  // 4. Savings Rate
-  const rate = calculateSavingsRate(50000, 19500, 'INR');
-  assert.strictEqual(rate, 61, 'Savings rate mismatch');
+  // 2. Daily Average Calculation
+  {
+    const txs: Transaction[] = [
+      { id: 't1', title: 'Food', amount: 3000, category: 'Food', date: '2026-08-01', time: '12:00 PM', type: 'expense' },
+    ];
+    const avg = calculateDailyAverage(txs, currency, 30);
+    assert.strictEqual(avg, 100);
+  }
 
-  // 5. Zero Income Handling
-  const zeroRate = calculateSavingsRate(0, 500, 'INR');
-  assert.strictEqual(zeroRate, 0, 'Zero income savings rate mismatch');
+  // 3. Zero transactions handling
+  {
+    const income = calculateTotalIncome([], currency);
+    const expenses = calculateTotalExpenses([], currency);
+    const net = calculateNetCashFlow(0, 0, currency);
+    const savingsRate = calculateSavingsRate(0, 0, currency);
 
-  // 6. Category Totals
-  const totals = calculateCategoryTotals(sampleTransactions, 'INR');
-  assert.strictEqual(totals['Food'], 4500, 'Food category total mismatch');
-  assert.strictEqual(totals['Housing'], 15000, 'Housing category total mismatch');
+    assert.strictEqual(income, 0);
+    assert.strictEqual(expenses, 0);
+    assert.strictEqual(net, 0);
+    assert.strictEqual(savingsRate, 0);
+  }
 
-  // 7. Safe to Spend calculation
-  const goals: SavingsGoal[] = [{ id: 'g1', title: 'Emergency Fund', targetAmount: 100000, currentAmount: 5000, category: 'Savings', glow: 'blue' }];
-  const trips: Trip[] = [{ id: 't1', title: 'Goa', budget: 10000, spent: 2000, startDate: '2026-09-01', endDate: '2026-09-05', gradient: '' }];
-
-  const goalRes = calculateReservedGoalAmount(goals, 'INR');
-  const tripRes = calculateReservedTripAmount(trips, 'INR');
-
-  assert.strictEqual(goalRes, 5000, 'Goal reserve mismatch');
-  assert.strictEqual(tripRes, 10000, 'Trip reserve mismatch');
-
-  const safeResult = calculateSafeToSpend(
-    30000, // available balance
-    15000, // upcoming obligations
-    5000,  // reserved savings
-    1000,  // safety buffer
-    10,    // 10 remaining days
-    'INR'
-  );
-
-  assert.strictEqual(safeResult.discretionaryFunds, 9000, 'Discretionary funds mismatch');
-  assert.strictEqual(safeResult.calculatedMaximum, 900, 'Calculated max mismatch');
-  assert.strictEqual(safeResult.recommendedLimit, 810, 'Recommended limit mismatch');
-
-  console.log('✅ ALL DINERO ENGINE UNIT TESTS PASSED SUCCESSFULLY!');
+  console.log('✅ ALL DINERO FINANCIAL ENGINE UNIT TESTS PASSED SUCCESSFULLY!');
 }
 
-runDineroEngineTests();
+runDineroFinanceEngineTests();

@@ -1,9 +1,16 @@
 import { createRoot } from "react-dom/client";
   import App from "./app/App.tsx";
   import "./styles/index.css";
+  import { TextZoom } from '@capacitor/text-zoom';
 
   // Prevent zooming gestures across iOS, Android, and Desktop webviews/browsers
   const preventAppZoom = () => {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
+    try {
+      TextZoom.set({ value: 1 }).catch(() => {});
+    } catch (e) {}
+
     if (typeof window === "undefined" || typeof document === "undefined") return;
 
     const preventDefault = (e: Event) => {

@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useBudgetStore, currencySymbols } from "../../../store/useBudgetStore";
-import { useTripsStore } from "../../../store/useTripsStore";
-import { useGoalsStore } from "../../../store/useGoalsStore";
 import { useDailyBudget } from "../../hooks/useDailyBudget";
 import { getActiveThemeConfig } from "../../../utils/themePresets";
-import { X, Settings, List, Plus, ShieldCheck, Sparkles, Info } from "lucide-react";
+import { X, Settings, List, Plus, Sparkles, Info, ChevronDown, ChevronUp, AlertTriangle, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "../../../utils/translations";
-import { computeSafeToSpend } from "../../../services/safeToSpendEngine";
 import { RAGFlowAnalyticsService } from "../../../services/ragflowAnalyticsService";
 
 interface SafeToSpendModalProps {
@@ -17,9 +14,7 @@ interface SafeToSpendModalProps {
 }
 
 export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
-  const { theme, colorMode, currency, dailyBudget, transactions, setActiveModal, user } = useBudgetStore();
-  const { trips } = useTripsStore();
-  const { goals } = useGoalsStore();
+  const { theme, colorMode, currency, dailyBudget, transactions, setActiveModal } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -32,7 +27,23 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
     percentage,
     status,
     feedback,
-    label
+    label,
+    // V2 engine advanced metrics
+    futureCommitments,
+    savingsCommitment,
+    emergencyBuffer,
+    spendableAmount,
+    rolloverAdjustment,
+    overspendingAdjustment,
+    behaviorAdjustment,
+    projectedMonthEnd,
+    projectedRemaining,
+    explanation,
+    confidence,
+    spentToday,
+    spentThisMonth,
+    remainingDays,
+    dailyAllowance,
   } = useDailyBudget();
 
   const isLight = !activeTheme.isDark;
@@ -40,28 +51,45 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
   const subtextColor = activeTheme.subtextColor;
 
   const [aiExplanation, setAiExplanation] = useState<string>("");
+  const [showExplanation, setShowExplanation] = useState(false);
 
-  // Calculate available balance deterministically (mocked/store derived)
-  const availableBalance = Math.max(0, dailyBudget - spent);
-
-  const smartResult = computeSafeToSpend(
-    availableBalance,
-    dailyBudget,
+  // Mocking RAGFlow payload based on smartSpendingEngine output
+  const mockSmartResult = {
+    calculatedMaximum: dailyAllowance,
+    recommendedLimit: remaining,
     currency,
-    transactions,
-    goals,
-    trips
-  );
+    riskLevel: status === 'danger' ? 'HIGH' as const : status === 'warning' ? 'MEDIUM' as const : 'LOW' as const,
+    reasonCodes: overspent > 0 ? ['HIGH_BUDGET_UTILIZATION' as const] : [],
+    remainingDays,
+    upcomingObligations: futureCommitments,
+    reservedSavings: savingsCommitment,
+    reservedTripFunds: 0,
+    safetyBuffer: emergencyBuffer,
+    discretionaryFunds: spendableAmount,
+    dataFreshness: `Data updated today`,
+  };
 
   useEffect(() => {
     if (isOpen) {
-      RAGFlowAnalyticsService.fetchSafeToSpendExplanation(smartResult)
+      RAGFlowAnalyticsService.fetchSafeToSpendExplanation(mockSmartResult)
         .then(explanation => setAiExplanation(explanation))
         .catch(() => setAiExplanation(""));
     }
-  }, [isOpen, smartResult.recommendedLimit]);
+  }, [isOpen, remaining]);
 
   const symbol = currencySymbols[currency] || '$';
+
+  // Get status label color preset
+  const getStatusBadgeClass = () => {
+    switch (status) {
+      case "danger":
+        return "bg-red-500/20 text-red-500 border border-red-500/30";
+      case "warning":
+        return "bg-amber-500/20 text-amber-500 border border-amber-500/30";
+      default:
+        return "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30";
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -91,34 +119,25 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
               {/* Drag Handle */}
               <div className={`w-12 h-1.5 rounded-full mx-auto mb-5 ${isLight ? "bg-slate-300" : "bg-white/25"}`} />
 
-              <button
-                onClick={onClose}
-                className={`absolute top-6 right-6 w-10 h-10 rounded-full backdrop-blur-xl flex items-center justify-center border cursor-pointer transition-all ${
-                  isLight
-                    ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700"
-                    : "bg-white/10 border-white/10 hover:bg-white/20 text-white/80"
-                }`}
-              >
-                <X size={18} />
-              </button>
-
               <div className="text-center mb-6 mt-4">
                 <div className={`${subtextColor} text-sm uppercase tracking-widest font-bold mb-2`}>
-                  {label === "Safe to Spend Today" ? "Safe to Spend" : "Monthly Plan"}
+                  {label}
                 </div>
                 <div className={`${status === "danger" ? "text-red-500" : textColor} text-5xl font-black tracking-tighter mb-2`}>
                   {symbol}{remaining.toLocaleString()}
                 </div>
-                <div
-                  className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold ${
-                    status === "danger"
-                      ? "bg-red-500/20 text-red-600"
-                      : status === "warning"
-                      ? "bg-amber-500/20 text-amber-600"
-                      : "bg-emerald-500/20 text-emerald-600"
-                  }`}
-                >
-                  {status === "danger" ? "⚠️ Budget Exceeded by " + symbol + overspent.toLocaleString() : feedback}
+                <div className={`inline-flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-bold ${getStatusBadgeClass()}`}>
+                  {status === "danger" ? (
+                    <>
+                      <AlertTriangle size={12} />
+                      {t.budgetExceeded || "Budget Exceeded!"}
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck size={12} />
+                      {feedback}
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -144,6 +163,133 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
                 </div>
               </div>
 
+              {/* Intelligent Month-end Projection Banner */}
+              <div className={`p-4 rounded-2xl border mb-6 text-xs font-medium flex flex-col gap-1 ${
+                status === 'danger'
+                  ? "bg-red-500/10 border-red-500/20 text-red-500"
+                  : status === 'warning'
+                  ? "bg-amber-500/10 border-amber-500/20 text-amber-500"
+                  : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+              }`}>
+                <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[10px]">
+                  <Sparkles size={12} /> Month-End Forecast
+                </div>
+                {projectedRemaining > 0 ? (
+                  <span>At your current spending pace, you are projected to finish <strong>{symbol}{projectedRemaining.toLocaleString()}</strong> under budget.</span>
+                ) : (
+                  <span>At your current spending pace, you are projected to exceed your budget by <strong>{symbol}{Math.abs(dailyBudget - projectedMonthEnd).toLocaleString()}</strong>.</span>
+                )}
+              </div>
+
+              {/* Progressive Disclosure: How this is calculated */}
+              <div className="mb-6">
+                <button
+                  onClick={() => setShowExplanation(!showExplanation)}
+                  className={`w-full py-3 px-4 rounded-2xl border flex items-center justify-between text-xs font-bold transition-all ${
+                    isLight 
+                      ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100" 
+                      : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Info size={14} /> How this is calculated
+                  </span>
+                  {showExplanation ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+
+                <AnimatePresence>
+                  {showExplanation && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <div className={`mt-3 p-4 rounded-2xl border text-xs space-y-2.5 ${
+                        isLight ? "bg-slate-50/50 border-slate-200" : "bg-white/5 border-white/10"
+                      }`}>
+                        <div className="flex justify-between items-center text-slate-400">
+                          <span>Monthly Target Limit</span>
+                          <span className={`${textColor} font-mono`}>{symbol}{dailyBudget.toLocaleString()}</span>
+                        </div>
+                        {spentThisMonth > 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Completed Spent (Past)</span>
+                            <span className="text-red-500 font-mono">-{symbol}{(spentThisMonth - spentToday).toLocaleString()}</span>
+                          </div>
+                        )}
+                        {emergencyBuffer > 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Emergency Buffer (Protected)</span>
+                            <span className="text-amber-500 font-mono">-{symbol}{emergencyBuffer.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {savingsCommitment > 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Savings Goals Reservation</span>
+                            <span className="text-purple-400 font-mono">-{symbol}{savingsCommitment.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {futureCommitments > 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Future Commitments</span>
+                            <span className="text-blue-400 font-mono">-{symbol}{futureCommitments.toLocaleString()}</span>
+                          </div>
+                        )}
+                        <hr className={isLight ? "border-slate-200" : "border-white/10"} />
+                        <div className="flex justify-between items-center font-bold">
+                          <span className={textColor}>Discretionary Spendable Pool</span>
+                          <span className={`${textColor} font-mono`}>{symbol}{spendableAmount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-400">
+                          <span>Remaining Days in Month</span>
+                          <span className={`${textColor} font-mono`}>{remainingDays} days</span>
+                        </div>
+                        <hr className={isLight ? "border-slate-200" : "border-white/10"} />
+                        <div className="flex justify-between items-center font-bold">
+                          <span className={textColor}>Today's Base Allowance</span>
+                          <span className={`${textColor} font-mono`}>{symbol}{(spendableAmount / remainingDays).toFixed(2)}</span>
+                        </div>
+                        {rolloverAdjustment > 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Unspent Rollover</span>
+                            <span className="text-emerald-500 font-mono">+{symbol}{rolloverAdjustment.toFixed(2)}</span>
+                          </div>
+                        )}
+                        {overspendingAdjustment < 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Overspending Recovery</span>
+                            <span className="text-red-500 font-mono">-{symbol}{Math.abs(overspendingAdjustment).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {behaviorAdjustment < 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Behavioral Dampener Throttling</span>
+                            <span className="text-amber-500 font-mono">-{symbol}{Math.abs(behaviorAdjustment).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {spentToday > 0 && (
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span>Today's Spent</span>
+                            <span className="text-red-500 font-mono">-{symbol}{spentToday.toLocaleString()}</span>
+                          </div>
+                        )}
+                        <hr className={isLight ? "border-slate-200" : "border-white/10"} />
+                        <div className="flex justify-between items-center font-black text-sm">
+                          <span className={textColor}>Today's Safe to Spend Limit</span>
+                          <span className="text-emerald-500 font-mono">{symbol}{remaining.toLocaleString()}</span>
+                        </div>
+                        
+                        <div className="text-[10px] text-slate-400 text-center pt-2">
+                          Calculations processed with dinero.js to guarantee mathematical integrity. Confidence: {confidence}.
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* AI Explanation Box */}
               {aiExplanation && (
                 <div className={`mb-6 p-4 rounded-2xl border text-xs leading-relaxed ${
@@ -157,7 +303,7 @@ export function SafeToSpendModal({ isOpen, onClose }: SafeToSpendModalProps) {
               )}
 
               <div className={`text-[10px] text-center mb-6 flex items-center justify-center gap-1 font-medium ${subtextColor}`}>
-                <Info size={10} /> {smartResult.dataFreshness}
+                <Info size={10} /> Data updated today. System clock in local time.
               </div>
 
               {/* Actions */}

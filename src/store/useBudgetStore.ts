@@ -22,6 +22,7 @@ export interface Transaction {
   glow?: 'purple' | 'blue' | 'pink' | 'gold';
   tripId?: string;
   goalId?: string;
+  isBudgetAdjustment?: boolean;
 }
 
 export interface UserProfile {
@@ -89,11 +90,15 @@ export const currencySymbols: Record<CurrencyCode, string> = {
   JPY: '¥',
 };
 
+export type AuthState = 'INITIALIZING' | 'AUTHENTICATED' | 'AUTH_CHECKING' | 'UNAUTHENTICATED' | 'REAUTH_REQUIRED' | 'ERROR';
+
 interface BudgetState {
   user: UserProfile | null;
   lastUserUid: string | null;
   isAuthenticated: boolean;
   authLoading: boolean;
+  authState: AuthState;
+  logoutIntent: boolean;
   dailyBudget: number;
   transactions: Transaction[];
   activeModal: QuickActionModal;
@@ -115,10 +120,14 @@ interface BudgetState {
   hasCompletedProfileSetup: boolean;
   lastBudgetSetMonth: string | null;
   budgetViewMode: 'daily' | 'monthly';
+  rolloverPolicy: 'distribute' | 'accumulate';
+  emergencyBufferPercent: number;
   appVersion: string;
   autoCheckUpdates: boolean;
 
   // Actions
+  setRolloverPolicy: (policy: 'distribute' | 'accumulate') => void;
+  setEmergencyBufferPercent: (percent: number) => void;
   setAppVersion: (version: string) => void;
   setAutoCheckUpdates: (val: boolean) => void;
   setBudgetViewMode: (mode: 'daily' | 'monthly') => void;
@@ -131,6 +140,8 @@ interface BudgetState {
   setCurrency: (currency: CurrencyCode) => void;
   setLanguage: (language: LanguageCode) => void;
   setAuthLoading: (loading: boolean) => void;
+  setAuthState: (state: AuthState) => void;
+  setLogoutIntent: (intent: boolean) => void;
   logoutUser: () => void;
   setActiveModal: (modal: QuickActionModal) => void;
   setTheme: (theme: AppTheme) => void;
@@ -158,12 +169,14 @@ interface BudgetState {
 
 export const useBudgetStore = create<BudgetState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       lastUserUid: null,
       savedAccounts: [],
       isAuthenticated: false,
       authLoading: true,
+      authState: 'INITIALIZING' as AuthState,
+      logoutIntent: false,
       _hasHydrated: false,
       setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
       dailyBudget: 2000,
@@ -188,9 +201,13 @@ export const useBudgetStore = create<BudgetState>()(
       hasCompletedProfileSetup: false,
       lastBudgetSetMonth: null,
       budgetViewMode: 'daily',
+      rolloverPolicy: 'distribute',
+      emergencyBufferPercent: 10,
       appVersion: '1.0.6',
       autoCheckUpdates: true,
 
+      setRolloverPolicy: (rolloverPolicy) => set({ rolloverPolicy }),
+      setEmergencyBufferPercent: (emergencyBufferPercent) => set({ emergencyBufferPercent }),
       setAppVersion: (appVersion) => set({ appVersion }),
       setAutoCheckUpdates: (autoCheckUpdates) => set({ autoCheckUpdates }),
       setBudgetViewMode: (budgetViewMode) => set({ budgetViewMode }),
@@ -330,24 +347,34 @@ export const useBudgetStore = create<BudgetState>()(
 
       setAuthLoading: (authLoading) => set({ authLoading }),
 
+      setAuthState: (authState) => set({
+        authState,
+        isAuthenticated: authState === 'AUTHENTICATED' || authState === 'AUTH_CHECKING',
+        authLoading: authState === 'INITIALIZING',
+      }),
+
+      setLogoutIntent: (logoutIntent) => set({ logoutIntent }),
+
       logoutUser: () => {
+        const isExplicitIntent = get().logoutIntent;
         set({
           user: null,
           lastUserUid: null,
           isAuthenticated: false,
           authLoading: false,
-          dailyBudget: 2000,
-          transactions: [],
-          activeModal: null,
-          isCloudBackupEnabled: false,
-          lastBackupTime: null,
+          authState: 'UNAUTHENTICATED',
+          logoutIntent: false,
         });
-        if (typeof window !== 'undefined' && window.localStorage) {
-          try {
-            window.localStorage.removeItem('budtrack-storage-v2');
-            window.localStorage.removeItem('cozify_iam_role_assignments');
-            window.localStorage.removeItem('cozify_support_tickets_cache');
-          } catch (_) { }
+
+        // FINANCIAL DATA PROTECTION: Only wipe local storage if explicit user logout intent was set
+        if (isExplicitIntent) {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            try {
+              window.localStorage.removeItem('budtrack-storage-v2');
+              window.localStorage.removeItem('cozify_iam_role_assignments');
+              window.localStorage.removeItem('cozify_support_tickets_cache');
+            } catch (_) { }
+          }
         }
       },
 
@@ -382,7 +409,7 @@ export const useBudgetStore = create<BudgetState>()(
             }
 
             // Restore daily budget if an income is deleted
-            if (tx.type === "income" && tx.category === "Income") {
+            if (tx.type === "income" && tx.isBudgetAdjustment) {
               const cObj = getCurrencyObj(state.currency);
               const currentDinero = dinero({ amount: toSubunits(state.dailyBudget, cObj), currency: cObj });
               const subDinero = dinero({ amount: toSubunits(tx.amount, cObj), currency: cObj });
@@ -493,6 +520,8 @@ export const useBudgetStore = create<BudgetState>()(
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         hasCompletedProfileSetup: state.hasCompletedProfileSetup,
         budgetViewMode: state.budgetViewMode,
+        rolloverPolicy: state.rolloverPolicy,
+        emergencyBufferPercent: state.emergencyBufferPercent,
       }),
       migrate: (persistedState: any) => {
         if (persistedState) {
@@ -524,6 +553,7 @@ export const selectUserAuth = (state: BudgetState) => ({
   savedAccounts: state.savedAccounts,
   isAuthenticated: state.isAuthenticated,
   authLoading: state.authLoading,
+  authState: state.authState,
   _hasHydrated: state._hasHydrated,
 });
 

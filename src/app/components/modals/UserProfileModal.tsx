@@ -27,8 +27,6 @@ export function UserProfileModal({
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
 
-  if (!isOpen) return null;
-
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Trial User";
   const email = user?.email || user?.phoneNumber || "Not signed in";
   const currencySymbol = currencySymbols[currency] || currency;
@@ -80,22 +78,21 @@ export function UserProfileModal({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            dragSnapToOrigin
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             className={`relative w-full max-w-md ${isLight
                 ? "bg-[#F8FAFC] border-slate-200 text-slate-800"
                 : "bg-[#0B0914] border-white/10 text-white"
-              } border-t sm:border rounded-t-[36px] sm:rounded-[36px] p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-[111]`}
+              } border-t sm:border rounded-t-[36px] sm:rounded-[36px] p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-[111] touch-pan-y`}
           >
-            <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/20"} mx-auto mb-5`} />
-
-            <button
-              onClick={onClose}
-              className={`absolute top-6 right-6 w-9 h-9 rounded-full ${isLight
-                  ? "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
-                  : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
-                } flex items-center justify-center border transition-colors`}
-            >
-              <X size={16} />
-            </button>
+            <div className={`w-12 h-1.5 rounded-full ${isLight ? "bg-slate-300" : "bg-white/20"} mx-auto mb-5 touch-none cursor-grab active:cursor-grabbing`} />
 
             {/* Profile Avatar & Name */}
             <div className="flex flex-col items-center text-center mb-6">

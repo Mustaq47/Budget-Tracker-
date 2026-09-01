@@ -136,12 +136,6 @@ export function QuickEntrySheet({ isOpen, onClose }: QuickEntrySheetProps) {
     <BottomSheet isOpen={isOpen} onClose={onClose} isLight={isLight} className="!p-0 !pt-0">
       <div className="pt-1 pb-4 px-6 flex justify-between items-center shrink-0">
         <h3 className={`${textColor} text-2xl font-black tracking-tight`}>{t.addEntry || "Add Entry"}</h3>
-        <button
-          onClick={onClose}
-          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors z-10 ${isLight ? "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700" : "bg-white/10 border-white/15 hover:bg-white/20 text-white/80"}`}
-        >
-          <X size={16} />
-        </button>
       </div>
 
       {/* Content */}
