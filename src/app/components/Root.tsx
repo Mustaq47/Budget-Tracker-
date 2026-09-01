@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "./BottomNav";
 import { MandatoryTermsModal } from "./modals/MandatoryTermsModal";
+import { AppVersionModal } from "./modals/AppVersionModal";
 import { useBudgetStore } from "../../store/useBudgetStore";
 import { getActiveThemeConfig } from "../../utils/themePresets";
 import { useAndroidBackNavigation } from "../hooks/useAndroidBackNavigation";
@@ -14,7 +15,7 @@ import { useGoalsStore } from "../../store/useGoalsStore";
 import { fetchLatestVersion, compareVersions } from "../../utils/versionCheck";
 
 export function Root() {
-  const { theme, colorMode, autoCheckUpdates, appVersion, setActiveModal } = useBudgetStore();
+  const { theme, colorMode, autoCheckUpdates, appVersion, activeModal, setActiveModal } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const location = useLocation();
 
@@ -118,6 +119,10 @@ export function Root() {
 
       <BottomNav />
       <MandatoryTermsModal />
+      <AppVersionModal
+        isOpen={activeModal === "app-version"}
+        onClose={() => setActiveModal(null)}
+      />
     </div>
   );
 }

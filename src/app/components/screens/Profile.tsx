@@ -58,7 +58,6 @@ import { FeedbackModal } from "../modals/FeedbackModal";
 import { HelpCenterModal } from "../modals/HelpCenterModal";
 import { PrivacyPolicyModal } from "../modals/PrivacyPolicyModal";
 import { TermsConditionsModal } from "../modals/TermsConditionsModal";
-import { AppVersionModal } from "../modals/AppVersionModal";
 import { BudgetModal } from "../modals/BudgetModal";
 import { WalletModal } from "../modals/WalletModal";
 import { TripsModal } from "../modals/TripsModal";
@@ -875,10 +874,6 @@ export function Profile() {
       />{" "}
       <TermsConditionsModal
         isOpen={activeModal === "terms-conditions"}
-        onClose={() => setActiveModal(null)}
-      />{" "}
-      <AppVersionModal
-        isOpen={activeModal === "app-version"}
         onClose={() => setActiveModal(null)}
       />{" "}
       <BudgetModal

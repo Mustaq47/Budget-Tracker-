@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { createPortal } from "react-dom";
 import {
   X,
   Smartphone,
@@ -39,7 +40,6 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
   const handleCheckUpdate = async () => {
     setChecking(true);
     setCheckError(false);
-    setLatestVersion(null);
     try {
       const ver = await fetchLatestVersion();
       if (ver) {
@@ -60,14 +60,13 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
       setHasChecked(false);
       setLatestVersion(null);
       setCheckError(false);
+      handleCheckUpdate();
     }
   }, [isOpen]);
 
   const handleDownloadUpdate = () => {
     window.open(DOWNLOAD_URL, "_blank");
   };
-
-  if (!isOpen) return null;
 
   const versionDetails = [
     { label: "App Name", value: "coZify — Track • Manage • Grow" },
@@ -78,7 +77,7 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
     { label: "Data Storage", value: "Local-First (Device)" },
   ];
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -370,6 +369,7 @@ export function AppVersionModal({ isOpen, onClose }: AppVersionModalProps) {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
