@@ -35,7 +35,7 @@ interface FaqItem {
 }
 
 export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
-  const { theme, colorMode } = useBudgetStore();
+  const { theme, colorMode, appVersion } = useBudgetStore();
   const activeTheme = getActiveThemeConfig(theme, colorMode);
   const isLight = !activeTheme.isDark;
   const { t } = useTranslation();
@@ -504,7 +504,7 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
             >
               <div className="flex items-center gap-1.5 text-[11px] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                <span>coZify v1.0.0 • Verified Support</span>
+                <span>coZify v{appVersion} • Verified Support</span>
               </div>
               <button
                 onClick={onClose}

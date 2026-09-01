@@ -203,7 +203,7 @@ export const useBudgetStore = create<BudgetState>()(
       budgetViewMode: 'daily',
       rolloverPolicy: 'distribute',
       emergencyBufferPercent: 10,
-      appVersion: '1.0.6',
+      appVersion: '1.0.7',
       autoCheckUpdates: true,
 
       setRolloverPolicy: (rolloverPolicy) => set({ rolloverPolicy }),
